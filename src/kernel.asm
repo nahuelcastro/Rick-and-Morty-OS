@@ -37,9 +37,12 @@ start:
     int 10h ; set mode 03h
     xor bx, bx
     mov ax, 1112h
-    int 10h ; load 8x8 font
+    int 10h ; load 8x8 font     
 
     ; Imprimir mensaje de bienvenida
+    print_text_rm start_rm_msg, start_rm_len, 0x07, 0, 0
+
+    xchg bx,bx 
     
     ; Habilitar A20
     call A20_disable
@@ -56,7 +59,7 @@ start:
     mov CR0, eax
     
     ; Saltar a modo protegido
-    jmp 0x60:modo_protedigo     ;[0000000001100-0-00]
+    jmp 0x50:modo_protedigo     ;[0000000001010-0-00]
     ;explicacion, ver definicion de selecctor de segmento, tamaño 16 bits
     ;salta al primer segmento de codigo, habria que ver bien porque, pero saltan al de cogido 
     ;y abajo setean el de datos (DS)  y el resto de los registros de segmento
@@ -73,12 +76,13 @@ modo_protedigo:
 
     ; Establecer selectores de segmentos
     xor eax, eax    ;Vacío eax
-    mov ax, 0x50      ;Muevo a AX un selector para el descriptor del segmento 10, pero dejando los primeros 3 bits en 0
+    mov ax, 0x58    ;Muevo a AX un selector para el descriptor del segmento 11, pero dejando los primeros 3 bits en 0
     mov ds, ax      ;Pongo el resto de los registros de segmento en el mismo segmento.
     mov es, ax      ;;;;; VER PORQUE SE LES PONE A TODOS EL MISMO VALOR, CREO QUE ES PORQUE NO IMPORTA DEMASIADO QUE TIENEN
     mov gs, ax      
     mov ss, ax      
-    mov fs, ax      
+    mov fs, ax    
+ 
 
 ;el reg CS no lo modifico acá, sino que lo hice con el far jump de arriba.
 
