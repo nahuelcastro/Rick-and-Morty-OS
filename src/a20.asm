@@ -1,4 +1,4 @@
-; ** por compatibilidad se omiten tildes **
+    ; ** por compatibilidad se omiten tildes **
 ; ==============================================================================
 ; TRABAJO PRACTICO 3 - System Programming - ORGANIZACION DE COMPUTADOR II - FCEN
 ; ==============================================================================
