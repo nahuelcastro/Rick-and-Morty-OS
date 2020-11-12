@@ -91,8 +91,13 @@ modo_protedigo:
     mov esp, ebp        ;Pongo el tope de la pila en la base de la pila.
     
     ; Imprimir mensaje de bienvenida
+    print_text_pm start_pm_msg, start_pm_len, 0x07, 0, 0    ;chequear si es asi
+
 
     ; Inicializar pantalla
+    mov fs, 1110000b ; 14 shifetado 3 a izquierda por el segmento de video
+    call init_pantalla  ; solo le puse el nombre hay que implementarla jeje    
+
     
     ; Inicializar el manejador de memoria
  
