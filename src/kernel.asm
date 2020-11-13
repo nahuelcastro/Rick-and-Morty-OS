@@ -42,7 +42,7 @@ start:
     ; Imprimir mensaje de bienvenida
     print_text_rm start_rm_msg, start_rm_len, 0x07, 0, 0
 
-    xchg bx,bx 
+    
     
     ; Habilitar A20
     call A20_disable
@@ -81,8 +81,9 @@ modo_protedigo:
     mov es, ax      ;;;;; VER PORQUE SE LES PONE A TODOS EL MISMO VALOR, CREO QUE ES PORQUE NO IMPORTA DEMASIADO QUE TIENEN
     mov gs, ax      
     mov ss, ax      
-    mov fs, ax    
- 
+    ;mov fs, ax    
+    mov ax, 1110000b ; 14 shifetado 3 a izquierda por el segmento de video 
+    mov fs, ax
 
 ;el reg CS no lo modifico acá, sino que lo hice con el far jump de arriba.
 
@@ -93,9 +94,9 @@ modo_protedigo:
     ; Imprimir mensaje de bienvenida
     print_text_pm start_pm_msg, start_pm_len, 0x07, 0, 0    ;chequear si es asi
 
+    xchg bx,bx 
 
     ; Inicializar pantalla
-    mov fs, 1110000b ; 14 shifetado 3 a izquierda por el segmento de video
     call init_pantalla  ; solo le puse el nombre hay que implementarla jeje    
 
     
@@ -131,6 +132,79 @@ modo_protedigo:
     mov ecx, 0xFFFF
     mov edx, 0xFFFF
     jmp $
+
+
+
+%define C_BG_BLACK              (0x0 << 12)
+%define C_BG_BLUE               (0x1 << 12)
+%define C_BG_GREEN              (0x2 << 12)
+%define C_BG_CYAN               (0x3 << 12)
+%define C_BG_RED                (0x4 << 12)
+%define C_BG_MAGENTA            (0x5 << 12)
+%define C_BG_BROWN              (0x6 << 12)
+%define C_BG_LIGHT_GREY         (0x7 << 12)
+
+
+init_pantalla:
+
+xor ecx, ecx
+
+primer_fila_negra:               
+    mov word [fs:2*ecx], C_BG_BLACK
+    inc ecx
+    cmp ecx, 80       
+    jne primer_fila_negra
+
+filas_verdes:
+    mov word [fs:2*ecx], C_BG_GREEN
+    inc ecx
+    cmp ecx, 3200 ;3120
+    jne filas_verdes
+
+xor ebx, ebx
+mov ebx, ecx
+
+filas_negras:
+    mov word [fs:2*ecx], C_BG_BLACK
+    inc ecx
+    cmp ecx, 4000 ;3120
+    jne filas_negras
+
+
+add ebx, 168  ; dejo una fila mas de margen 
+mov ecx, ebx
+xor edx, edx
+
+tableros:   
+    
+    mov ebx, ecx
+    add ebx, 12
+    fila_tablero_rojo:
+        mov word [fs:2*ecx], C_BG_RED
+        inc ecx
+        cmp ecx, ebx
+        jne fila_tablero_rojo
+    
+    add ecx, 40
+    mov ebx, ecx
+    add ebx, 12
+
+    fila_tablero_azul:
+        mov word [fs:2*ecx], C_BG_BLUE
+        inc ecx
+        cmp ecx, ebx
+        jne fila_tablero_azul
+    
+    add ecx, 16
+    inc edx 
+    cmp edx, 3
+    jne tableros
+
+ret
+
+
+
+
 
 ;; -------------------------------------------------------------------------- ;;
 
