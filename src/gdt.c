@@ -9,8 +9,8 @@
 #include "gdt.h"
 
 #define GDT_IDX_CODIGO_LVL_0 10
-#define GDT_IDX_CODIGO_LVL_3 11
-#define GDT_IDX_DATO_LVL_0 12
+#define GDT_IDX_DATO_LVL_0 11
+#define GDT_IDX_CODIGO_LVL_3 12
 #define GDT_IDX_DATO_LVL_3 13
 #define GDT_IDX_VIDEO_LVL_0 14
 
@@ -49,21 +49,6 @@ gdt_entry_t gdt[GDT_COUNT] = {
 					.db = 1, // 1: 32 bits, 0: 16 bits
 					.g = 1,
 				},
-				[GDT_IDX_CODIGO_LVL_3] ={
-					.base_15_0 = 0,
-					.base_23_16 = 0,
-					.base_31_24 = 0,
-					.limit_15_0 = 0xc8ff,
-					.limit_19_16 = 0,
-					.type = 0xa, // 10: Execute/Read
-					.s = 1, // 1: Código/Datos
-					.dpl = 0,
-					.p = 1, // Bit de "Present"
-					.avl = 0,
-					.l = 0,
-					.db = 1, // 1: 32 bits, 0: 16 bits
-					.g = 1,
-				},
 				[GDT_IDX_DATO_LVL_0] ={
 					.base_15_0 = 0,
 					.base_23_16 = 0,
@@ -79,6 +64,21 @@ gdt_entry_t gdt[GDT_COUNT] = {
 					.db = 1, // 1: 32 bits, 0: 16 bits
 					.g = 1,
 				},
+				[GDT_IDX_CODIGO_LVL_3] ={
+					.base_15_0 = 0,
+					.base_23_16 = 0,
+					.base_31_24 = 0,
+					.limit_15_0 = 0xc8ff,
+					.limit_19_16 = 0,
+					.type = 0xa, // 10: Execute/Read
+					.s = 1, // 1: Código/Datos
+					.dpl = 0x03,
+					.p = 1, // Bit de "Present"
+					.avl = 0,
+					.l = 0,
+					.db = 1, // 1: 32 bits, 0: 16 bits
+					.g = 1,
+				},
 				[GDT_IDX_DATO_LVL_3] ={
 					.base_15_0 = 0,
 					.base_23_16 = 0,
@@ -87,7 +87,7 @@ gdt_entry_t gdt[GDT_COUNT] = {
 					.limit_19_16 = 0,
 					.type = 2, // 2: Read/Write
 					.s = 1, // 1: Código/Datos
-					.dpl = 0,
+					.dpl = 0x03,
 					.p = 1, // Bit de "Present"
 					.avl = 0,
 					.l = 0,

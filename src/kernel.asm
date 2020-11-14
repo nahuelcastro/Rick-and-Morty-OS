@@ -88,7 +88,7 @@ modo_protegido:
     mov ds, ax
     mov es, ax
     mov gs, ax
-    mov ss, ax
+    mov ss, ax ; Me rompe acá, no se por qué
     mov ax, VIDEO_LVL_0
     mov fs, ax
 
@@ -98,7 +98,7 @@ modo_protegido:
     mov esp, EBP_BASE
 
     ; Imprimir mensaje de bienvenida
-    print_text_rm start_pm_msg, start_pm_len, 0x07, 0, 0
+    print_text_pm start_pm_msg, start_pm_len, 0x07, 0, 0
 
     ; Inicializar pantalla
     call init_pantalla
