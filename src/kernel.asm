@@ -5,6 +5,13 @@
 
 %include "print.mac"
 
+extern GDT_DESC
+%define CS_LVL_0 0x50
+%define DATO_LVL_0 0x60
+%define ESP_BASE 0x25000
+%define EBP_BASE 0x25000
+
+
 global start
 
 
@@ -28,6 +35,7 @@ start_pm_len equ    $ - start_pm_msg
 ;; Punto de entrada del kernel.
 BITS 16
 start:
+
     ; Deshabilitar interrupciones
     cli
 
@@ -42,30 +50,56 @@ start:
     print_text_rm start_rm_msg, start_rm_len, 0x07, 0, 0
 
 
+    xchg bx, bx ; Creamos un breakpoint
+
     ; Habilitar A20
-    
+    call A20_disable
+    call A20_check
+    call A20_enable
+    call A20_check
+
     ; Cargar la GDT
+    lgdt [GDT_DESC]
 
     ; Setear el bit PE del registro CR0
-    
-    ; Saltar a modo protegido
+    mov eax, CR0
+    or eax, 1
+    mov cr0, eax
 
+    ; Saltar a modo protegido
+    jmp CS_LVL_0:modo_protegido
+
+BITS 32 ;A partir de aca codifica en 32 bits
+modo_protegido:
+    xchg bx, bx
     ; Establecer selectores de segmentos
+    mov ax, DATO_LVL_0
+    mov ds, ax
+    mov es, ax
+    mov gs, ax
+    mov ss, ax
+    ;mov ax, VIDEO_LVL_0
+    mov fs, ax
+
 
     ; Establecer la base de la pila
-    
+    mov ebp, EBP_BASE
+    mov esp, ESP_BASE
+
     ; Imprimir mensaje de bienvenida
+    print_text_rm start_pm_msg, start_pm_len, 0x07, 0, 0
 
     ; Inicializar pantalla
-    
+
+
     ; Inicializar el manejador de memoria
- 
+
     ; Inicializar el directorio de paginas
-    
+
     ; Cargar directorio de paginas
 
     ; Habilitar paginacion
-    
+
     ; Inicializar tss
 
     ; Inicializar tss de la tarea Idle
@@ -73,9 +107,9 @@ start:
     ; Inicializar el scheduler
 
     ; Inicializar la IDT
-    
+
     ; Cargar IDT
- 
+
     ; Configurar controlador de interrupciones
 
     ; Cargar tarea inicial
