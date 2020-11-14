@@ -119,30 +119,36 @@ modo_protedigo:
 
     ; Inicializar el scheduler
 
-    ; Inicializar la IDT        
     xchg bx, bx 
+    
+    ; Inicializar la IDT        
     call idt_init
 
     ; Cargar IDT
     lidt [IDT_DESC]
-    ; call pic_reset
-    ; call pic_enable
-    ;sti
-    xor eax, eax
-    idiv eax    ;division por 0 
-    ; Configurar controlador de interrupciones
+    
 
+    ;Configuarar controlador de interrupciones
+    call pic_reset
+    call pic_enable
+    
     ; Cargar tarea inicial
 
-    ; Habilitar interrupciones
+
+    ;Habilitar interrupciones
+    sti
+    
+    ;xor eax, eax
+    ;idiv eax    ;division por 0 
+
 
     ; Saltar a la primera tarea: Idle
 
     ; Ciclar infinitamente (por si algo sale mal...)
-    mov eax, 0xFFFF
-    mov ebx, 0xFFFF
-    mov ecx, 0xFFFF
-    mov edx, 0xFFFF
+    ; mov eax, 0xFFFF
+    ; mov ebx, 0xFFFF
+    ; mov ecx, 0xFFFF
+    ; mov edx, 0xFFFF
     jmp $
 
 

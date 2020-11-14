@@ -15,6 +15,7 @@ sched_task_selector:   dw 0xFFFF
 ;; PIC
 extern pic_finish1
 extern imprimir_excepcion
+extern print_scan_code
 
 ;; Sched
 extern sched_next_task
@@ -33,6 +34,8 @@ _isr%1:
     jmp $
 
 %endmacro
+
+
 ;; Rutina de atención de las EXCEPCIONES
 ;; -------------------------------------------------------------------------- ;;
 ISR 0
@@ -58,10 +61,42 @@ ISR 19
 
 
 
+
+
 ;; Rutina de atención del RELOJ
+global _isr32
+
+_isr32:
+     pushad
+
+     ;avisar al pic que se recibio la interrupcion
+     call pic_finish1
+
+     ;imprimir el reloj de sistema 
+     call next_clock
+
+     popad
+iret
+
 ;; -------------------------------------------------------------------------- ;;
 ;; Rutina de atención del TECLADO
 ;; -------------------------------------------------------------------------- ;;
+global _isr33
+
+_isr33:
+     pushad
+     
+     in al, 0x60
+
+     push eax
+     call print_scan_code
+     add esp, 4
+
+     ;avisar al pic que se recibio la interrupcion
+     call pic_finish1
+     popad
+iret
+
 ;; Rutinas de atención de las SYSCALLS
 ;; -------------------------------------------------------------------------- ;;
 ;; Funciones Auxiliares

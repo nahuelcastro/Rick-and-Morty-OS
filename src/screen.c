@@ -8,6 +8,14 @@
 
 #include "screen.h"
 
+void print_scan_code(uint8_t scancode){
+  if(!(scancode && 0x80)){
+      print_hex(scancode, 2, 80/2-1, 50/2, 0x3D); 
+  }
+}
+
+
+
 void print(const char* text, uint32_t x, uint32_t y, uint16_t attr) {
   ca(*p)[VIDEO_COLS] = (ca(*)[VIDEO_COLS])VIDEO; // magia
   int32_t i;
