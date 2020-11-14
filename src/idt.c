@@ -61,10 +61,11 @@ void idt_init() {
   IDT_ENTRY(19);
   IDT_ENTRY(32);
   IDT_ENTRY(33);
-  IDT_ENTRY(34);
-  IDT_ENTRY(35);
-  IDT_ENTRY(36);
-  IDT_ENTRY(37);
+
+  IDT_ENTRY(88);
+  IDT_ENTRY(89);
+  IDT_ENTRY(100);
+  IDT_ENTRY(123);
 }
 
 #define COLOR_EXP 0x0A

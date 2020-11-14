@@ -118,7 +118,7 @@ modo_protedigo:
 
     ; Inicializar el scheduler
 
-    xchg bx, bx 
+ 
     
     ; Inicializar la IDT        
     call idt_init

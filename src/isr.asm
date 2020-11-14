@@ -84,19 +84,61 @@ global _isr33
 _isr33:
      pushad
      
-     xchg bx, bx 
-
      in al, 0x60
 
      push eax
      call print_scan_code
-     ;call imprimir_excepcion
      add esp, 4
 
      ;avisar al pic que se recibio la interrupcion
      call pic_finish1
      popad
      iret
+
+global _isr88
+
+_isr88:
+     pushad
+
+     push eax
+     mov eax, 0x58
+
+     popad
+iret
+
+global _isr89
+
+_isr89:
+     pushad
+     
+     push eax
+     mov eax, 0x59
+     
+     popad
+iret
+
+global _isr100
+
+_isr100:
+     pushad
+
+     push eax
+     mov eax, 0x64
+ 
+     popad
+iret
+
+
+global _isr123
+
+_isr123:
+     pushad
+
+     push eax
+     mov eax, 0x7b
+
+     popad
+iret
 
 ;; Rutinas de atención de las SYSCALLS
 ;; -------------------------------------------------------------------------- ;;
