@@ -48,7 +48,6 @@ start:
     print_text_rm start_rm_msg, start_rm_len, 0x07, 0, 0
 
     
-    
     ; Habilitar A20
     call A20_disable
     call A20_check
@@ -97,7 +96,7 @@ modo_protedigo:
     mov ebp, 0x25000    
     mov esp, ebp        ;Pongo el tope de la pila en la base de la pila.
     
-    ; Imprimir mensaje de bienvenida
+    ; Imprimir mensaje de bienvenida    
     print_text_pm start_pm_msg, start_pm_len, 0x07, 0, 0    ;chequear si es asi
 
 

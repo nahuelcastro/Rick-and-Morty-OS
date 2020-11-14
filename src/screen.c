@@ -9,7 +9,7 @@
 #include "screen.h"
 
 void print_scan_code(uint8_t scancode){
-  if(!(scancode && 0x80)){
+  if(!(scancode & 0x80)){
       print_hex(scancode, 2, 80/2-1, 50/2, 0x3D); 
   }
 }

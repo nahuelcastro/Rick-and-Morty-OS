@@ -61,8 +61,6 @@ ISR 19
 
 
 
-
-
 ;; Rutina de atención del RELOJ
 global _isr32
 
@@ -86,16 +84,19 @@ global _isr33
 _isr33:
      pushad
      
+     xchg bx, bx 
+
      in al, 0x60
 
      push eax
      call print_scan_code
+     ;call imprimir_excepcion
      add esp, 4
 
      ;avisar al pic que se recibio la interrupcion
      call pic_finish1
      popad
-iret
+     iret
 
 ;; Rutinas de atención de las SYSCALLS
 ;; -------------------------------------------------------------------------- ;;

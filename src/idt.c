@@ -51,7 +51,7 @@ void idt_init() {
   IDT_ENTRY(9);
   IDT_ENTRY(10);
   IDT_ENTRY(11);
-  IDT_ENTRY(12);
+  IDT_ENTRY(12);   
   IDT_ENTRY(13);
   IDT_ENTRY(14);
   IDT_ENTRY(15);
@@ -61,7 +61,10 @@ void idt_init() {
   IDT_ENTRY(19);
   IDT_ENTRY(32);
   IDT_ENTRY(33);
-
+  IDT_ENTRY(34);
+  IDT_ENTRY(35);
+  IDT_ENTRY(36);
+  IDT_ENTRY(37);
 }
 
 #define COLOR_EXP 0x0A
@@ -108,7 +111,7 @@ void imprimir_excepcion(int codigo){
   if (codigo == 18){print("Machine Check (18)", 11,0, COLOR_EXP);}
   
   if (codigo == 19){ print("SIMD Floating-Point Exception (19)", 11,0, COLOR_EXP);}
+
+  if (codigo == 33){print(" CACAAA-Point Exception (33)", 11,0, COLOR_EXP);}
   
 }
-
-
