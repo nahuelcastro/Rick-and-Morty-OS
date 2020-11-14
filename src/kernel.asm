@@ -8,6 +8,11 @@
 global start
 
 extern GDT_DESC
+extern idt_init
+extern IDT_DESC
+
+extern pic_enable
+extern pic_reset
 
 BITS 16
 ;; Saltear seccion de datos
@@ -74,6 +79,7 @@ start:
 BITS 32
 modo_protedigo:
 
+
     ; Establecer selectores de segmentos
     xor eax, eax    ;Vacío eax
     mov ax, 0x58    ;Muevo a AX un selector para el descriptor del segmento 11, pero dejando los primeros 3 bits en 0
@@ -94,7 +100,6 @@ modo_protedigo:
     ; Imprimir mensaje de bienvenida
     print_text_pm start_pm_msg, start_pm_len, 0x07, 0, 0    ;chequear si es asi
 
-    xchg bx,bx 
 
     ; Inicializar pantalla
     call init_pantalla  ; solo le puse el nombre hay que implementarla jeje    
@@ -114,10 +119,17 @@ modo_protedigo:
 
     ; Inicializar el scheduler
 
-    ; Inicializar la IDT
-    
+    ; Inicializar la IDT        
+    xchg bx, bx 
+    call idt_init
+
     ; Cargar IDT
- 
+    lidt [IDT_DESC]
+    ; call pic_reset
+    ; call pic_enable
+    ;sti
+    xor eax, eax
+    idiv eax    ;division por 0 
     ; Configurar controlador de interrupciones
 
     ; Cargar tarea inicial
@@ -135,14 +147,14 @@ modo_protedigo:
 
 
 
-%define C_BG_BLACK              (0x0 << 12)
-%define C_BG_BLUE               (0x1 << 12)
-%define C_BG_GREEN              (0x2 << 12)
-%define C_BG_CYAN               (0x3 << 12)
-%define C_BG_RED                (0x4 << 12)
-%define C_BG_MAGENTA            (0x5 << 12)
-%define C_BG_BROWN              (0x6 << 12)
-%define C_BG_LIGHT_GREY         (0x7 << 12)
+%define BLACK              (0x0 << 12)
+%define BLUE               (0x1 << 12)
+%define GREEN              (0x2 << 12)
+%define CYAN               (0x3 << 12)
+%define RED                (0x4 << 12)
+%define MAGENTA            (0x5 << 12)
+%define BROWN              (0x6 << 12)
+%define LIGHT_GREY         (0x7 << 12)
 
 
 init_pantalla:
@@ -150,24 +162,24 @@ init_pantalla:
 xor ecx, ecx
 
 primer_fila_negra:               
-    mov word [fs:2*ecx], C_BG_BLACK
+    mov word [fs:2*ecx], BLACK
     inc ecx
     cmp ecx, 80       
     jne primer_fila_negra
 
 filas_verdes:
-    mov word [fs:2*ecx], C_BG_GREEN
+    mov word [fs:2*ecx], GREEN
     inc ecx
-    cmp ecx, 3200 ;3120
+    cmp ecx, 3200 
     jne filas_verdes
 
 xor ebx, ebx
 mov ebx, ecx
 
 filas_negras:
-    mov word [fs:2*ecx], C_BG_BLACK
+    mov word [fs:2*ecx], BLACK
     inc ecx
-    cmp ecx, 4000 ;3120
+    cmp ecx, 4000 
     jne filas_negras
 
 
@@ -180,7 +192,7 @@ tableros:
     mov ebx, ecx
     add ebx, 12
     fila_tablero_rojo:
-        mov word [fs:2*ecx], C_BG_RED
+        mov word [fs:2*ecx], RED
         inc ecx
         cmp ecx, ebx
         jne fila_tablero_rojo
@@ -190,7 +202,7 @@ tableros:
     add ebx, 12
 
     fila_tablero_azul:
-        mov word [fs:2*ecx], C_BG_BLUE
+        mov word [fs:2*ecx], BLUE
         inc ecx
         cmp ecx, ebx
         jne fila_tablero_azul

@@ -12,7 +12,7 @@
 #include "stdint.h"
 
 void pic_reset(void);
-void pic_enable();
+void pic_enable();  
 void pic_disable();
 
 static __inline __attribute__((always_inline)) void outb(uint32_t port,
