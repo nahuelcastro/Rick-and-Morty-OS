@@ -16,6 +16,7 @@ extern pic_reset
 
 extern mmu_init_kernel_dir
 extern print_libretas
+extern mmu_map_page
 
 BITS 16
 ;; Saltear seccion de datos
@@ -110,6 +111,7 @@ modo_protedigo:
     ; Inicializar el manejador de memoria
  
     ; Inicializar el directorio de paginas
+    
     ;xchg bx,bx
     call mmu_init_kernel_dir
 
@@ -146,8 +148,19 @@ modo_protedigo:
     call pic_reset
     call pic_enable
     
-    ; Cargar tarea inicial
 
+    xchg bx, bx 
+    ; Cargar tarea inicial
+    push 2
+    push 0x00400000
+    push 0x0050E008
+    mov eax, cr3
+    push eax
+    call mmu_map_page
+    add esp, 4*4
+
+    mov BYTE [0X0050E027], 0x1
+    xchg bx, bx 
 
     ;Habilitar interrupciones
     sti
