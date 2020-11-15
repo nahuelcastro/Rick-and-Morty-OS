@@ -17,8 +17,9 @@ void print_scan_code(uint8_t scancode){
   }
 }
 
-
-
+void print_libretas(){
+  print("203/19, 248/19, 310/19 ", 0, 0, 0x0A);
+}
 
 
 void print(const char* text, uint32_t x, uint32_t y, uint16_t attr) {

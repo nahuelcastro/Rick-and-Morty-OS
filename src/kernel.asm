@@ -14,6 +14,9 @@ extern IDT_DESC
 extern pic_enable
 extern pic_reset
 
+extern mmu_init_kernel_dir
+extern print_libretas
+
 BITS 16
 ;; Saltear seccion de datos
 jmp start
@@ -107,11 +110,23 @@ modo_protedigo:
     ; Inicializar el manejador de memoria
  
     ; Inicializar el directorio de paginas
-    
-    ; Cargar directorio de paginas
+    ;xchg bx,bx
+    call mmu_init_kernel_dir
 
+
+
+    ; Cargar directorio de paginas
+	mov eax, 0x25000
+	mov cr3, eax
+	
     ; Habilitar paginacion
+    mov eax, cr0
+    or eax, 0x80000000         ; prendemos PG
+    mov cr0, eax
     
+    call print_libretas
+ 
+
     ; Inicializar tss
 
     ; Inicializar tss de la tarea Idle
