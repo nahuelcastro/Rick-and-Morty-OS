@@ -14,6 +14,7 @@ extern IDT_DESC
 extern pic_enable
 extern pic_reset
 
+extern mmu_init
 extern mmu_init_kernel_dir
 extern print_libretas
 extern mmu_map_page
@@ -94,7 +95,7 @@ modo_protedigo:
     mov ax, 1110000b ; 14 shifetado 3 a izquierda por el segmento de video 
     mov fs, ax
 
-;el reg CS no lo modifico acá, sino que lo hice con el far jump de arriba.
+    ;el reg CS no lo modifico acá, sino que lo hice con el far jump de arriba.
 
     ; Establecer la base de la pila
     mov ebp, 0x25000    
@@ -109,10 +110,9 @@ modo_protedigo:
 
     
     ; Inicializar el manejador de memoria
+    call mmu_init
  
     ; Inicializar el directorio de paginas
-    
-    ;xchg bx,bx
     call mmu_init_kernel_dir
 
 
@@ -135,7 +135,6 @@ modo_protedigo:
 
     ; Inicializar el scheduler
 
- 
     
     ; Inicializar la IDT        
     call idt_init

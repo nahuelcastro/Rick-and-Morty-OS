@@ -67,7 +67,7 @@ void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs){
 
   int off_pd = (virt >> 22);
   int off_pt = ((virt << 10) >> 22);
-  int off_dir = ((virt << 22) >> 22);
+  //int off_dir = ((virt << 20) >> 20);
 
   page_directory_entry* pde_map = (page_directory_entry*) cr3;
 
@@ -94,7 +94,7 @@ void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs){
     pte_map[off_pt].present = MMU_FLAG_PRESENT;
     pte_map[off_pt].user_supervisor = MMU_FLAG_SUPERVISOR;
     pte_map[off_pt].read_write = MMU_FLAG_READ_WRITE;  
-    uint32_t phyBase = (phy - off_dir) >> 12;
+    uint32_t phyBase = (phy /*- off_dir*/) >> 12;
     pte_map[off_pt].physical_adress_base = phyBase;
   }    
 }
@@ -102,14 +102,14 @@ void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs){
 paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt){
   int off_pd = (virt >> 22);
   int off_pt = ((virt << 10) >> 22);
-  int off_dir = ((virt << 22) >> 22);
+  //int off_dir = ((virt << 20) >> 20);
 
   page_directory_entry* pde_map = (page_directory_entry*) cr3;
   
   page_table_entry* pte_map = (page_table_entry*) (pde_map[off_pd].page_table_base << 12);
   
   pte_map[off_pt].present = 0; //Al tener presente en 0 lo va a desmapear 
-  paddr_t phyAddr   = (pte_map[off_pt].physical_adress_base >> 12) + off_dir;
+  paddr_t phyAddr = (pte_map[off_pt].physical_adress_base >> 12); //off_dir;
   return phyAddr;
 
 }
