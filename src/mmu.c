@@ -63,12 +63,23 @@ paddr_t mmu_init_kernel_dir(void) {
 void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs){
   //virt | 0000 0000 01 (off_pd) | 01 0000 1110 (off_pt) | 0000 0010 0111 (off_dir) 
 
-  attrs = attrs;
 
   int off_pd = (virt >> 22);
   int off_pt = ((virt << 10) >> 22);
-  //int off_dir = ((virt << 20) >> 20);
-
+  
+  uint8_t FLAG_PRESENT = ((attrs << 31) >> 31);
+  uint8_t FLAG_USER_SUPERVISOR = ((attrs << 30) >> 31);    // ver si va siempre en 0
+  uint8_t FLAG_READ_WRITE = ((attrs << 29) >> 31);
+  /*
+  uint8_t FLAG_PAGE_WRITE_THROUGH =((attrs << 28) >> 31);
+  uint8_t FLAG_PAGE_CACHE_DISABLE =((attrs << 27) >> 31);
+  uint8_t FLAG_ACCESSED = ((attrs << 26) >> 31);
+  uint8_t FLAG_X = ((attrs << 25) >> 31);
+  uint8_t FLAG_PAGE_SIZE = ((attrs << 24) >> 31);
+  uint8_t FLAG_IGNORED = ((attrs << 23) >> 31);
+  uint8_t FLAG_AVAILABLE = ((attrs << 20) >> 29);
+*/
+    
   page_directory_entry* pde_map = (page_directory_entry*) cr3;
 
   page_table_entry* pte_map =(page_table_entry*) 0;
@@ -79,24 +90,47 @@ void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs){
 
     for (int i = 0; i < 1024; i++){
       pte_map[i] = (page_table_entry){0};
-    }
-    
-    pde_map[off_pd].present = MMU_FLAG_PRESENT;
-    pde_map[off_pd].user_supervisor = MMU_FLAG_SUPERVISOR;
-    pde_map[off_pd].read_write = MMU_FLAG_READ_WRITE;
+  }
+
+  
+    pde_map[off_pd].present = FLAG_PRESENT;
+    pde_map[off_pd].user_supervisor = FLAG_USER_SUPERVISOR;
+    pde_map[off_pd].read_write = FLAG_READ_WRITE;
+    pde_map[off_pd].page_write_through = 0;
+    pde_map[off_pd].page_cache_disable = 0;
+    pde_map[off_pd].accessed = 0;
+    pde_map[off_pd].x = 0;
+    pde_map[off_pd].page_size = 0; 
+    pde_map[off_pd].ignored = 0;
+    pde_map[off_pd].available = 0;
     pde_map[off_pd].page_table_base = ((uint32_t)free_page >> 12); 
     
+
     pte_map = (page_table_entry*) free_page;
+  
   }else{
+
     pte_map = (page_table_entry*) (pde_map[off_pd].page_table_base << 12);
+  
   }
+  
   if(pte_map[off_pt].present == 0){  // si presente esta en 1 ya esta mapeada 
-    pte_map[off_pt].present = MMU_FLAG_PRESENT;
-    pte_map[off_pt].user_supervisor = MMU_FLAG_SUPERVISOR;
-    pte_map[off_pt].read_write = MMU_FLAG_READ_WRITE;  
-    uint32_t phyBase = (phy /*- off_dir*/) >> 12;
-    pte_map[off_pt].physical_adress_base = phyBase;
+    
+    pte_map[off_pt].present = FLAG_PRESENT;
+    pte_map[off_pt].user_supervisor = FLAG_USER_SUPERVISOR;
+    pte_map[off_pt].read_write = FLAG_READ_WRITE; 
+    pte_map[off_pt].page_write_through = 0;
+    pte_map[off_pt].page_cache_disable = 0;
+    pte_map[off_pt].accessed = 0;
+    pte_map[off_pt].dirty = 0;
+    pte_map[off_pt].x = 0;
+    pte_map[off_pt].global = 0;
+    pte_map[off_pt].available = 0; 
+    pte_map[off_pt].physical_adress_base = phy >>12;
   }    
+
+  tlbflush();
+
 }
 
 paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt){
@@ -114,9 +148,10 @@ paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt){
 
 }
 
+paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t  pages) {
 
-// void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs) {}
-// paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt) {}
-// paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t
-// pages) {}
+  
+
+
+}
 

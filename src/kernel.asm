@@ -116,7 +116,6 @@ modo_protedigo:
     call mmu_init_kernel_dir
 
 
-
     ; Cargar directorio de paginas
 	mov eax, 0x25000
 	mov cr3, eax
@@ -166,7 +165,6 @@ modo_protedigo:
     
     ;xor eax, eax
     ;idiv eax    ;division por 0 
-
 
     ; Saltar a la primera tarea: Idle
 
