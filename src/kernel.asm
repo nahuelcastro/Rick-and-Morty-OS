@@ -19,6 +19,8 @@ extern mmu_init_kernel_dir
 extern print_libretas
 extern mmu_map_page
 
+extern mmu_init_task_dir
+
 BITS 16
 ;; Saltear seccion de datos
 jmp start
@@ -95,7 +97,6 @@ modo_protedigo:
     mov ax, 1110000b ; 14 shifetado 3 a izquierda por el segmento de video 
     mov fs, ax
 
-    ;el reg CS no lo modifico acá, sino que lo hice con el far jump de arriba.
 
     ; Establecer la base de la pila
     mov ebp, 0x25000    
@@ -147,24 +148,36 @@ modo_protedigo:
     call pic_enable
     
 
-    xchg bx, bx 
     ; Cargar tarea inicial
-    push 2
-    push 0x00400000
-    push 0x0050E008
-    mov eax, cr3
-    push eax
-    call mmu_map_page
-    add esp, 4*4
 
-    mov BYTE [0X0050E027], 0x1
-    xchg bx, bx 
+    xchg bx, bx
+    push 4
+    push 0x1D00000
+    push 0x1D00000
+    call mmu_init_task_dir
+    add esp, 3*4
+    ;mov cr3, eax
+    ;mov BYTE [0x1D04052], 0x1
+
+    
+
+    
+    
+    ;xchg bx, bx 
+    ;push 2
+    ;push 0x00400000
+    ;push 0x0050E008
+    ;mov eax, cr3
+    ;push eax
+    ;call mmu_map_page
+    ;add esp, 4*4
+    ;mov BYTE [0X0050E027], 0x1
+    ;xchg bx, bx 
+
 
     ;Habilitar interrupciones
     sti
     
-    ;xor eax, eax
-    ;idiv eax    ;division por 0 
 
     ; Saltar a la primera tarea: Idle
 
