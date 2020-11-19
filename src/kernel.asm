@@ -21,6 +21,7 @@ extern print_libretas
 extern mmu_map_page
 
 extern mmu_init_task_dir
+extern mmu_prueba
 
 BITS 16
 ;; Saltear seccion de datos
@@ -84,17 +85,28 @@ start:
 
 
 BITS 32
+
+
+
 modo_protedigo:
 
+
+%define BLACK              (0x0 << 12)
+%define BLUE               (0x1 << 12)
+%define GREEN              (0x2 << 12)
+%define CYAN               (0x3 << 12)
+%define RED                (0x4 << 12)
+%define MAGENTA            (0x5 << 12)
+%define BROWN              (0x6 << 12)
+%define LIGHT_GREY         (0x7 << 12)
 
     ; Establecer selectores de segmentos
     xor eax, eax    ;Vacío eax
     mov ax, 0x58    ;Muevo a AX un selector para el descriptor del segmento 11, pero dejando los primeros 3 bits en 0
     mov ds, ax      ;Pongo el resto de los registros de segmento en el mismo segmento.
-    mov es, ax      ;;;;; VER PORQUE SE LES PONE A TODOS EL MISMO VALOR, CREO QUE ES PORQUE NO IMPORTA DEMASIADO QUE TIENEN
+    mov es, ax      
     mov gs, ax      
     mov ss, ax      
-    ;mov fs, ax    
     mov ax, 1110000b ; 14 shifetado 3 a izquierda por el segmento de video 
     mov fs, ax
 
@@ -117,7 +129,7 @@ modo_protedigo:
     ; Inicializar el directorio de paginas
     call mmu_init_kernel_dir
 
-
+    xchg bx, bx
     ; Cargar directorio de paginas
 	mov eax, 0x25000
 	mov cr3, eax
@@ -153,12 +165,24 @@ modo_protedigo:
 
     xchg bx, bx
     push 4
-    push 0x10000
+    push 0x14000
     push 0x1D00000
     call mmu_init_task_dir
     add esp, 3*4
 
-
+    ;5d
+    ;no hay que entregarlo en la entrega 
+    ; push 2
+    ; push 0;
+    ; push eax ;cr3
+    ; call mmu_prueba
+    ; mov cr3,eax
+    ; mov eax, 0x25000
+    ; mov cr3, eax
+    
+    
+    
+    
     
 
     
@@ -189,15 +213,6 @@ modo_protedigo:
     jmp $
 
 
-
-%define BLACK              (0x0 << 12)
-%define BLUE               (0x1 << 12)
-%define GREEN              (0x2 << 12)
-%define CYAN               (0x3 << 12)
-%define RED                (0x4 << 12)
-%define MAGENTA            (0x5 << 12)
-%define BROWN              (0x6 << 12)
-%define LIGHT_GREY         (0x7 << 12)
 
 
 init_pantalla:

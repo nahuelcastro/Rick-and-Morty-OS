@@ -164,7 +164,6 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages) {
   uint32_t cr3 = rcr3();
 
   // no quiero perder las direcciones iniciales
-  paddr_t original_code_page = code_start; 
   paddr_t original_phy_page = phy_start;
   
   uint8_t* ptr_code_page = (uint8_t*) code_start;
@@ -178,11 +177,13 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages) {
     virt_page += 4096; // 4096 = 4kb = tamaño pagina
     phy_start += 4096;  // 4096 = 4kb = tamaño pagina
   }
-
-   ptr_code_page = (uint8_t*) original_code_page;
-   ptr_phy_page = (uint8_t*) original_phy_page;
+  
    
-   for (size_t i = 0; i < pages; i++){
+  virt_page = 0x1D00000;
+  phy_start = original_phy_page;
+
+  //Mapeando en el page directory nuevo
+  for (size_t i = 0; i < pages; i++){
     mmu_map_page(new_cr3,virt_page, phy_start, 2);
     virt_page += 4096; // 4096 = 4kb = tamaño pagina
     phy_start += 4096;  // 4096 = 4kb = tamaño pagina
@@ -203,9 +204,26 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages) {
     virt_page += 4096; // 4096 = 4kb = tamaño pagina(en bytes)cal
   }
 
-  return phy_start;
+  return new_cr3;
 
 }
+
+paddr_t mmu_prueba(paddr_t cr3, paddr_t im, int attrs){
+  
+  paddr_t phy = im;
+  paddr_t virt = im;
+
+  for (size_t i = 0; i < 10; i++){
+    mmu_map_page(cr3,virt,phy,attrs);
+    virt += 4096;
+    phy += 4096;
+  }
+
+  return cr3;
+  
+}
+
+
 
   // for (size_t i = 0; i < 512; i++){
   //   *ptr_phy_page = *ptr_code_page;
