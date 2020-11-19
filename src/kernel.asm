@@ -7,6 +7,7 @@
 
 global start
 
+
 extern GDT_DESC
 extern idt_init
 extern IDT_DESC
@@ -152,12 +153,11 @@ modo_protedigo:
 
     xchg bx, bx
     push 4
-    push 0x1D00000
+    push 0x10000
     push 0x1D00000
     call mmu_init_task_dir
     add esp, 3*4
-    ;mov cr3, eax
-    ;mov BYTE [0x1D04052], 0x1
+
 
     
 
@@ -256,9 +256,6 @@ tableros:
     jne tableros
 
 ret
-
-
-
 
 
 ;; -------------------------------------------------------------------------- ;;
