@@ -168,20 +168,14 @@ modo_protedigo:
     push 0x14000
     push 0x1D00000
     call mmu_init_task_dir
+    mov cr3,eax
     add esp, 3*4
-
-    ;5d
-    ;no hay que entregarlo en la entrega 
-    ; push 2
-    ; push 0;
-    ; push eax ;cr3
-    ; call mmu_prueba
-    ; mov cr3,eax
-    ; mov eax, 0x25000
-    ; mov cr3, eax
-    
-    
-    
+    xor ax, ax
+    mov ax, 1110000b ; 14 shifetado 3 a izquierda por el segmento de video 
+    mov fs, ax
+    mov word [fs:0], RED
+    mov eax, 0x25000
+    mov cr3, eax
     
     
 
@@ -212,6 +206,63 @@ modo_protedigo:
     ; mov edx, 0xFFFF
     jmp $
 
+
+; init_pantalla2:
+
+; xor ecx, ecx
+
+; .primer_fila_negra:               
+;     mov word [fs:2*ecx], RED
+;     inc ecx
+;     cmp ecx, 80       
+;     jne .primer_fila_negra
+
+; .filas_verdes:
+;     mov word [fs:2*ecx], GREEN
+;     inc ecx
+;     cmp ecx, 3200 
+;     jne .filas_verdes
+
+; xor ebx, ebx
+; mov ebx, ecx
+
+; .filas_negras:
+;     mov word [fs:2*ecx], BLACK
+;     inc ecx
+;     cmp ecx, 4000 
+;     jne .filas_negras
+
+
+; add ebx, 168  ; dejo una fila mas de margen 
+; mov ecx, ebx
+; xor edx, edx
+
+; .tableros:   
+    
+;     mov ebx, ecx
+;     add ebx, 12
+;     .fila_tablero_rojo:
+;         mov word [fs:2*ecx], RED
+;         inc ecx
+;         cmp ecx, ebx
+;         jne .fila_tablero_rojo
+    
+;     add ecx, 40
+;     mov ebx, ecx
+;     add ebx, 12
+
+;     .fila_tablero_azul:
+;         mov word [fs:2*ecx], BLUE
+;         inc ecx
+;         cmp ecx, ebx
+;         jne .fila_tablero_azul
+    
+;     add ecx, 16
+;     inc edx 
+;     cmp edx, 3
+;     jne .tableros
+
+; ret
 
 
 

@@ -177,6 +177,16 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages) {
     virt_page += 4096; // 4096 = 4kb = tamaño pagina
     phy_start += 4096;  // 4096 = 4kb = tamaño pagina
   }
+
+  paddr_t phy = 0;
+  paddr_t virt = 0;
+
+
+  for (size_t i = 0; i < 4; i++){
+    mmu_map_page(new_cr3,virt,phy,2);
+    virt += 4096;
+    phy += 4096;
+  }
   
    
   virt_page = 0x1D00000;
@@ -206,21 +216,6 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages) {
 
   return new_cr3;
 
-}
-
-paddr_t mmu_prueba(paddr_t cr3, paddr_t im, int attrs){
-  
-  paddr_t phy = im;
-  paddr_t virt = im;
-
-  for (size_t i = 0; i < 10; i++){
-    mmu_map_page(cr3,virt,phy,attrs);
-    virt += 4096;
-    phy += 4096;
-  }
-
-  return cr3;
-  
 }
 
 
