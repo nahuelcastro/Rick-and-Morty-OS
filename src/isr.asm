@@ -28,9 +28,9 @@ global _isr%1
 
 _isr%1:
     mov eax, %1
-    push eax 
+    push eax
     call imprimir_excepcion
-    add esp, 4       
+    add esp, 4
     jmp $
 
 %endmacro
@@ -72,7 +72,7 @@ _isr32:
      ;avisar al pic que se recibio la interrupcion
      call pic_finish1
 
-     ;imprimir el reloj de sistema 
+     ;imprimir el reloj de sistema
      call next_clock
 
      popad
@@ -83,19 +83,22 @@ iret
 ;; -------------------------------------------------------------------------- ;;
 global _isr33
 
+global _isr33
+
 _isr33:
      pushad
-     
+
      in al, 0x60
 
      push eax
      call print_scan_code
+     ;call imprimir_excepcion
      add esp, 4
 
      ;avisar al pic que se recibio la interrupcion
      call pic_finish1
      popad
-iret
+     iret
 
 ;; Rutinas de atención de las SYSCALLS
 ;; -------------------------------------------------------------------------- ;;
