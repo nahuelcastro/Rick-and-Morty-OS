@@ -22,6 +22,19 @@ extern mmu_map_page
 
 extern mmu_init_task_dir
 extern mmu_prueba
+extern GDT_IDX_TSS_IDLE
+
+extern init_tss_inicial
+extern init_tss_idle
+
+ 
+
+%define CS_LVL_0 0x50
+%define DATO_LVL_0 0x58
+%define EBP_BASE 0x25000
+%define VIDEO_LVL_0 0x70
+%define TSS_IDLE 0x40  
+%define INDEX_GDT_INICAL 0x78
 
 BITS 16
 ;; Saltear seccion de datos
@@ -72,7 +85,7 @@ start:
     mov CR0, eax
     
     ; Saltar a modo protegido
-    jmp 0x50:modo_protedigo     ;[0000000001010-0-00]
+    jmp CS_LVL_0:modo_protegido     ;[0000000001010-0-00]
     ;explicacion, ver definicion de selecctor de segmento, tamaño 16 bits
     ;salta al primer segmento de codigo, habria que ver bien porque, pero saltan al de cogido 
     ;y abajo setean el de datos (DS)  y el resto de los registros de segmento
@@ -88,7 +101,7 @@ BITS 32
 
 
 
-modo_protedigo:
+modo_protegido:
 
 
 %define BLACK              (0x0 << 12)
@@ -101,9 +114,9 @@ modo_protedigo:
 %define LIGHT_GREY         (0x7 << 12)
 
     ; Establecer selectores de segmentos
-    xor eax, eax    ;Vacío eax
-    mov ax, 0x58    ;Muevo a AX un selector para el descriptor del segmento 11, pero dejando los primeros 3 bits en 0
-    mov ds, ax      ;Pongo el resto de los registros de segmento en el mismo segmento.
+    xor eax, eax        ;Vacío eax
+    mov ax, DATO_LVL_0  ;Muevo a AX un selector para el descriptor del segmento 11, pero dejando los primeros 3 bits en 0
+    mov ds, ax          ;Pongo el resto de los registros de segmento en el mismo segmento.
     mov es, ax      
     mov gs, ax      
     mov ss, ax      
@@ -112,7 +125,7 @@ modo_protedigo:
 
 
     ; Establecer la base de la pila
-    mov ebp, 0x25000    
+    mov ebp, EBP_BASE    
     mov esp, ebp        ;Pongo el tope de la pila en la base de la pila.
     
     ; Imprimir mensaje de bienvenida    
@@ -143,8 +156,10 @@ modo_protedigo:
  
 
     ; Inicializar tss
+    call init_tss_inicial
 
     ; Inicializar tss de la tarea Idle
+    call init_tss_idle
 
     ; Inicializar el scheduler
 
@@ -159,27 +174,34 @@ modo_protedigo:
     ;Configuarar controlador de interrupciones
     call pic_reset
     call pic_enable
-    
 
-    ; Cargar tarea inicial
-
-    xchg bx, bx
     push 4
     push 0x14000
     push 0x1D00000
     call mmu_init_task_dir
-    mov cr3,eax
     add esp, 3*4
-    xor ax, ax
-    mov ax, 1110000b ; 14 shifetado 3 a izquierda por el segmento de video 
-    mov fs, ax
-    mov word [fs:0], RED
-    mov eax, 0x25000
-    mov cr3, eax
-    
     
 
+    ; Cargar tarea inicial
+    mov ax, INDEX_GDT_INICAL  
+    ltr ax
+
+    ; Saltar a la primera tarea: Idle
+    ;mov ax, 0x00018000  ;creo que no hace falta
+    ;ltr ax
+    jmp TSS_IDLE:0  
     
+
+                                                            ;ORDENAR TODO EL QUILOMBO QUE HAY ACAAAAA
+    
+    ;mov cr3,eax
+    ;5d
+    ;xor ax, ax
+    ;mov ax, 1110000b ; 14 shifetado 3 a izquierda por el segmento de video 
+    ;mov fs, ax
+    ;mov word [fs:0], RED
+    ;mov eax, 0x25000
+    ;mov cr3, eax
     
     ;xchg bx, bx 
     ;push 2
@@ -197,73 +219,25 @@ modo_protedigo:
     sti
     
 
-    ; Saltar a la primera tarea: Idle
+    ; YA ME LO CHORIE DE OTRO LADO
+    ; VER MAÑANA: (Copie y pegue de diapo) :D 
+    ;mov eip, 0x1A000 ;Comienzo del codigo de la tarea Idle.  ́
+    ;mov cr3, 0x27000 ;El mismo mapa de paginacion del  ́ kernel.
+    ;mov esp, 0x27000 ;Misma pila del Kernel.
+    ;mov cs, CS_LVL_0 ;Mismo selector de segmento de codigo de nivel cero.  ́
+    ;mov ds, DATO_LVL_0 ;Selector de segmento de datos de nivel cero.
+    ;mov ss, DATO_LVL_0
+    ;MOV eflags, 0x202 ;Interrupciones activas.
 
+    
+    
+    
     ; Ciclar infinitamente (por si algo sale mal...)
     ; mov eax, 0xFFFF
     ; mov ebx, 0xFFFF
     ; mov ecx, 0xFFFF
     ; mov edx, 0xFFFF
     jmp $
-
-
-; init_pantalla2:
-
-; xor ecx, ecx
-
-; .primer_fila_negra:               
-;     mov word [fs:2*ecx], RED
-;     inc ecx
-;     cmp ecx, 80       
-;     jne .primer_fila_negra
-
-; .filas_verdes:
-;     mov word [fs:2*ecx], GREEN
-;     inc ecx
-;     cmp ecx, 3200 
-;     jne .filas_verdes
-
-; xor ebx, ebx
-; mov ebx, ecx
-
-; .filas_negras:
-;     mov word [fs:2*ecx], BLACK
-;     inc ecx
-;     cmp ecx, 4000 
-;     jne .filas_negras
-
-
-; add ebx, 168  ; dejo una fila mas de margen 
-; mov ecx, ebx
-; xor edx, edx
-
-; .tableros:   
-    
-;     mov ebx, ecx
-;     add ebx, 12
-;     .fila_tablero_rojo:
-;         mov word [fs:2*ecx], RED
-;         inc ecx
-;         cmp ecx, ebx
-;         jne .fila_tablero_rojo
-    
-;     add ecx, 40
-;     mov ebx, ecx
-;     add ebx, 12
-
-;     .fila_tablero_azul:
-;         mov word [fs:2*ecx], BLUE
-;         inc ecx
-;         cmp ecx, ebx
-;         jne .fila_tablero_azul
-    
-;     add ecx, 16
-;     inc edx 
-;     cmp edx, 3
-;     jne .tableros
-
-; ret
-
 
 
 init_pantalla:

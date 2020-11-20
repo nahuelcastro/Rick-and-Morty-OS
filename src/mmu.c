@@ -169,7 +169,7 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages) {
   uint8_t* ptr_code_page = (uint8_t*) code_start;
   uint8_t* ptr_phy_page = (uint8_t*) phy_start;
   
-  paddr_t virt_page = 0x1D00000;
+  paddr_t virt_page = TASK_CODE_VIRTUAL;
 
   // Mapeando en el page directory del kernel
   for (size_t i = 0; i < pages; i++){
@@ -189,7 +189,7 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages) {
   }
   
    
-  virt_page = 0x1D00000;
+  virt_page = TASK_CODE_VIRTUAL;
   phy_start = original_phy_page;
 
   //Mapeando en el page directory nuevo

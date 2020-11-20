@@ -8,6 +8,14 @@
 
 #include "gdt.h"
 
+
+
+#define GDT_IDX_CODIGO_LVL_0 10
+#define GDT_IDX_DATO_LVL_0 11
+#define GDT_IDX_CODIGO_LVL_3 12
+#define GDT_IDX_DATO_LVL_3 13
+#define GDT_IDX_VIDEO_LVL_0 14
+
 gdt_entry_t gdt[GDT_COUNT] = {
     /* Descriptor nulo*/
     /* Offset = 0x00 */
@@ -28,7 +36,7 @@ gdt_entry_t gdt[GDT_COUNT] = {
         },
 
 // segmento de codigo nivel 0
-    [10] = /*(gdt_entry_t)*/{
+    [GDT_IDX_CODIGO_LVL_0] = /*(gdt_entry_t)*/{
         .base_15_0 = 0x0000,
         .base_23_16 = 0x00,
         .base_31_24 = 0x00,
@@ -45,7 +53,7 @@ gdt_entry_t gdt[GDT_COUNT] = {
     },
 
 // segmento de datos nivel 0
-    [11] = /*(gdt_entry_t)*/{
+    [GDT_IDX_DATO_LVL_0] = /*(gdt_entry_t)*/{
         .base_15_0 = 0x0000,
         .base_23_16 = 0x00,
         .base_31_24 = 0x00,
@@ -62,7 +70,7 @@ gdt_entry_t gdt[GDT_COUNT] = {
     },
 
 // segmento de codigo nivel 3
-    [12] = /*(gdt_entry_t)*/{
+    [GDT_IDX_CODIGO_LVL_3] = /*(gdt_entry_t)*/{
         .base_15_0 = 0x0000,
         .base_23_16 = 0x00,
         .base_31_24 = 0x00,
@@ -79,7 +87,7 @@ gdt_entry_t gdt[GDT_COUNT] = {
     },
 
 // segmento de datos nivel 3
-    [13] = /*(gdt_entry_t)*/{
+    [GDT_IDX_DATO_LVL_3] = /*(gdt_entry_t)*/{
         .base_15_0 = 0x0000,
         .base_23_16 = 0x00,
         .base_31_24 = 0x00,
@@ -95,7 +103,7 @@ gdt_entry_t gdt[GDT_COUNT] = {
         .g = 0x01,
     },
 // segmento de pantalla  nivel 0
-    [14] = /*(gdt_entry_t)*/{
+    [GDT_IDX_VIDEO_LVL_0] = /*(gdt_entry_t)*/{
         .base_15_0 = 0x8000,
         .base_23_16 = 0x0B,
         .base_31_24 = 0x00,
