@@ -14,12 +14,21 @@ extern GDT_DESC
 
 global start
 
+
 extern GDT_DESC
 extern idt_init
 extern IDT_DESC
 
 extern pic_enable
 extern pic_reset
+
+extern mmu_init
+extern mmu_init_kernel_dir
+extern print_libretas
+extern mmu_map_page
+
+extern mmu_init_task_dir
+extern mmu_prueba
 
 BITS 16
 ;; Saltear seccion de datos
@@ -56,7 +65,6 @@ start:
     print_text_rm start_rm_msg, start_rm_len, 0x07, 0, 0
 
 
-
     ; Habilitar A20
     call A20_disable
     call A20_check
@@ -79,23 +87,40 @@ start:
     ; [2] = Bit que indica si trabajo con la GDT o con la LDT.
     ; [1 - 0] = Nivel de privilegio (0 = Kernel, 3 = Usuario)
 
-BITS 32 ;A partir de aca codifica en 32 bits
+
+BITS 32
+
+
+
 modo_protegido:
-    xchg bx, bx
+
+
+%define BLACK              (0x0 << 12)
+%define BLUE               (0x1 << 12)
+%define GREEN              (0x2 << 12)
+%define CYAN               (0x3 << 12)
+%define RED                (0x4 << 12)
+%define MAGENTA            (0x5 << 12)
+%define BROWN              (0x6 << 12)
+%define LIGHT_GREY         (0x7 << 12)
+
     ; Establecer selectores de segmentos
-    xor eax, eax
-    mov ax, DATO_LVL_0
-    mov ds, ax
+    xor eax, eax    ;Vacío eax
+    mov ax, 0x58    ;Muevo a AX un selector para el descriptor del segmento 11, pero dejando los primeros 3 bits en 0
+    mov ds, ax      ;Pongo el resto de los registros de segmento en el mismo segmento.
     mov es, ax
     mov gs, ax
-    mov ss, ax ; Me rompe acá, no se por qué
-    mov ax, VIDEO_LVL_0
+    mov ss, ax
+    mov ax, 1110000b ; 14 shifetado 3 a izquierda por el segmento de video
     mov fs, ax
 
 
     ; Establecer la base de la pila
-    mov ebp, EBP_BASE
-    mov esp, EBP_BASE
+    mov ebp, 0x25000
+    mov esp, ebp        ;Pongo el tope de la pila en la base de la pila.
+
+    ; Imprimir mensaje de bienvenida
+    print_text_pm start_pm_msg, start_pm_len, 0x07, 0, 0    ;chequear si es asi
 
     ; Imprimir mensaje de bienvenida
     print_text_pm start_pm_msg, start_pm_len, 0x07, 0, 0
@@ -105,12 +130,23 @@ modo_protegido:
 
 
     ; Inicializar el manejador de memoria
+    call mmu_init
 
     ; Inicializar el directorio de paginas
+    call mmu_init_kernel_dir
 
+    xchg bx, bx
     ; Cargar directorio de paginas
+	mov eax, 0x25000
+	mov cr3, eax
 
     ; Habilitar paginacion
+    mov eax, cr0
+    or eax, 0x80000000         ; prendemos PG
+    mov cr0, eax
+
+    call print_libretas
+
 
     ; Inicializar tss
 
@@ -118,7 +154,6 @@ modo_protegido:
 
     ; Inicializar el scheduler
 
-    xchg bx, bx
 
     ; Inicializar la IDT
     call idt_init
@@ -131,14 +166,39 @@ modo_protegido:
     call pic_reset
     call pic_enable
 
+
     ; Cargar tarea inicial
+
+    xchg bx, bx
+    push 4
+    push 0x14000
+    push 0x1D00000
+    call mmu_init_task_dir
+    mov cr3,eax
+    add esp, 3*4
+    xor ax, ax
+    mov ax, 1110000b ; 14 shifetado 3 a izquierda por el segmento de video
+    mov fs, ax
+    mov word [fs:0], RED
+    mov eax, 0x25000
+    mov cr3, eax
+
+
+
+    ;xchg bx, bx
+    ;push 2
+    ;push 0x00400000
+    ;push 0x0050E008
+    ;mov eax, cr3
+    ;push eax
+    ;call mmu_map_page
+    ;add esp, 4*4
+    ;mov BYTE [0X0050E027], 0x1
+    ;xchg bx, bx
 
 
     ;Habilitar interrupciones
     sti
-
-    ;xor eax, eax
-    ;idiv eax    ;division por 0
 
 
     ; Saltar a la primera tarea: Idle
@@ -150,14 +210,6 @@ modo_protegido:
     ; mov edx, 0xFFFF
     jmp $
 
-%define BLACK              (0x0 << 12)
-%define BLUE               (0x1 << 12)
-%define GREEN              (0x2 << 12)
-%define CYAN               (0x3 << 12)
-%define RED                (0x4 << 12)
-%define MAGENTA            (0x5 << 12)
-%define BROWN              (0x6 << 12)
-%define LIGHT_GREY         (0x7 << 12)
 
 
 init_pantalla:
@@ -216,9 +268,6 @@ tableros:
     jne tableros
 
 ret
-
-
-
 
 
 ;; -------------------------------------------------------------------------- ;;
