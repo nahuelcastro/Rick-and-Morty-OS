@@ -29,12 +29,12 @@ extern init_tss_idle
 
  
 
-%define CS_LVL_0 0x50
-%define DATO_LVL_0 0x58
+%define IDX_CODE_LVL_0 0x50
+%define IDX_DATO_LVL_0 0x58
 %define EBP_BASE 0x25000
-%define VIDEO_LVL_0 0x70
-%define TSS_IDLE 0x40  
-%define INDEX_GDT_INICAL 0x78
+%define IDX_VIDEO_LVL_0 0x70
+%define IDX_TSS_IDLE 0x40       
+%define IDX_TSS_INICAL 0x78
 
 BITS 16
 ;; Saltear seccion de datos
@@ -85,7 +85,7 @@ start:
     mov CR0, eax
     
     ; Saltar a modo protegido
-    jmp CS_LVL_0:modo_protegido     ;[0000000001010-0-00]
+    jmp IDX_CODE_LVL_0:modo_protegido     ;[0000000001010-0-00]
     ;explicacion, ver definicion de selecctor de segmento, tamaño 16 bits
     ;salta al primer segmento de codigo, habria que ver bien porque, pero saltan al de cogido 
     ;y abajo setean el de datos (DS)  y el resto de los registros de segmento
@@ -97,7 +97,7 @@ start:
     ; [1 - 0] = Nivel de privilegio (0 = Kernel, 3 = Usuario)
 
 
-BITS 32
+BITS 32 
 
 
 
@@ -114,13 +114,13 @@ modo_protegido:
 %define LIGHT_GREY         (0x7 << 12)
 
     ; Establecer selectores de segmentos
-    xor eax, eax        ;Vacío eax
-    mov ax, DATO_LVL_0  ;Muevo a AX un selector para el descriptor del segmento 11, pero dejando los primeros 3 bits en 0
-    mov ds, ax          ;Pongo el resto de los registros de segmento en el mismo segmento.
+    xor eax, eax        
+    mov ax, IDX_DATO_LVL_0  
+    mov ds, ax         
     mov es, ax      
     mov gs, ax      
     mov ss, ax      
-    mov ax, 1110000b ; 14 shifetado 3 a izquierda por el segmento de video 
+    mov ax, 1110000b 
     mov fs, ax
 
 
@@ -133,7 +133,7 @@ modo_protegido:
 
 
     ; Inicializar pantalla
-    call init_pantalla  ; solo le puse el nombre hay que implementarla jeje    
+    call init_pantalla  
 
     
     ; Inicializar el manejador de memoria
@@ -142,19 +142,17 @@ modo_protegido:
     ; Inicializar el directorio de paginas
     call mmu_init_kernel_dir
 
-    xchg bx, bx
     ; Cargar directorio de paginas
 	mov eax, 0x25000
 	mov cr3, eax
 	
     ; Habilitar paginacion
     mov eax, cr0
-    or eax, 0x80000000         ; prendemos PG
+    or eax, 0x80000000         
     mov cr0, eax
     
     call print_libretas
  
-
     ; Inicializar tss
     call init_tss_inicial
 
@@ -183,17 +181,12 @@ modo_protegido:
     
 
     ; Cargar tarea inicial
-    mov ax, INDEX_GDT_INICAL  
+    mov ax, IDX_TSS_INICAL  
     ltr ax
 
     ; Saltar a la primera tarea: Idle
-    ;mov ax, 0x00018000  ;creo que no hace falta
-    ;ltr ax
-    jmp TSS_IDLE:0  
-    
-
-                                                            ;ORDENAR TODO EL QUILOMBO QUE HAY ACAAAAA
-    
+    jmp IDX_TSS_IDLE:0  
+        
     ;mov cr3,eax
     ;5d
     ;xor ax, ax
@@ -203,7 +196,7 @@ modo_protegido:
     ;mov eax, 0x25000
     ;mov cr3, eax
     
-    ;xchg bx, bx 
+
     ;push 2
     ;push 0x00400000
     ;push 0x0050E008
@@ -216,21 +209,7 @@ modo_protegido:
 
 
     ;Habilitar interrupciones
-    sti
-    
-
-    ; YA ME LO CHORIE DE OTRO LADO
-    ; VER MAÑANA: (Copie y pegue de diapo) :D 
-    ;mov eip, 0x1A000 ;Comienzo del codigo de la tarea Idle.  ́
-    ;mov cr3, 0x27000 ;El mismo mapa de paginacion del  ́ kernel.
-    ;mov esp, 0x27000 ;Misma pila del Kernel.
-    ;mov cs, CS_LVL_0 ;Mismo selector de segmento de codigo de nivel cero.  ́
-    ;mov ds, DATO_LVL_0 ;Selector de segmento de datos de nivel cero.
-    ;mov ss, DATO_LVL_0
-    ;MOV eflags, 0x202 ;Interrupciones activas.
-
-    
-    
+    sti    
     
     ; Ciclar infinitamente (por si algo sale mal...)
     ; mov eax, 0xFFFF
@@ -238,6 +217,8 @@ modo_protegido:
     ; mov ecx, 0xFFFF
     ; mov edx, 0xFFFF
     jmp $
+
+
 
 
 init_pantalla:
