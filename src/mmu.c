@@ -35,8 +35,8 @@ paddr_t mmu_next_free_kernel_page(void) {
 
 
 paddr_t mmu_init_kernel_dir(void) {
-  page_directory_entry *pd = (page_directory_entry *)KERNEL_PAGE_DIR;
-  page_table_entry *pt_0 = (page_table_entry *)KERNEL_PAGE_TABLE_0;
+  page_directory_entry *pd = (page_directory_entry *)KERNEL_PAGE_DIR; 
+  page_table_entry *pt_0 = (page_table_entry *)KERNEL_PAGE_TABLE_0; 
   
 
   for (int i = 0; i < 1024; i++)
@@ -173,7 +173,7 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages) {
 
   // Mapeando en el page directory del kernel
   for (size_t i = 0; i < pages; i++){
-    mmu_map_page(cr3,virt_page, phy_start, 2);
+    mmu_map_page(cr3,virt_page, phy_start, 2);  
     virt_page += 4096; // 4096 = 4kb = tamaño pagina
     phy_start += 4096;  // 4096 = 4kb = tamaño pagina
   }

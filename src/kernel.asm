@@ -181,12 +181,30 @@ modo_protegido:
     
 
     ; Cargar tarea inicial
+    
     mov ax, IDX_TSS_INICAL  
     ltr ax
 
+    ;Habilitar interrupciones
+    sti    
+
+    xchg bx, bx
     ; Saltar a la primera tarea: Idle
-    jmp IDX_TSS_IDLE:0  
+    jmp IDX_TSS_IDLE:0              
+    
+
+
+
+    ; Ciclar infinitamente (por si algo sale mal...)
+    ; mov eax, 0xFFFF
+    ; mov ebx, 0xFFFF
+    ; mov ecx, 0xFFFF
+    ; mov edx, 0xFFFF
+    jmp $
         
+
+;CODIGO VIEJO (USAR DESPUÉS PARA PROBAR EL 5 QUE NO NOS SALIO, TENGO LA SOSPECHA QUE DESPUES NOS VA A ROMPER POR ALGO (QUE NO HAYAMOS PODIDO MODIFICAR LA PANTALLA))
+    
     ;mov cr3,eax
     ;5d
     ;xor ax, ax
@@ -206,18 +224,6 @@ modo_protegido:
     ;add esp, 4*4
     ;mov BYTE [0X0050E027], 0x1
     ;xchg bx, bx 
-
-
-    ;Habilitar interrupciones
-    sti    
-    
-    ; Ciclar infinitamente (por si algo sale mal...)
-    ; mov eax, 0xFFFF
-    ; mov ebx, 0xFFFF
-    ; mov ecx, 0xFFFF
-    ; mov edx, 0xFFFF
-    jmp $
-
 
 
 

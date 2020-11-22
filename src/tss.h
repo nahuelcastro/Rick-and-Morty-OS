@@ -57,5 +57,8 @@ extern tss_t tss_initial;
 extern tss_t tss_idle;
 
 void init_tss_inicial(void);
+
+void tss_gdt_entry_init(uint8_t index, uint32_t tss);
+
 void init_tss_idle(void);
 #endif //  __TSS_H__
