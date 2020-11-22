@@ -24,8 +24,10 @@ extern mmu_init_task_dir
 extern mmu_prueba
 extern GDT_IDX_TSS_IDLE
 
-extern init_tss_inicial
-extern init_tss_idle
+extern init_tss
+extern init_idle
+extern tss_creator
+
 
  
 
@@ -33,8 +35,8 @@ extern init_tss_idle
 %define IDX_DATO_LVL_0 0x58
 %define EBP_BASE 0x25000
 %define IDX_VIDEO_LVL_0 0x70
-%define IDX_TSS_IDLE 0x40       
-%define IDX_TSS_INICAL 0x78
+%define IDX_TSS_IDLE 0x80 
+%define IDX_TSS_INICAL 0x78     
 
 BITS 16
 ;; Saltear seccion de datos
@@ -154,11 +156,16 @@ modo_protegido:
     call print_libretas
  
     ; Inicializar tss
-    call init_tss_inicial
+    call init_tss
 
     ; Inicializar tss de la tarea Idle
-    call init_tss_idle
+    call init_idle
 
+    xchg bx, bx 
+    push 1
+    push 0x10000
+    call tss_creator
+    xchg bx, bx 
     ; Inicializar el scheduler
 
     
@@ -178,6 +185,7 @@ modo_protegido:
     push 0x1D00000
     call mmu_init_task_dir
     add esp, 3*4
+
     
 
     ; Cargar tarea inicial
@@ -188,7 +196,7 @@ modo_protegido:
     ;Habilitar interrupciones
     sti    
 
-    xchg bx, bx
+    xchg bx, bx 
     ; Saltar a la primera tarea: Idle
     jmp IDX_TSS_IDLE:0              
     

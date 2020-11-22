@@ -62,6 +62,6 @@
 /* -------------------------------------------------------------------------- */
 #define KERNEL_PAGE_DIR     (0x00025000)
 #define KERNEL_PAGE_TABLE_0 (0x00026000)
-#define KERNEL_STACK        (0x00024000)  //veeer  #define KERNEL_STACK (0x00025000) 
+#define KERNEL_STACK        (0x00025000)  
 
 #endif //  __DEFINES_H__

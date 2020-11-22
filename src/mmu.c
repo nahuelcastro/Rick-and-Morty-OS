@@ -68,26 +68,13 @@ void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs){
   //virt | 0000 0000 01 (off_pd) | 01 0000 1110 (off_pt) | 0000 0010 0111 (off_dir) 
 
 
-  //attrs = attrs;
-
   int off_pd = (virt >> 22);
   int off_pt = ((virt << 10) >> 22);
   
-  
-  //uint8_t FLAG_PRESENT = (uint8_t)((attrs << 31) >> 31);
+
   uint8_t FLAG_USER_SUPERVISOR = (uint8_t)((attrs << 30) >> 31);    // ver si va siempre en 0
   uint8_t FLAG_READ_WRITE = (uint8_t)((attrs << 29) >> 31);
 
-
- /*
-  uint8_t FLAG_PAGE_WRITE_THROUGH =((attrs << 28) >> 31);
-  uint8_t FLAG_PAGE_CACHE_DISABLE =((attrs << 27) >> 31);
-  uint8_t FLAG_ACCESSED = ((attrs << 26) >> 31);
-  uint8_t FLAG_X = ((attrs << 25) >> 31);
-  uint8_t FLAG_PAGE_SIZE = ((attrs << 24) >> 31);
-  uint8_t FLAG_IGNORED = ((attrs << 23) >> 31);
-  uint8_t FLAG_AVAILABLE = ((attrs << 20) >> 29);
-  */
     
   page_directory_entry* pde_map = (page_directory_entry*) cr3;
 
@@ -171,12 +158,15 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages) {
   
   paddr_t virt_page = TASK_CODE_VIRTUAL;
 
+
   // Mapeando en el page directory del kernel
   for (size_t i = 0; i < pages; i++){
     mmu_map_page(cr3,virt_page, phy_start, 2);  
     virt_page += 4096; // 4096 = 4kb = tamaño pagina
     phy_start += 4096;  // 4096 = 4kb = tamaño pagina
   }
+
+  
 
   paddr_t phy = 0;
   paddr_t virt = 0;
@@ -199,6 +189,7 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages) {
     phy_start += 4096;  // 4096 = 4kb = tamaño pagina
   }
 
+
   // copiar las tareas de rick o morty del kernel a codigo respectivo 
   for (size_t i = 0; i < 16384; i++){
     *ptr_phy_page = *ptr_code_page;
@@ -207,27 +198,17 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages) {
   }
 
   virt_page = 0x1D00000;
+
   
+
+
   // Desmapeando de cr3 de Kernel para que después no me rompa lo de Rick
   for (size_t i = 0; i < pages; i++){
     mmu_unmap_page(cr3, virt_page);
     virt_page += 4096; // 4096 = 4kb = tamaño pagina(en bytes)cal
   }
 
+
   return new_cr3;
 
 }
-
-
-
-  // for (size_t i = 0; i < 512; i++){
-  //   *ptr_phy_page = *ptr_code_page;
-  //   ptr_phy_page++;
-  //   ptr_code_page++;
-  // }
-
-// Crear una función que retorne la dirección física de un page directory que tenga mapeado con identity mapping el kernel, 
-// y el código de rick/morty en las direcciones que dice el enunciado, como indica la figura creo que 5 o 3.
-//void 
-
-

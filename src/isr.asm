@@ -77,8 +77,8 @@ _isr32:
      xchg bx, bx
      mov word [sched_task_selector], ax 
      jmp far [sched_task_offset]
-     ;imprimir el reloj de sistema 
-     ;call next_clock
+     imprimir el reloj de sistema 
+     call next_clock
      .fin:
      popad
 iret

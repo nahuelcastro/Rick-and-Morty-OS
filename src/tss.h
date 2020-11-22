@@ -53,12 +53,13 @@ typedef struct str_tss {
   uint16_t iomap;
 } __attribute__((__packed__, aligned(8))) tss_t;
 
-extern tss_t tss_initial;
-extern tss_t tss_idle;
 
-void init_tss_inicial(void);
+void init_tss(void);
 
-void tss_gdt_entry_init(uint8_t index, uint32_t tss);
+void init_idle();
 
-void init_tss_idle(void);
+//void tss_gdt_entry_init(uint8_t index, uint32_t tss);
+
+void tss_gdt_entry_init(uint32_t index, uint32_t base);
+
 #endif //  __TSS_H__
