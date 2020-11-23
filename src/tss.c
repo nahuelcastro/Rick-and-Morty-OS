@@ -28,7 +28,7 @@ tss_t tss_initial;
 tss_t tss_idle;
 tss_t tss_new_task;
 
-
+task_type_t player_idx_gdt[35];
 
 void init_tss(void) {
 

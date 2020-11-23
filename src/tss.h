@@ -13,6 +13,8 @@
 #include "types.h"
 #include "game.h"
 
+extern task_type_t player_idx_gdt[35];
+
 typedef struct str_tss {
   uint16_t ptl;
   uint16_t unused0;
@@ -63,7 +65,7 @@ void init_idle();
 
 void tss_gdt_entry_init(uint32_t index, uint32_t base);
 
-task_type_t player_idx_gdt[35];
-
+// task_type_t player_idx_gdt[35];
+// task_type_t player_idx_gdt[35];
 
 #endif //  __TSS_H__
