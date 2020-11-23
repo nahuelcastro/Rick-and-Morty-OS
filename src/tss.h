@@ -56,6 +56,6 @@ typedef struct str_tss {
 extern tss_t tss_initial;
 extern tss_t tss_idle;
 
-void tss_init(void);
-
+void init_tss_inicial(void);
+void init_tss_idle(void);
 #endif //  __TSS_H__

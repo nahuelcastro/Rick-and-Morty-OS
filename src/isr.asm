@@ -70,17 +70,22 @@ _isr32:
      ;avisar al pic que se recibio la interrupcion
      call pic_finish1
 
+     call sched_next_task ; Crear esta funcion en C que basicamente cicle entre las tareas que hay y cuando llega a la ultima vuelva a la primera
+     str cx
+     cmp ax, cx           ; Me fijo si la proxima tarea no es la actual
+     je .fin
+     xchg bx, bx
+     mov word [sched_task_selector], ax
+     jmp far [sched_task_offset]
      ;imprimir el reloj de sistema
-     call next_clock
-
+     ;call next_clock
+     .fin:
      popad
 iret
 
 ;; -------------------------------------------------------------------------- ;;
 ;; Rutina de atención del TECLADO
 ;; -------------------------------------------------------------------------- ;;
-global _isr33
-
 global _isr33
 
 _isr33:
@@ -90,7 +95,6 @@ _isr33:
 
      push eax
      call print_scan_code
-     ;call imprimir_excepcion
      add esp, 4
 
      ;avisar al pic que se recibio la interrupcion

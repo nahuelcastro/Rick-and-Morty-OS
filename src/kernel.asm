@@ -5,13 +5,6 @@
 
 %include "print.mac"
 
-extern GDT_DESC
-%define CS_LVL_0 0x50
-%define DATO_LVL_0 0x58
-%define EBP_BASE 0x25000
-%define VIDEO_LVL_0 0x70
-
-
 global start
 
 
@@ -29,6 +22,20 @@ extern mmu_map_page
 
 extern mmu_init_task_dir
 extern mmu_prueba
+extern GDT_IDX_TSS_IDLE
+
+extern init_tss_inicial
+extern init_tss_idle
+extern tss_initial
+
+
+
+%define IDX_CODE_LVL_0 0x50
+%define IDX_DATO_LVL_0 0x58
+%define EBP_BASE 0x25000
+%define IDX_VIDEO_LVL_0 0x70
+%define IDX_TSS_IDLE 0x40
+%define IDX_TSS_INICAL 0x78
 
 BITS 16
 ;; Saltear seccion de datos
@@ -50,7 +57,6 @@ start_pm_len equ    $ - start_pm_msg
 ;; Punto de entrada del kernel.
 BITS 16
 start:
-
     ; Deshabilitar interrupciones
     cli
 
@@ -76,11 +82,15 @@ start:
 
     ; Setear el bit PE del registro CR0
     mov eax, CR0
-    or eax, 1
+    or  eax, 0x1
     mov CR0, eax
 
     ; Saltar a modo protegido
-    jmp CS_LVL_0:modo_protegido
+    jmp IDX_CODE_LVL_0:modo_protegido     ;[0000000001010-0-00]
+    ;explicacion, ver definicion de selecctor de segmento, tamaño 16 bits
+    ;salta al primer segmento de codigo, habria que ver bien porque, pero saltan al de cogido
+    ;y abajo setean el de datos (DS)  y el resto de los registros de segmento
+    ;buscar buena explicacion en teorica
 
     ; sacar lo de abajo
     ; [15 - 3] = Índice de la tabla en el que se encuentra el descriptor del segmento al que quiero saltar
@@ -105,25 +115,23 @@ modo_protegido:
 %define LIGHT_GREY         (0x7 << 12)
 
     ; Establecer selectores de segmentos
-    xor eax, eax    ;Vacío eax
-    mov ax, 0x58    ;Muevo a AX un selector para el descriptor del segmento 11, pero dejando los primeros 3 bits en 0
-    mov ds, ax      ;Pongo el resto de los registros de segmento en el mismo segmento.
+    xor eax, eax
+    mov ax, IDX_DATO_LVL_0
+    mov ds, ax
     mov es, ax
     mov gs, ax
     mov ss, ax
-    mov ax, 1110000b ; 14 shifetado 3 a izquierda por el segmento de video
+    mov ax, 1110000b
     mov fs, ax
 
 
     ; Establecer la base de la pila
-    mov ebp, 0x25000
+    mov ebp, EBP_BASE
     mov esp, ebp        ;Pongo el tope de la pila en la base de la pila.
 
     ; Imprimir mensaje de bienvenida
     print_text_pm start_pm_msg, start_pm_len, 0x07, 0, 0    ;chequear si es asi
 
-    ; Imprimir mensaje de bienvenida
-    print_text_pm start_pm_msg, start_pm_len, 0x07, 0, 0
 
     ; Inicializar pantalla
     call init_pantalla
@@ -135,22 +143,22 @@ modo_protegido:
     ; Inicializar el directorio de paginas
     call mmu_init_kernel_dir
 
-    xchg bx, bx
     ; Cargar directorio de paginas
 	mov eax, 0x25000
 	mov cr3, eax
 
     ; Habilitar paginacion
     mov eax, cr0
-    or eax, 0x80000000         ; prendemos PG
+    or eax, 0x80000000
     mov cr0, eax
 
     call print_libretas
 
-
     ; Inicializar tss
+    call init_tss_inicial
 
     ; Inicializar tss de la tarea Idle
+    call init_tss_idle
 
     ; Inicializar el scheduler
 
@@ -166,26 +174,48 @@ modo_protegido:
     call pic_reset
     call pic_enable
 
-
-    ; Cargar tarea inicial
-
-    xchg bx, bx
     push 4
     push 0x14000
     push 0x1D00000
     call mmu_init_task_dir
-    mov cr3,eax
     add esp, 3*4
-    xor ax, ax
-    mov ax, 1110000b ; 14 shifetado 3 a izquierda por el segmento de video
-    mov fs, ax
-    mov word [fs:0], RED
-    mov eax, 0x25000
-    mov cr3, eax
+
+
+    ; Cargar tarea inicial
+    xchg bx, bx
+    mov ax, IDX_TSS_INICAL
+    ltr ax
+
+    ;Habilitar interrupciones
+    sti
+
+    ; Saltar a la primera tarea: Idle
+    jmp IDX_TSS_IDLE:0              ; ESTE SALTO NOS ESTA ROMPIENDO. No le gusta jmpf 0x0040:00000000
+; Es lo que quería decir el otro día... Para mi no va el indice, va el selector en la gdt que apunta a la tarea idle (no el indice en la gdt que apunta al selector, que sería esto)
+    ;jmp tss_initial:0
 
 
 
-    ;xchg bx, bx
+    ; Ciclar infinitamente (por si algo sale mal...)
+    ; mov eax, 0xFFFF
+    ; mov ebx, 0xFFFF
+    ; mov ecx, 0xFFFF
+    ; mov edx, 0xFFFF
+    jmp $
+
+
+;CODIGO VIEJO (USAR DESPUÉS PARA PROBAR EL 5 QUE NO NOS SALIO, TENGO LA SOSPECHA QUE DESPUES NOS VA A ROMPER POR ALGO (QUE NO HAYAMOS PODIDO MODIFICAR LA PANTALLA))
+
+    ;mov cr3,eax
+    ;5d
+    ;xor ax, ax
+    ;mov ax, 1110000b ; 14 shifetado 3 a izquierda por el segmento de video
+    ;mov fs, ax
+    ;mov word [fs:0], RED
+    ;mov eax, 0x25000
+    ;mov cr3, eax
+
+
     ;push 2
     ;push 0x00400000
     ;push 0x0050E008
@@ -195,20 +225,6 @@ modo_protegido:
     ;add esp, 4*4
     ;mov BYTE [0X0050E027], 0x1
     ;xchg bx, bx
-
-
-    ;Habilitar interrupciones
-    sti
-
-
-    ; Saltar a la primera tarea: Idle
-
-    ; Ciclar infinitamente (por si algo sale mal...)
-    ; mov eax, 0xFFFF
-    ; mov ebx, 0xFFFF
-    ; mov ecx, 0xFFFF
-    ; mov edx, 0xFFFF
-    jmp $
 
 
 
