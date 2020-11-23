@@ -29,7 +29,7 @@ extern init_idle
 extern tss_creator
 extern sched_init
 
- 
+
 
 %define IDX_CODE_LVL_0 0x50
 %define IDX_DATO_LVL_0 0x58
@@ -161,24 +161,20 @@ modo_protegido:
     ; Inicializar tss de la tarea Idle
     call init_idle
 
-    ; xchg bx, bx 
-    ; push 1
-    ; push 0x10000
-    ; call tss_creator
-    ; add esp, 4*2
-    ; xchg bx, bx 
- 
-    xchg bx, bx 
-    push 0
-    push 0x14000
-    call tss_creator
-    add esp, 4*2
-    xchg bx, bx 
 
     ; Inicializar el scheduler
-    ;call sched_init
+    call sched_init
     
 
+    push 0 ;task
+    push 1 ;player = rick
+    call tss_creator
+    add esp, 4*2
+
+    push 0 ;task
+    push 0 ; player = morty
+    call tss_creator
+    add esp, 4*2
     
     ; Inicializar la IDT        
     call idt_init
@@ -200,7 +196,7 @@ modo_protegido:
     
 
     ; Cargar tarea inicial
-    
+    xchg bx, bx 
     mov ax, IDX_TSS_INICAL  
     ltr ax
 

@@ -154,7 +154,7 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages) {
   paddr_t original_phy_page = phy_start;
   
   uint8_t* ptr_code_page = (uint8_t*) code_start;
-  uint8_t* ptr_phy_page = (uint8_t*) phy_start;
+  uint8_t* ptr_virt_page = (uint8_t*) TASK_CODE_VIRTUAL;
   
   paddr_t virt_page = TASK_CODE_VIRTUAL;
 
@@ -192,14 +192,12 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages) {
 
   // copiar las tareas de rick o morty del kernel a codigo respectivo 
   for (size_t i = 0; i < 16384; i++){
-    *ptr_phy_page = *ptr_code_page;
+    *ptr_virt_page = *ptr_code_page;
     ptr_code_page++;
-    ptr_phy_page++;
+    ptr_virt_page++;
   }
 
-  virt_page = 0x1D00000;
-
-  
+  virt_page = TASK_CODE_VIRTUAL;  
 
 
   // Desmapeando de cr3 de Kernel para que después no me rompa lo de Rick
@@ -208,7 +206,12 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages) {
     virt_page += 4096; // 4096 = 4kb = tamaño pagina(en bytes)cal
   }
 
-
+/*
+  breakpoint();
+  lcr3(new_cr3);
+  breakpoint();
+  lcr3(cr3);
+*/
   return new_cr3;
 
 }

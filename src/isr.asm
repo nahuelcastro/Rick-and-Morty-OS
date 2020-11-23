@@ -4,7 +4,7 @@
 ; ==============================================================================
 ;
 ; Definicion de rutinas de atencion de interrupciones
-
+;
 %include "print.mac"
 
 BITS 32
@@ -75,7 +75,7 @@ _isr32:
      str cx
      cmp ax, cx           ; Me fijo si la proxima tarea no es la actual               
      je .fin
-     xchg bx, bx
+     xchg bx, bx 
      mov word [sched_task_selector], ax 
      jmp far [sched_task_offset]
      ;imprimir el reloj de sistema 

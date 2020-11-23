@@ -26,9 +26,15 @@
 
 tss_t tss_initial;
 tss_t tss_idle;
-tss_t tss_new_task;
+//tss_t* tss_new_task;
+//tss_t tss_new_task;
+//uint32_t base_new_task;
+//tss_t* punteroNewTask;
+tss_t tss_rick[8];
+tss_t tss_morty[8];
 
-task_type_t player_idx_gdt[35];
+
+task_type_t player_idx_gdt[GDT_COUNT];
 
 void init_tss(void) {
 
@@ -41,9 +47,10 @@ void init_tss(void) {
 }
 
 void init_idle(){
-
-  uint32_t base = (uint32_t) &tss_idle;  
-  tss_gdt_entry_init(IDX_TSS_IDLE, base);
+  
+  uint32_t base_idle_task = (uint32_t) &tss_idle;
+  tss_gdt_entry_init(IDX_TSS_IDLE, base_idle_task);
+    
 
   tss_idle.ptl = 0;
   tss_idle.unused0 = 0;
@@ -106,81 +113,83 @@ void tss_gdt_entry_init(uint32_t index, uint32_t tss) {
 }
 
 
-
-//uint32_t next_free_task_space = 0x3C000; // 0x40000 - 16384 (4 paginas de 4KB)
 uint32_t next_free_gdt_idx = 16;
 
 void next_free_tss() {
   next_free_gdt_idx++;
-//  next_free_task_space+=4096*pages;
 
+  //base_new_task = base_new_task + 104;
 }
 
 
 
-void tss_creator(paddr_t code_start, int player){    // code_start=0x10000 (Rick) o 0x14000 (Morty)  Si tareas Rick o Morty, jugador=1 (true)
+void tss_creator(int player, int task){    // code_start=0x10000 (Rick) o 0x14000 (Morty)  Si tareas Rick o Morty, jugador=1 (true)
 
+  paddr_t code_start;
   paddr_t next_free_task_space;
+  tss_t* tss_new_task; 
   if(player == 1){                                   // 1 = Rick
-     next_free_task_space = 0x1D00000;
+    next_free_task_space = 0x1D00000;
+    code_start = 0x10000;
+    tss_new_task = &tss_rick[task];
   }else{                                             // 0 = Morty
-     next_free_task_space = 0x1D04000;
+    next_free_task_space = 0x1D04000;
+    code_start = 0x14000;
+    tss_new_task = &tss_morty[task];
   }
 
-  breakpoint();
-//ROMPE ACÁ! Chequear posicion
   paddr_t page_dir = mmu_init_task_dir(next_free_task_space, code_start, 4); // ver si esta bien lo de la posicion 0x40000, para mi son las mismas posicones que ej 5
   paddr_t stack_level_0 = mmu_next_free_kernel_page();  //usa pagina nueva del area libre kernel
-
- // tss_t tss_new_task;
-
   
+
+
   next_free_tss(); // actualiza
   player_idx_gdt[next_free_gdt_idx] = player; // nos indica a que jugador pertenece el indice de la gdt
- 
-  uint32_t base = (uint32_t) &tss_new_task; 
-  tss_gdt_entry_init(next_free_gdt_idx,base);
+
+  
+  tss_gdt_entry_init(next_free_gdt_idx, (uint32_t) tss_new_task);
+
 
   gdt[next_free_gdt_idx].dpl = 3;
   
-    tss_new_task.ptl = 0;
-    tss_new_task.unused0 = 0;
-    tss_new_task.esp0 = stack_level_0 + PAGE_SIZE;
-    tss_new_task.ss0 = IDX_DATO_LVL_0;
-    tss_new_task.unused1 = 0;
-    tss_new_task.esp1 = 0;
-    tss_new_task.ss1 = 0;
-    tss_new_task.unused2 = 0;
-    tss_new_task.esp2 = 0;
-    tss_new_task.ss2 = 0;
-    tss_new_task.unused3 = 0;
-    tss_new_task.cr3 = page_dir;
-    tss_new_task.eip = TASK_VIRTUAL_DIR;
-    tss_new_task.eflags = 0x202;
-    tss_new_task.eax = 0;
-    tss_new_task.ecx = 0;
-    tss_new_task.edx = 0;
-    tss_new_task.ebx = 0;
-    tss_new_task.esp = TASK_VIRTUAL_DIR + 4 * PAGE_SIZE;
-    tss_new_task.ebp = TASK_VIRTUAL_DIR + 4 * PAGE_SIZE; 
-    tss_new_task.esi = 0;
-    tss_new_task.edi = 0;
-    tss_new_task.es  = IDX_DATO_LVL_3;
-    tss_new_task.unused4 = 0;
-    tss_new_task.cs = IDX_CODE_LVL_3;
-    tss_new_task.unused5 = 0;
-    tss_new_task.ss = IDX_DATO_LVL_3;
-    tss_new_task.unused6 = 0;
-    tss_new_task.ds = IDX_DATO_LVL_3;
-    tss_new_task.unused7 = 0;
-    tss_new_task.fs = IDX_DATO_LVL_3;
-    tss_new_task.unused8 = 0;
-    tss_new_task.gs = IDX_DATO_LVL_3;
-    tss_new_task.unused9 = 0;
-    tss_new_task.ldt = 0;
-    tss_new_task.unused10 = 0;
-    tss_new_task.dtrap = 0;
-    tss_new_task.iomap = 0xFFFF;
+  tss_new_task->ptl = 0;
+  tss_new_task->unused0 = 0;
+  tss_new_task->esp0 = stack_level_0 + PAGE_SIZE;
+  tss_new_task->ss0 = IDX_DATO_LVL_0;
+  tss_new_task->unused1 = 0;
+  tss_new_task->esp1 = 0;
+  tss_new_task->ss1 = 0;
+  tss_new_task->unused2 = 0;
+  tss_new_task->esp2 = 0;
+  tss_new_task->ss2 = 0;
+  tss_new_task->unused3 = 0;
+  tss_new_task->cr3 = page_dir;
+  tss_new_task->eip = TASK_VIRTUAL_DIR;
+  tss_new_task->eflags = 0x202;
+  tss_new_task->eax = 0;
+  tss_new_task->ecx = 0;
+  tss_new_task->edx = 0;
+  tss_new_task->ebx = 0;
+  tss_new_task->esp = TASK_VIRTUAL_DIR + 4 * PAGE_SIZE;
+  tss_new_task->ebp = 0; 
+  tss_new_task->esi = 0;
+  tss_new_task->edi = 0;
+  tss_new_task->es  = IDX_DATO_LVL_3;
+  tss_new_task->unused4 = 0;
+  tss_new_task->cs = IDX_CODE_LVL_3;
+  tss_new_task->unused5 = 0;
+  tss_new_task->ss = IDX_DATO_LVL_3;
+  tss_new_task->unused6 = 0;
+  tss_new_task->ds = IDX_DATO_LVL_3;
+  tss_new_task->unused7 = 0;
+  tss_new_task->fs = IDX_DATO_LVL_3;
+  tss_new_task->unused8 = 0;
+  tss_new_task->gs = IDX_DATO_LVL_3;
+  tss_new_task->unused9 = 0;
+  tss_new_task->ldt = 0;
+  tss_new_task->unused10 = 0;
+  tss_new_task->dtrap = 0;
+  tss_new_task->iomap = 0xFFFF;
 
 }
 
