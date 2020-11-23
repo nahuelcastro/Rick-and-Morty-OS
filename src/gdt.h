@@ -33,6 +33,8 @@ typedef struct str_gdt_entry {
   uint8_t base_31_24;
 } __attribute__((__packed__, aligned(8))) gdt_entry_t;
 
+
+
 /* Tabla GDT */
 extern gdt_entry_t gdt[];
 extern gdt_descriptor_t GDT_DESC;

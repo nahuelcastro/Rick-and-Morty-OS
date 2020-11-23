@@ -27,7 +27,7 @@ extern GDT_IDX_TSS_IDLE
 extern init_tss
 extern init_idle
 extern tss_creator
-
+extern sched_init
 
  
 
@@ -161,12 +161,23 @@ modo_protegido:
     ; Inicializar tss de la tarea Idle
     call init_idle
 
+    ; xchg bx, bx 
+    ; push 1
+    ; push 0x10000
+    ; call tss_creator
+    ; add esp, 4*2
+    ; xchg bx, bx 
+ 
     xchg bx, bx 
-    push 1
-    push 0x10000
+    push 0
+    push 0x14000
     call tss_creator
+    add esp, 4*2
     xchg bx, bx 
+
     ; Inicializar el scheduler
+    ;call sched_init
+    
 
     
     ; Inicializar la IDT        

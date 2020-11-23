@@ -9,8 +9,8 @@
 
 BITS 32
 
-sched_task_offset:     dd 0xFFFFFFFF
-sched_task_selector:   dw 0xFFFF
+sched_task_offset:     dd 0
+sched_task_selector:   dw 0   
 
 ;; PIC
 extern pic_finish1
@@ -38,6 +38,7 @@ _isr%1:
 
 ;; Rutina de atención de las EXCEPCIONES
 ;; -------------------------------------------------------------------------- ;;
+
 ISR 0
 ISR 1
 ISR 2
@@ -77,7 +78,7 @@ _isr32:
      xchg bx, bx
      mov word [sched_task_selector], ax 
      jmp far [sched_task_offset]
-     imprimir el reloj de sistema 
+     ;imprimir el reloj de sistema 
      call next_clock
      .fin:
      popad

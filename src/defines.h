@@ -6,6 +6,9 @@
   Definiciones globales del sistema.
 */
 
+//#include <stdio.h>
+
+
 #ifndef __DEFINES_H__
 #define __DEFINES_H__
 /* MMU */
@@ -62,6 +65,10 @@
 /* -------------------------------------------------------------------------- */
 #define KERNEL_PAGE_DIR     (0x00025000)
 #define KERNEL_PAGE_TABLE_0 (0x00026000)
-#define KERNEL_STACK        (0x00025000)  
+#define KERNEL_STACK        (0x00025000)
+
+// int player_idx_gdt[35] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+
+//int player_idx_gdt[35] = {2};
 
 #endif //  __DEFINES_H__

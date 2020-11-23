@@ -12,6 +12,8 @@
 #include "mmu.h"
 #include "i386.h"
 
+
+
 #define IDX_TSS_INIT 15
 #define IDX_TSS_IDLE 16
 #define IDLE_TASK_CODE 0x18000 //
@@ -20,16 +22,21 @@
 #define IDX_CODE_LVL_3 0x60   //0110 0000  12
 #define IDX_DATO_LVL_3 0x68   //0110 1000  13
 #define PAGE_SIZE 4096
+#define TASK_VIRTUAL_DIR 0x1D00000
 
 tss_t tss_initial;
 tss_t tss_idle;
 tss_t tss_new_task;
 
 
+
 void init_tss(void) {
 
-uint32_t base = (uint32_t) &tss_initial;
-tss_gdt_entry_init(IDX_TSS_INIT, base);
+  for (int i = 0; i < 35; i++){
+    player_idx_gdt[i]=Meeseeks;
+  }
+  uint32_t base = (uint32_t) &tss_initial;
+  tss_gdt_entry_init(IDX_TSS_INIT, base);
 
 }
 
@@ -57,7 +64,7 @@ void init_idle(){
   tss_idle.edx = 0;
   tss_idle.ebx = 0;
   tss_idle.esp = KERNEL_STACK;
-  tss_idle.ebp = KERNEL_STACK;
+  tss_idle.ebp = 0;
   tss_idle.esi = 0;
   tss_idle.edi = 0;
   tss_idle.es = IDX_DATO_LVL_0;
@@ -111,22 +118,26 @@ void next_free_tss() {
 
 
 
-void tss_creator(paddr_t code_start,int player){    // code_start=0x10000 (Rick) o 0x14000 (Morty)  Si tareas Rick o Morty, jugador=1 (true)
+void tss_creator(paddr_t code_start, int player){    // code_start=0x10000 (Rick) o 0x14000 (Morty)  Si tareas Rick o Morty, jugador=1 (true)
 
   paddr_t next_free_task_space;
-  if(player == 1){                                        // true = Rick
+  if(player == 1){                                   // 1 = Rick
      next_free_task_space = 0x1D00000;
-  }else{                                             // false = Morty
-     next_free_task_space = 0x1D08000;
+  }else{                                             // 0 = Morty
+     next_free_task_space = 0x1D04000;
   }
 
-
+  breakpoint();
+//ROMPE ACÁ! Chequear posicion
   paddr_t page_dir = mmu_init_task_dir(next_free_task_space, code_start, 4); // ver si esta bien lo de la posicion 0x40000, para mi son las mismas posicones que ej 5
   paddr_t stack_level_0 = mmu_next_free_kernel_page();  //usa pagina nueva del area libre kernel
 
  // tss_t tss_new_task;
+
   
-  next_free_tss(); 
+  next_free_tss(); // actualiza
+  player_idx_gdt[next_free_gdt_idx] = player; // nos indica a que jugador pertenece el indice de la gdt
+ 
   uint32_t base = (uint32_t) &tss_new_task; 
   tss_gdt_entry_init(next_free_gdt_idx,base);
 
@@ -144,14 +155,14 @@ void tss_creator(paddr_t code_start,int player){    // code_start=0x10000 (Rick)
     tss_new_task.ss2 = 0;
     tss_new_task.unused3 = 0;
     tss_new_task.cr3 = page_dir;
-    tss_new_task.eip = next_free_task_space;
+    tss_new_task.eip = TASK_VIRTUAL_DIR;
     tss_new_task.eflags = 0x202;
     tss_new_task.eax = 0;
     tss_new_task.ecx = 0;
     tss_new_task.edx = 0;
     tss_new_task.ebx = 0;
-    tss_new_task.esp = next_free_task_space + 4 * PAGE_SIZE;
-    tss_new_task.ebp = next_free_task_space + 4 * PAGE_SIZE; 
+    tss_new_task.esp = TASK_VIRTUAL_DIR + 4 * PAGE_SIZE;
+    tss_new_task.ebp = TASK_VIRTUAL_DIR + 4 * PAGE_SIZE; 
     tss_new_task.esi = 0;
     tss_new_task.edi = 0;
     tss_new_task.es  = IDX_DATO_LVL_3;
