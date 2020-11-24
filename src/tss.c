@@ -34,22 +34,22 @@ tss_t tss_rick[8];
 tss_t tss_morty[8];
 
 
-task_type_t player_idx_gdt[GDT_COUNT];
+//task_type_t player_idx_gdt[GDT_COUNT];
 
 void init_tss(void) {
 
-  for (int i = 0; i < 35; i++){
-    player_idx_gdt[i]=Meeseeks;
-  }
+  // for (int i = 0; i < 35; i++){
+  //   player_idx_gdt[i]=Meeseeks;
+  // }
   uint32_t base = (uint32_t) &tss_initial;
-  tss_gdt_entry_init(IDX_TSS_INIT, base);
+  tss_gdt_entry_init(IDX_TSS_INIT, base, 0);
 
 }
 
 void init_idle(){
 
   uint32_t base_idle_task = (uint32_t) &tss_idle;
-  tss_gdt_entry_init(IDX_TSS_IDLE, base_idle_task);
+  tss_gdt_entry_init(IDX_TSS_IDLE, base_idle_task, 0);
 
 
   tss_idle.ptl = 0;
@@ -94,21 +94,21 @@ void init_idle(){
 }
 
 
-void tss_gdt_entry_init(uint32_t index, uint32_t tss) {
+void tss_gdt_entry_init(uint32_t index, uint32_t tss, int dpl) {
 
     gdt[index].limit_15_0 = 0x0067;
     gdt[index].base_15_0 = tss & 0xFFFF;
     gdt[index].base_23_16 = (tss >> 16) & 0xFF;
+    gdt[index].base_31_24 = (tss >> 24);
     gdt[index].type = 0x9;
     gdt[index].s = 0x0;
-    gdt[index].dpl = 0x0;
+    gdt[index].dpl = dpl;
     gdt[index].p = 0x1;
     gdt[index].limit_19_16 = 0x0;
     gdt[index].avl = 0x1;
     gdt[index].l = 0x0;
     gdt[index].db = 0x0;
     gdt[index].g = 0x0;
-    gdt[index].base_31_24 = (tss >> 24);
 
 }
 
@@ -123,6 +123,67 @@ void next_free_tss() {
 
 
 
+void tss_creator(int player, int task){
+  paddr_t code_start;
+  paddr_t task_phy_address;
+  tss_t* tss_new_task;
+  if(player == 1){                                   // 1 = Rick
+    task_phy_address = 0x1D00000;
+    code_start = 0x10000;
+    tss_new_task = &tss_rick[task];
+  }else{                                             // 0 = Morty
+    task_phy_address = 0x1D04000;
+    code_start = 0x14000;
+    tss_new_task = &tss_morty[task];
+  }
+  paddr_t new_cr3 = mmu_init_task_dir(task_phy_address, code_start,4);
+  paddr_t stack_level_0 = mmu_next_free_kernel_page();
+
+  //player_idx_gdt[next_free_gdt_idx]= player;
+
+  next_free_tss();
+  tss_gdt_entry_init(next_free_gdt_idx, (uint32_t) tss_new_task, 3);
+  tss_new_task->ptl = (uint32_t) tss_new_task;
+  tss_new_task->unused0 = 0;
+  tss_new_task->esp0 = stack_level_0 + PAGE_SIZE;
+  tss_new_task->ss0 = IDX_DATO_LVL_0;
+  tss_new_task->unused1 = 0;
+  tss_new_task->esp1 = 0;
+  tss_new_task->ss1 = 0;
+  tss_new_task->unused2 = 0;
+  tss_new_task->esp2 = 0;
+  tss_new_task->ss2 = 0;
+  tss_new_task->unused3 = 0;
+  tss_new_task->cr3 = new_cr3;
+  tss_new_task->eip = TASK_VIRTUAL_DIR;
+  tss_new_task->eflags = 0x202;
+  tss_new_task->eax = 0;
+  tss_new_task->ecx = 0;
+  tss_new_task->edx = 0;
+  tss_new_task->ebx = 0;
+  tss_new_task->esp = TASK_VIRTUAL_DIR + 4 * PAGE_SIZE;
+  tss_new_task->ebp = 0;
+  tss_new_task->esi = 0;
+  tss_new_task->edi = 0;
+  tss_new_task->es  = IDX_DATO_LVL_3;
+  tss_new_task->unused4 = 0;
+  tss_new_task->cs = IDX_CODE_LVL_3;
+  tss_new_task->unused5 = 0;
+  tss_new_task->ss = IDX_DATO_LVL_3;
+  tss_new_task->unused6 = 0;
+  tss_new_task->ds = IDX_DATO_LVL_3;
+  tss_new_task->unused7 = 0;
+  tss_new_task->fs = IDX_DATO_LVL_3;
+  tss_new_task->unused8 = 0;
+  tss_new_task->gs = IDX_DATO_LVL_3;
+  tss_new_task->unused9 = 0;
+  tss_new_task->ldt = 0;
+  tss_new_task->unused10 = 0;
+  tss_new_task->dtrap = 0;
+  tss_new_task->iomap = 0xFFFF;
+
+}
+/*
 void tss_creator(int player, int task){    // code_start=0x10000 (Rick) o 0x14000 (Morty)  Si tareas Rick o Morty, jugador=1 (true)
 
   paddr_t code_start;
@@ -191,7 +252,7 @@ void tss_creator(int player, int task){    // code_start=0x10000 (Rick) o 0x1400
   tss_new_task->dtrap = 0;
   tss_new_task->iomap = 0xFFFF;
 }
-
+*/
 
 
 // void tss_creator(paddr_t code_start,bool player){    // code_start=0x10000 (Rick) o 0x14000 (Morty)  Si tareas Rick o Morty, jugador=1 (true)

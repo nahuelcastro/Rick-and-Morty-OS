@@ -61,7 +61,7 @@ void init_tss(void);
 
 void init_idle();
 
-void tss_gdt_entry_init(uint32_t index, uint32_t base);
+void tss_gdt_entry_init(uint32_t index, uint32_t base, int dpl);
 
 
 #endif //  __TSS_H__

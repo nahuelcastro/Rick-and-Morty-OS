@@ -165,12 +165,12 @@ modo_protegido:
     ; Inicializar el scheduler
     call sched_init
 
-    ;
+
     push 0 ;task
     push 1 ;player = rick
     call tss_creator
     add esp, 4*2
-    ;
+
     push 0 ;task
     push 0 ; player = morty
     call tss_creator
@@ -186,7 +186,6 @@ modo_protegido:
     call pic_reset
     call pic_enable
 
-    xchg bx, bx
     push 4
     push 0x1D00000
     push 0x1D00000
@@ -199,14 +198,12 @@ modo_protegido:
     mov cr3, eax
 
     ; Cargar tarea inicial
-    ; xchg bx, bx
-    ; mov ax, IDX_TSS_INICAL
-    ; ltr ax
+    mov ax, IDX_TSS_INICAL
+    ltr ax
 
     ;Habilitar interrupciones
     sti
 
-    xchg bx, bx
     ; Saltar a la primera tarea: Idle
     jmp IDX_TSS_IDLE:0
 
