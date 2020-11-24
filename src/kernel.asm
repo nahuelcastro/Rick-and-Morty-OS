@@ -24,9 +24,10 @@ extern mmu_init_task_dir
 extern mmu_prueba
 extern GDT_IDX_TSS_IDLE
 
-extern init_tss_inicial
-extern init_tss_idle
-extern tss_initial
+extern init_tss
+extern init_idle
+extern tss_creator
+extern sched_init
 
 
 
@@ -34,7 +35,7 @@ extern tss_initial
 %define IDX_DATO_LVL_0 0x58
 %define EBP_BASE 0x25000
 %define IDX_VIDEO_LVL_0 0x70
-%define IDX_TSS_IDLE 0x40
+%define IDX_TSS_IDLE 0x80 ;Chequear 40
 %define IDX_TSS_INICAL 0x78
 
 BITS 16
@@ -144,8 +145,8 @@ modo_protegido:
     call mmu_init_kernel_dir
 
     ; Cargar directorio de paginas
-	mov eax, 0x25000
-	mov cr3, eax
+	  mov eax, 0x25000
+	  mov cr3, eax
 
     ; Habilitar paginacion
     mov eax, cr0
@@ -155,13 +156,25 @@ modo_protegido:
     call print_libretas
 
     ; Inicializar tss
-    call init_tss_inicial
+    call init_tss
 
     ; Inicializar tss de la tarea Idle
-    call init_tss_idle
+    call init_idle
+
 
     ; Inicializar el scheduler
+    call sched_init
 
+    ;
+    push 0 ;task
+    push 1 ;player = rick
+    call tss_creator
+    add esp, 4*2
+    ;
+    push 0 ;task
+    push 0 ; player = morty
+    call tss_creator
+    add esp, 4*2
 
     ; Inicializar la IDT
     call idt_init
@@ -169,31 +182,33 @@ modo_protegido:
     ; Cargar IDT
     lidt [IDT_DESC]
 
-
     ;Configuarar controlador de interrupciones
     call pic_reset
     call pic_enable
 
+    xchg bx, bx
     push 4
-    push 0x14000
+    push 0x1D00000
     push 0x1D00000
     call mmu_init_task_dir
-    add esp, 3*4
-
+    add esp, 4*3
+    mov cr3,eax
+    xor ax, ax
+    call init_pantalla2
+    mov eax, 0x25000
+    mov cr3, eax
 
     ; Cargar tarea inicial
-    xchg bx, bx
-    mov ax, IDX_TSS_INICAL
-    ltr ax
+    ; xchg bx, bx
+    ; mov ax, IDX_TSS_INICAL
+    ; ltr ax
 
     ;Habilitar interrupciones
     sti
 
+    xchg bx, bx
     ; Saltar a la primera tarea: Idle
-    jmp IDX_TSS_IDLE:0              ; ESTE SALTO NOS ESTA ROMPIENDO. No le gusta jmpf 0x0040:00000000
-; Es lo que quería decir el otro día... Para mi no va el indice, va el selector en la gdt que apunta a la tarea idle (no el indice en la gdt que apunta al selector, que sería esto)
-    ;jmp tss_initial:0
-
+    jmp IDX_TSS_IDLE:0
 
 
     ; Ciclar infinitamente (por si algo sale mal...)
@@ -226,6 +241,61 @@ modo_protegido:
     ;mov BYTE [0X0050E027], 0x1
     ;xchg bx, bx
 
+    init_pantalla2:
+
+    xor ecx, ecx
+
+    primer_fila_negra2:
+        mov word [fs:2*ecx], BLUE
+        inc ecx
+        cmp ecx, 80
+        jne primer_fila_negra2
+
+    filas_verdes2:
+        mov word [fs:2*ecx], GREEN
+        inc ecx
+        cmp ecx, 3200
+        jne filas_verdes2
+
+    xor ebx, ebx
+    mov ebx, ecx
+
+    filas_negras2:
+        mov word [fs:2*ecx], BLACK
+        inc ecx
+        cmp ecx, 4000
+        jne filas_negras2
+
+
+    add ebx, 168  ; dejo una fila mas de margen
+    mov ecx, ebx
+    xor edx, edx
+
+    tableros2:
+
+        mov ebx, ecx
+        add ebx, 12
+        fila_tablero_rojo2:
+            mov word [fs:2*ecx], RED
+            inc ecx
+            cmp ecx, ebx
+            jne fila_tablero_rojo2
+
+        add ecx, 40
+        mov ebx, ecx
+        add ebx, 12
+
+        fila_tablero_azul2:
+            mov word [fs:2*ecx], BLUE
+            inc ecx
+            cmp ecx, ebx
+            jne fila_tablero_azul2
+
+        add ecx, 16
+        inc edx
+        cmp edx, 3
+        jne tableros2
+    ret
 
 
 init_pantalla:

@@ -16,6 +16,8 @@
 #define GDT_IDX_DATO_LVL_3 13
 #define GDT_IDX_VIDEO_LVL_0 14
 
+
+
 gdt_entry_t gdt[GDT_COUNT] = {
     /* Descriptor nulo*/
     /* Offset = 0x00 */

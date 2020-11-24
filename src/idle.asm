@@ -8,12 +8,11 @@ BITS 32
 
 %include "print.mac"
 
-idle:
+idle:  
     .loop:
         inc dword [number]
         cmp dword [number], 0x4
         jb .print
-
     .counter_reset:
         mov dword [number], 0x0
 

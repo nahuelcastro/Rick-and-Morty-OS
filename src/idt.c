@@ -91,9 +91,9 @@ void imprimir_excepcion(int codigo){
 
   if (codigo == 8) { print("Double Fault (8)", 11,0, COLOR_EXP);}
 
-  if (codigo == 9) {print("Coprocessor Segment Overrun (reserved) (9)", 11, 0, COLOR_EXP);}
+  if (codigo == 9) { print("Coprocessor Segment Overrun (reserved) (9)", 11, 0, COLOR_EXP);}
 
-  if (codigo == 10){print("Invalid TSS (10)", 11,0, COLOR_EXP);}
+  if (codigo == 10){ print("Invalid TSS (10)", 11,0, COLOR_EXP);}
 
   if (codigo == 11){ print("Segment Not Present (11)", 11,0, COLOR_EXP);}
 

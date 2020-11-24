@@ -10,6 +10,9 @@
 #define __SCHED_H__
 
 #include "types.h"
+#include "gdt.h" // Lo agregó Maxi
+#include "tss.h" // Lo agregamos
+
 
 void sched_init();
 uint16_t sched_next_task();
