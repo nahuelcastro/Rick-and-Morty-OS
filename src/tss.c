@@ -18,9 +18,9 @@
 #define IDX_TSS_IDLE 16
 #define IDLE_TASK_CODE 0x18000 //
 #define IDX_CODE_LVL_0 0x50
-#define IDX_DATO_LVL_0 0x58    //0101 1000 58
-#define IDX_CODE_LVL_3 0x60   //0110 0000  12
-#define IDX_DATO_LVL_3 0x68   //0110 1000  13
+#define IDX_DATO_LVL_0 0x58    //0101 1000 58 
+#define IDX_CODE_LVL_3 0x63    //0110 0000  12   ahora ->    0110 0011
+#define IDX_DATO_LVL_3 0x6b    //0110 1000  13   ahora ->    0110 1011
 #define PAGE_SIZE 4096
 #define TASK_VIRTUAL_DIR 0x1D00000
 
@@ -33,14 +33,19 @@ tss_t tss_idle;
 tss_t tss_rick[8];
 tss_t tss_morty[8];
 
+int player_idx_gdt[35];
 
-//task_type_t player_idx_gdt[GDT_COUNT];
+
 
 void init_tss(void) {
 
   // for (int i = 0; i < 35; i++){
   //   player_idx_gdt[i]=Meeseeks;
   // }
+  for (size_t i = 0; i < 35; i++)
+  {
+    player_idx_gdt[i] = -1;
+  }
   uint32_t base = (uint32_t) &tss_initial;
   tss_gdt_entry_init(IDX_TSS_INIT, base, 0);
 
@@ -54,8 +59,8 @@ void init_idle(){
 
   tss_idle.ptl = 0;
   tss_idle.unused0 = 0;
-  tss_idle.esp0 = KERNEL_STACK;
-  tss_idle.ss0 = IDX_DATO_LVL_0;
+  tss_idle.esp0 = 0; //KERNEL_STACK;    marco lo dijo asi 
+  tss_idle.ss0 = 0; //IDX_DATO_LVL_0;
   tss_idle.unused1 = 0;
   tss_idle.esp1 = 0;
   tss_idle.ss1 = 0;
@@ -118,7 +123,6 @@ uint32_t next_free_gdt_idx = 16;
 void next_free_tss() {
   next_free_gdt_idx++;
 
-  //base_new_task = base_new_task + 104;
 }
 
 
@@ -139,11 +143,12 @@ void tss_creator(int player, int task){
   paddr_t new_cr3 = mmu_init_task_dir(task_phy_address, code_start,4);
   paddr_t stack_level_0 = mmu_next_free_kernel_page();
 
-  //player_idx_gdt[next_free_gdt_idx]= player;
+  player_idx_gdt[next_free_gdt_idx]= player;
 
   next_free_tss();
   tss_gdt_entry_init(next_free_gdt_idx, (uint32_t) tss_new_task, 3);
-  tss_new_task->ptl = (uint32_t) tss_new_task;
+
+  tss_new_task->ptl = 0; //(uint32_t) tss_new_task;
   tss_new_task->unused0 = 0;
   tss_new_task->esp0 = stack_level_0 + PAGE_SIZE;
   tss_new_task->ss0 = IDX_DATO_LVL_0;
@@ -162,7 +167,7 @@ void tss_creator(int player, int task){
   tss_new_task->edx = 0;
   tss_new_task->ebx = 0;
   tss_new_task->esp = TASK_VIRTUAL_DIR + 4 * PAGE_SIZE;
-  tss_new_task->ebp = 0;
+  tss_new_task->ebp = TASK_VIRTUAL_DIR + 4 * PAGE_SIZE;
   tss_new_task->esi = 0;
   tss_new_task->edi = 0;
   tss_new_task->es  = IDX_DATO_LVL_3;
@@ -183,127 +188,3 @@ void tss_creator(int player, int task){
   tss_new_task->iomap = 0xFFFF;
 
 }
-/*
-void tss_creator(int player, int task){    // code_start=0x10000 (Rick) o 0x14000 (Morty)  Si tareas Rick o Morty, jugador=1 (true)
-
-  paddr_t code_start;
-  paddr_t next_free_task_space;
-  tss_t* tss_new_task;
-  if(player == 1){                                   // 1 = Rick
-    next_free_task_space = 0x1D00000;
-    code_start = 0x10000;
-    tss_new_task = &tss_rick[task];
-  }else{                                             // 0 = Morty
-    next_free_task_space = 0x1D04000;
-    code_start = 0x14000;
-    tss_new_task = &tss_morty[task];
-  }
-
-  paddr_t page_dir = mmu_init_task_dir(next_free_task_space, code_start, 4); // ver si esta bien lo de la posicion 0x40000, para mi son las mismas posicones que ej 5
-  paddr_t stack_level_0 = mmu_next_free_kernel_page();  //usa pagina nueva del area libre kernel
-
-
-
-  next_free_tss(); // actualiza
-  player_idx_gdt[next_free_gdt_idx] = player; // nos indica a que jugador pertenece el indice de la gdt
-
-
-  tss_gdt_entry_init(next_free_gdt_idx, (uint32_t) tss_new_task);
-
-
-  gdt[next_free_gdt_idx].dpl = 3;
-
-  tss_new_task->ptl = 0;
-  tss_new_task->unused0 = 0;
-  tss_new_task->esp0 = stack_level_0 + PAGE_SIZE;
-  tss_new_task->ss0 = IDX_DATO_LVL_0;
-  tss_new_task->unused1 = 0;
-  tss_new_task->esp1 = 0;
-  tss_new_task->ss1 = 0;
-  tss_new_task->unused2 = 0;
-  tss_new_task->esp2 = 0;
-  tss_new_task->ss2 = 0;
-  tss_new_task->unused3 = 0;
-  tss_new_task->cr3 = page_dir;
-  tss_new_task->eip = code_start;
-  tss_new_task->eflags = 0x202;
-  tss_new_task->eax = 0;
-  tss_new_task->ecx = 0;
-  tss_new_task->edx = 0;
-  tss_new_task->ebx = 0;
-  tss_new_task->esp = code_start + 4 * PAGE_SIZE;
-  tss_new_task->ebp = 0;
-  tss_new_task->esi = 0;
-  tss_new_task->edi = 0;
-  tss_new_task->es  = IDX_DATO_LVL_3;
-  tss_new_task->unused4 = 0;
-  tss_new_task->cs = IDX_CODE_LVL_3;
-  tss_new_task->unused5 = 0;
-  tss_new_task->ss = IDX_DATO_LVL_3;
-  tss_new_task->unused6 = 0;
-  tss_new_task->ds = IDX_DATO_LVL_3;
-  tss_new_task->unused7 = 0;
-  tss_new_task->fs = IDX_DATO_LVL_3;
-  tss_new_task->unused8 = 0;
-  tss_new_task->gs = IDX_DATO_LVL_3;
-  tss_new_task->unused9 = 0;
-  tss_new_task->ldt = 0;
-  tss_new_task->unused10 = 0;
-  tss_new_task->dtrap = 0;
-  tss_new_task->iomap = 0xFFFF;
-}
-*/
-
-
-// void tss_creator(paddr_t code_start,bool player){    // code_start=0x10000 (Rick) o 0x14000 (Morty)  Si tareas Rick o Morty, jugador=1 (true)
-//   if(player){
-//     next_free_tss(4);
-//   }else{
-//     next_free_tss(2); // parece que es para despues con las tareas meesekss
-//   }
-//   paddr_t page_dir = mmu_init_task_dir(next_free_task_space,code_start,4);  // ver si esta bien lo de la posicion 0x40000, para mi son las mismas posicones que ej 5
-
-//   paddr_t stack_level_0 = mmu_next_free_kernel_page();  //usa pagina nueva del area libre kernel
-
-//   tss_t tss_new_task={
-//     .ptl = 0,
-//     .unused0 = 0,
-//     .esp0 = stack_level_0 + PAGE_SIZE,
-//     .ss0 = IDX_DATO_LVL_0,
-//     .unused1 = 0,
-//     .esp1 = 0,
-//     .ss1 = 0,
-//     .unused2 = 0,
-//     .esp2 = 0,
-//     .ss2 = 0,
-//     .unused3 = 0,
-//     .cr3 = page_dir,
-//     .eip = next_free_task_space,
-//     .eflags = 0x202,
-//     .eax = 0,
-//     .ecx = 0,
-//     .edx = 0,
-//     .ebx = 0,
-//     .esp = next_free_task_space + 4 * PAGE_SIZE,
-//     .ebp = next_free_task_space + 4 * PAGE_SIZE,
-//     .esi = 0,
-//     .edi = 0,
-//     .es  = IDX_DATO_LVL_3,
-//     .unused4 = 0,
-//     .cs = IDX_CODE_LVL_3,
-//     .unused5 = 0,
-//     .ss = IDX_DATO_LVL_3,
-//     .unused6 = 0,
-//     .ds = IDX_DATO_LVL_3,
-//     .unused7 = 0,
-//     .fs = IDX_DATO_LVL_3,
-//     .unused8 = 0,
-//     .gs = IDX_DATO_LVL_3,
-//     .unused9 = 0,
-//     .ldt = 0,
-//     .unused10 = 0,
-//     .dtrap = 0,
-//     .iomap = 0xFFFF,          // VER QUE ONDA
-//   };
-//   tss_gdt_entry_init(next_free_gdt_idx, tss_new_task);
-// }

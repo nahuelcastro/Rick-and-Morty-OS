@@ -73,8 +73,17 @@ _isr32:
      call sched_next_task ; Crear esta funcion en C que basicamente cicle entre las tareas que hay y cuando llega a la ultima vuelva a la primera
      str cx
      cmp ax, cx           ; Me fijo si la proxima tarea no es la actual
+     mov dx, ax
      je .fin
-     xchg bx, bx
+     ; xchg bx, bx
+     ; mov eax, 0x100000
+     ; mov cr3, eax
+     ; xchg bx, bx 
+     ; xor eax, eax
+     ; mov eax, 0x25000
+     ; mov cr3, eax
+     ; xor eax, eax
+     ; mov ax,dx
      mov word [sched_task_selector], ax
      xchg bx, bx
      jmp far [sched_task_offset]
@@ -107,10 +116,16 @@ global _isr88
 
 _isr88:
      pushad
+     mov ebp, esp 
 
+     xchg bx, bx
      push eax
-     mov eax, 0x58
+     mov ax,0x80 ;idle
+     mov word [sched_task_selector], ax  ; (cambiamos con nahu)
+     xchg bx, bx
+     jmp far [sched_task_offset]
 
+     pop ebp 
      popad
 iret
 
@@ -120,7 +135,7 @@ _isr89:
      pushad
 
      push eax
-     mov eax, 0x59
+     mov ax, 0x59
 
      popad
 iret

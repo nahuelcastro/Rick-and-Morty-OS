@@ -170,7 +170,7 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
   phy_address = phy_start;
 
   for (size_t i = 0; i < pages; i++){
-    mmu_map_page(new_cr3, tasks_memory, phy_address, 2);
+    mmu_map_page(new_cr3, tasks_memory, phy_address, 6);  //! (cambiamos con nahu) era 2 pero necesitamos privilegios de usuario sino rompe cuando entramos en tarea
     tasks_memory += 4096; // 4096 = 4kb = tamaño pagina
     phy_address += 4096;  // 4096 = 4kb = tamaño pagina
   }

@@ -9,11 +9,17 @@
 #include "sched.h"
 //#include "tss.c"
 
-uint16_t index = 0;
 
+uint16_t index = 0;
+// int player_idx_gdt[35];
 
 void sched_init(void) {
   index = 16;
+      
+  // for (size_t i = 0; i < 35; i++){
+  //   player_idx_gdt[i] = -1;
+  // }
+  
 }
 
 uint16_t sched_next_task(void) {
@@ -25,10 +31,10 @@ uint16_t sched_next_task(void) {
     bool esOtroJugador = (player_idx_gdt[index+1] != player_idx_gdt[tareaActual]) & esUnJugador;
     bool estaPresente = gdt[index+1].p == 1;
     if(estaPresente & esOtroJugador){
-      return (++index << 3);
+      return ((++index << 3)/* + 3*/); //! ver si hace falta sumarle 3 por los niveles de privilegio
     }else{
-      index++;
+      index++;  
     }
   }
-  return (tareaActual << 3);
+  return ((tareaActual << 3)/* + 3*/);
 }

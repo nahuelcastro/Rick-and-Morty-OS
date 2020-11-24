@@ -186,16 +186,16 @@ modo_protegido:
     call pic_reset
     call pic_enable
 
-    push 4
-    push 0x1D00000
-    push 0x1D00000
-    call mmu_init_task_dir
-    add esp, 4*3
-    mov cr3,eax
-    xor ax, ax
-    call init_pantalla2
-    mov eax, 0x25000
-    mov cr3, eax
+    ; push 4
+    ; push 0x1D00000
+    ; push 0x1D00000
+    ; call mmu_init_task_dir
+    ; add esp, 4*3
+    ; mov cr3,eax
+    ; xor ax, ax
+    ; call init_pantalla2
+    ; mov eax, 0x25000
+    ; mov cr3, eax
 
     ; Cargar tarea inicial
     mov ax, IDX_TSS_INICAL

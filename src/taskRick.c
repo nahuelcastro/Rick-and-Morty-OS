@@ -30,3 +30,9 @@ void meeseks2_func(void) {
     syscall_move(0, 1);
   }
 }
+/*
+
+CR2=page fault laddr=0x01d03ffc
+
+
+*/
