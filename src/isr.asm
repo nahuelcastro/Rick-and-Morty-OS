@@ -61,7 +61,6 @@ ISR 18
 ISR 19
 
 
-
 ;; Rutina de atención del RELOJ
 global _isr32
 
@@ -74,7 +73,12 @@ _isr32:
      str cx
      cmp ax, cx           ; Me fijo si la proxima tarea no es la actual
      je .fin
+     mov eax, 0x100000
+     mov cr3, eax
      xchg bx, bx
+     xor eax, eax
+     mov eax, 0x25000
+     mov cr3, eax
      mov word [sched_task_selector], ax
      xchg bx, bx
      jmp far [sched_task_offset]

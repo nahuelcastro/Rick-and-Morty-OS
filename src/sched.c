@@ -7,20 +7,23 @@
 */
 
 #include "sched.h"
-//#include "tss.c"
 
-uint16_t index = 0;
-
+uint16_t index;
+uint16_t ultimoJugador;
+uint proximoJugador;
 
 void sched_init(void) {
   index = 16;
+  ultimoJugador = 0;
 }
 
 uint16_t sched_next_task(void) {
 
   uint16_t tareaActual = index;
+  int proximoJugador = 1 - ultimoJugador;
 
   for (int i = 0; i < GDT_COUNT-index-1; i++){
+
     bool esUnJugador = player_idx_gdt[index+1] == 1 || player_idx_gdt[index+1] == 0;
     bool esOtroJugador = (player_idx_gdt[index+1] != player_idx_gdt[tareaActual]) & esUnJugador;
     bool estaPresente = gdt[index+1].p == 1;

@@ -13,7 +13,6 @@
 #include "i386.h"
 
 
-
 #define IDX_TSS_INIT 15
 #define IDX_TSS_IDLE 16
 #define IDLE_TASK_CODE 0x18000 //

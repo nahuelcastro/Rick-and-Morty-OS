@@ -11,7 +11,7 @@
 
 #include "types.h"
 #include "gdt.h" // Lo agregó Maxi
-#include "tss.h" // Lo agregamos
+#include "tss.h" // Lo agregamoo
 
 
 void sched_init();

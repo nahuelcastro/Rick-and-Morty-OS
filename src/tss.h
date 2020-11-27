@@ -13,7 +13,7 @@
 #include "types.h"
 #include "game.h"
 
-extern task_type_t player_idx_gdt[GDT_COUNT];
+//int player_idx_gdt[GDT_COUNT];
 
 typedef struct str_tss {
   uint16_t ptl;
