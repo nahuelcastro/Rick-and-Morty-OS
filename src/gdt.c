@@ -8,11 +8,12 @@
 
 #include "gdt.h"
 
+// 
 
 
 #define GDT_IDX_CODIGO_LVL_0 10
 #define GDT_IDX_DATO_LVL_0 11
-#define GDT_IDX_CODIGO_LVL_3 12
+#define GDT_IDX_CODIGO_LVL_3 12  
 #define GDT_IDX_DATO_LVL_3 13 
 #define GDT_IDX_VIDEO_LVL_0 14
 
