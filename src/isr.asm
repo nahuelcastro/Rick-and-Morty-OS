@@ -61,34 +61,22 @@ ISR 18
 ISR 19
 
 
-
 ;; Rutina de atención del RELOJ
 global _isr32
 
 _isr32:
      pushad
-
      ;avisar al pic que se recibio la interrupcion
      call pic_finish1
+     ;imprimir el reloj de sistema
      call sched_next_task ; Crear esta funcion en C que basicamente cicle entre las tareas que hay y cuando llega a la ultima vuelva a la primera
      str cx
      cmp ax, cx           ; Me fijo si la proxima tarea no es la actual
-     mov dx, ax
      je .fin
-     ; xchg bx, bx
-     ; mov eax, 0x100000
-     ; mov cr3, eax
-     ; xchg bx, bx 
-     ; xor eax, eax
-     ; mov eax, 0x25000
-     ; mov cr3, eax
-     ; xor eax, eax
-     ; mov ax,dx
-     mov word [sched_task_selector], ax
-     xchg bx, bx
-     jmp far [sched_task_offset]
-     ;imprimir el reloj de sistema
      call next_clock
+     xchg bx, bx
+     mov word [sched_task_selector], ax
+     jmp far [sched_task_offset]
      .fin:
      popad
 iret
@@ -116,16 +104,14 @@ global _isr88
 
 _isr88:
      pushad
-     mov ebp, esp 
-
-     xchg bx, bx
+     mov ebp, esp
      push eax
+     call next_clock
      mov ax,0x80 ;idle
      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
      xchg bx, bx
      jmp far [sched_task_offset]
-
-     pop ebp 
+     pop ebp
      popad
 iret
 
@@ -133,10 +119,14 @@ global _isr89
 
 _isr89:
      pushad
-
+     mov ebp, esp
      push eax
-     mov ax, 0x59
-
+     call next_clock
+     mov ax,0x80 ;idle
+     mov word [sched_task_selector], ax  ; (cambiamos con nahu)
+     xchg bx, bx
+     jmp far [sched_task_offset]
+     pop ebp
      popad
 iret
 
@@ -144,10 +134,14 @@ global _isr100
 
 _isr100:
      pushad
-
+     mov ebp, esp
      push eax
-     mov eax, 0x64
-
+     call next_clock
+     mov ax,0x80 ;idle
+     mov word [sched_task_selector], ax  ; (cambiamos con nahu)
+     xchg bx, bx
+     jmp far [sched_task_offset]
+     pop ebp
      popad
 iret
 
@@ -156,10 +150,14 @@ global _isr123
 
 _isr123:
      pushad
-
+     mov ebp, esp
      push eax
-     mov eax, 0x7b
-
+     call next_clock
+     mov ax,0x80 ;idle
+     mov word [sched_task_selector], ax  ; (cambiamos con nahu)
+     xchg bx, bx
+     jmp far [sched_task_offset]
+     pop ebp
      popad
 iret
 

@@ -11,8 +11,9 @@
 
 #include "types.h"
 #include "gdt.h" // Lo agregó Maxi
-#include "tss.h" // Lo agregamos
-
+#include "tss.h" // Lo agregamoo
+#include "i386.h" // Lo agregamoo
+#include "screen.h"
 
 void sched_init();
 uint16_t sched_next_task();

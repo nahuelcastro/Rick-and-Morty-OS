@@ -144,6 +144,9 @@ paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt){
 paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
   // Está en ppio que haga lo que dice enunciado 5 es decir:
   //paddr_t task_page = mmu_next_free_task_page();
+  
+    // code_start = code_start;
+
   uint32_t new_cr3 = mmu_next_free_kernel_page();
   uint32_t cr3 = rcr3();
 
@@ -188,96 +191,6 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
     tasks_memory += 4096; // 4096 = 4kb = tamaño pagina
   }
 
-
-  /*paddr_t morty_memory = 0x1D00000;
-
-  for (size_t i = 0; i < 4; i++){
-    mmu_map_page(cr3, morty_memory, morty_memory, 2);
-    morty_memory += 4096; // 4096 = 4kb = tamaño pagina
-    //task_page += 4096;  // 4096 = 4kb = tamaño pagina
-  }
-
-  paddr_t memory_kernel = 0;
-
-  for (size_t i = 0; i < 1024; i++){
-    mmu_map_page(new_cr3,memory_kernel,memory_kernel,2);
-    memory_kernel += 4096;
-  }
-
-  morty_memory = 0x1D00000;
-  for (size_t i = 0; i < 4; i++){
-    mmu_map_page(new_cr3, morty_memory, morty_memory, 2);
-    morty_memory += 4096; // 4096 = 4kb = tamaño pagina
-    //task_page += 4096;  // 4096 = 4kb = tamaño pagina
-  }
-  morty_memory = 0x1D00000;
-  for (size_t i = 0; i < 4; i++){
-    mmu_unmap_page(cr3, morty_memory);
-    morty_memory += 4096; // 4096 = 4kb = tamaño pagina(en bytes)cal
-  }
-  breakpoint();*/
   return new_cr3;
 }
 
-/*
-paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages) {
-
-  uint32_t new_cr3 = mmu_next_free_kernel_page();
-  uint32_t cr3 = rcr3();
-
-  // no quiero perder las direcciones iniciales
-  paddr_t original_phy_page = phy_start;
-
-  uint8_t* ptr_code_page = (uint8_t*) code_start;
-  uint8_t* ptr_virt_page = (uint8_t*) TASK_CODE_VIRTUAL;
-  paddr_t virt_page = TASK_CODE_VIRTUAL;
-
-  // Mapeando en el page directory del kernel
-  for (size_t i = 0; i < pages; i++){
-    mmu_map_page(cr3,virt_page, phy_start, 2);
-    virt_page += 4096; // 4096 = 4kb = tamaño pagina
-    phy_start += 4096;  // 4096 = 4kb = tamaño pagina
-  }
-
-  paddr_t phy = 0;
-  paddr_t virt = 0;
-
-
-  for (size_t i = 0; i < 4; i++){
-    mmu_map_page(new_cr3,virt,phy,2);
-    virt += 4096;
-    phy += 4096;
-  }
-
-
-  virt_page = TASK_CODE_VIRTUAL;
-  phy_start = original_phy_page;
-
-  //Mapeando en el page directory nuevo
-  for (size_t i = 0; i < pages; i++){
-    mmu_map_page(new_cr3,virt_page, phy_start, 2);
-    virt_page += 4096; // 4096 = 4kb = tamaño pagina
-    phy_start += 4096;  // 4096 = 4kb = tamaño pagina
-  }
-
-
-  // copiar las tareas de rick o morty del kernel a codigo respectivo
-  for (size_t i = 0; i < 16384; i++){
-    *ptr_virt_page = *ptr_code_page;
-    ptr_code_page++;
-    ptr_virt_page++;
-  }
-
-  virt_page = TASK_CODE_VIRTUAL;
-
-
-  // Desmapeando de cr3 de Kernel para que después no me rompa lo de Rick y Morty
-  for (size_t i = 0; i < pages; i++){
-    mmu_unmap_page(cr3, virt_page);
-    virt_page += 4096; // 4096 = 4kb = tamaño pagina(en bytes)cal
-  }
-
-  return new_cr3;
-
-}
-*/

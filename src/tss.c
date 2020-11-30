@@ -13,7 +13,6 @@
 #include "i386.h"
 
 
-
 #define IDX_TSS_INIT 15
 #define IDX_TSS_IDLE 16
 #define IDLE_TASK_CODE 0x18000 //
@@ -121,11 +120,9 @@ void tss_gdt_entry_init(uint32_t index, uint32_t tss, int dpl) {
 uint32_t next_free_gdt_idx = 16;
 
 void next_free_tss() {
-  next_free_gdt_idx++;
+  next_free_gdt_idx++;  
 
 }
-
-
 
 void tss_creator(int player, int task){
   paddr_t code_start;
@@ -143,9 +140,9 @@ void tss_creator(int player, int task){
   paddr_t new_cr3 = mmu_init_task_dir(task_phy_address, code_start,4);
   paddr_t stack_level_0 = mmu_next_free_kernel_page();
 
-  player_idx_gdt[next_free_gdt_idx]= player;
-
   next_free_tss();
+  
+  player_idx_gdt[next_free_gdt_idx]= player;
   tss_gdt_entry_init(next_free_gdt_idx, (uint32_t) tss_new_task, 3);
 
   tss_new_task->ptl = 0; //(uint32_t) tss_new_task;

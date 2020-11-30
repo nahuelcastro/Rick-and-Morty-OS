@@ -164,8 +164,7 @@ modo_protegido:
 
     ; Inicializar el scheduler
     call sched_init
-
-
+    
     push 0 ;task
     push 1 ;player = rick
     call tss_creator
@@ -175,6 +174,8 @@ modo_protegido:
     push 0 ; player = morty
     call tss_creator
     add esp, 4*2
+
+
 
     ; Inicializar la IDT
     call idt_init
@@ -215,28 +216,6 @@ modo_protegido:
     ; mov edx, 0xFFFF
     jmp $
 
-
-;CODIGO VIEJO (USAR DESPUÉS PARA PROBAR EL 5 QUE NO NOS SALIO, TENGO LA SOSPECHA QUE DESPUES NOS VA A ROMPER POR ALGO (QUE NO HAYAMOS PODIDO MODIFICAR LA PANTALLA))
-
-    ;mov cr3,eax
-    ;5d
-    ;xor ax, ax
-    ;mov ax, 1110000b ; 14 shifetado 3 a izquierda por el segmento de video
-    ;mov fs, ax
-    ;mov word [fs:0], RED
-    ;mov eax, 0x25000
-    ;mov cr3, eax
-
-
-    ;push 2
-    ;push 0x00400000
-    ;push 0x0050E008
-    ;mov eax, cr3
-    ;push eax
-    ;call mmu_map_page
-    ;add esp, 4*4
-    ;mov BYTE [0X0050E027], 0x1
-    ;xchg bx, bx
 
     init_pantalla2:
 
