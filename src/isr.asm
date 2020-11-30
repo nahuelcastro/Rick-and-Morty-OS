@@ -66,7 +66,6 @@ global _isr32
 
 _isr32:
      pushad
-     xchg bx, bx
      ;avisar al pic que se recibio la interrupcion
      call pic_finish1
      ;imprimir el reloj de sistema
@@ -75,6 +74,7 @@ _isr32:
      cmp ax, cx           ; Me fijo si la proxima tarea no es la actual
      je .fin
      call next_clock
+     xchg bx, bx
      mov word [sched_task_selector], ax
      jmp far [sched_task_offset]
      .fin:
@@ -106,6 +106,7 @@ _isr88:
      pushad
      mov ebp, esp
      push eax
+     call next_clock
      mov ax,0x80 ;idle
      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
      xchg bx, bx
@@ -118,10 +119,14 @@ global _isr89
 
 _isr89:
      pushad
-
+     mov ebp, esp
      push eax
-     mov ax, 0x59
-
+     call next_clock
+     mov ax,0x80 ;idle
+     mov word [sched_task_selector], ax  ; (cambiamos con nahu)
+     xchg bx, bx
+     jmp far [sched_task_offset]
+     pop ebp
      popad
 iret
 
@@ -129,10 +134,14 @@ global _isr100
 
 _isr100:
      pushad
-
+     mov ebp, esp
      push eax
-     mov eax, 0x64
-
+     call next_clock
+     mov ax,0x80 ;idle
+     mov word [sched_task_selector], ax  ; (cambiamos con nahu)
+     xchg bx, bx
+     jmp far [sched_task_offset]
+     pop ebp
      popad
 iret
 
@@ -141,10 +150,14 @@ global _isr123
 
 _isr123:
      pushad
-
+     mov ebp, esp
      push eax
-     mov eax, 0x7b
-
+     call next_clock
+     mov ax,0x80 ;idle
+     mov word [sched_task_selector], ax  ; (cambiamos con nahu)
+     xchg bx, bx
+     jmp far [sched_task_offset]
+     pop ebp
      popad
 iret
 

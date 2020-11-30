@@ -144,6 +144,9 @@ paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt){
 paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
   // Está en ppio que haga lo que dice enunciado 5 es decir:
   //paddr_t task_page = mmu_next_free_task_page();
+  
+    // code_start = code_start;
+
   uint32_t new_cr3 = mmu_next_free_kernel_page();
   uint32_t cr3 = rcr3();
 

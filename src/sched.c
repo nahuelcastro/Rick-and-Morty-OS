@@ -28,13 +28,21 @@ void sched_init(void) {
 uint16_t sched_next_task(void) {
 
   jugadorActual = 1 - ultimoJugador;
+ 
+  // player_idx_gdt[17] = 0;
+  // player_idx_gdt[18] = 1;
 
-  for (int i = 0; i < GDT_COUNT-index-1; i++){
+  for (int i = 0; i < GDT_COUNT-1; i++){   /// TOCAR EL I
 
-    bool esUnJugador = player_idx_gdt[index+1] == 1 || player_idx_gdt[index+1] == 0;
-    bool esOtroJugador = (player_idx_gdt[index+1] != player_idx_gdt[tareaActual]) & esUnJugador;
+    if (index == GDT_COUNT){ 
+      index = 15;
+    }
+
+  
+    bool esUnJugador = player_idx_gdt[index + 1] == 1 || player_idx_gdt[index + 1] == 0;
+    bool esOtroJugador =(player_idx_gdt[index+1] != player_idx_gdt[tareaActual]) && esUnJugador;
     bool estaPresente = gdt[index+1].p == 1;
-    if(estaPresente & esOtroJugador){
+    if(estaPresente && esOtroJugador){
       index++;
       tareaActual = index;
       return ((index << 3)/* + 3*/); //! ver si hace falta sumarle 3 por los niveles de privilegio
@@ -42,5 +50,7 @@ uint16_t sched_next_task(void) {
       index++;
     }
   }
+  
   return ((tareaActual << 3)/* + 3*/);
+
 }

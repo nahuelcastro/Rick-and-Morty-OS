@@ -164,8 +164,7 @@ modo_protegido:
 
     ; Inicializar el scheduler
     call sched_init
-
-
+    
     push 0 ;task
     push 1 ;player = rick
     call tss_creator
@@ -175,6 +174,8 @@ modo_protegido:
     push 0 ; player = morty
     call tss_creator
     add esp, 4*2
+
+
 
     ; Inicializar la IDT
     call idt_init
