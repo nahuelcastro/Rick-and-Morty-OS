@@ -13,17 +13,30 @@ uint16_t ultimoJugador = 0;
 uint16_t jugadorActual = 1;
 uint16_t index;
 uint16_t tareaActual;
+bool tareasActivas[2];
 // int player_idx_gdt[35];
 
 void sched_init(void) {
   index = 16;
   tareaActual = index;
-
+  tareasActivas[0]=true;
+  tareasActivas[1]=true;
   // for (size_t i = 0; i < 35; i++){
   //   player_idx_gdt[i] = -1;
   // }
 
 }
+
+// uint16_t sched_next_task(void){
+//   if(index==16){
+//     index=17;
+//   }else if(index==17){
+//     index=18;
+//   }else{
+//     index=16;
+//   }
+//   return (index << 3);
+// }
 
 uint16_t sched_next_task(void) {
 

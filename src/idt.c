@@ -123,5 +123,5 @@ void imprimir_excepcion(int codigo){
 
   if (codigo == 33){ print("ESTAN ESCRIBIENDOOOOO!! (33)", 11,0, COLOR_EXP);}
 
-
+  if (codigo == 88){ print("Entramos en una tarea!! :) (88)"), 11,0,COLOR_EXP}
 }

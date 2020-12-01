@@ -147,7 +147,8 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
   
 
   uint32_t new_cr3 = mmu_next_free_kernel_page();
-  uint32_t cr3 = rcr3();
+  uint32_t cr3 = 0x25000;
+
 
   // uint8_t* ptr_code_page = (uint8_t*) code_start;
   // uint8_t* ptr_virt_page = (uint8_t*) TASK_CODE_VIRTUAL;
@@ -170,7 +171,7 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
   for (size_t i = 0; i < 1024; i++){
     mmu_map_page(new_cr3,memory_kernel,memory_kernel,2);
     memory_kernel += 4096;
-  }
+  } 
 
   tasks_memory = TASK_CODE_VIRTUAL;
   phy_address = phy_start;

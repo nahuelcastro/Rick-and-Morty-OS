@@ -142,7 +142,7 @@ void tss_creator(int player, int task){
 
   next_free_tss();
   
-  player_idx_gdt[next_free_gdt_idx]= player;
+  player_idx_gdt[next_free_gdt_idx] = player;
   tss_gdt_entry_init(next_free_gdt_idx, (uint32_t) tss_new_task, 3);
 
   tss_new_task->ptl = 0; //(uint32_t) tss_new_task;
