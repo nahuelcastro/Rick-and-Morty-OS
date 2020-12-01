@@ -14,7 +14,7 @@
 #include "game.h"
 
 extern int player_idx_gdt[35];
-
+extern bool tareasActivas[GDT_COUNT];
 
 typedef struct str_tss {
   uint16_t ptl;

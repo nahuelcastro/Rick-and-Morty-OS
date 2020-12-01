@@ -25,26 +25,26 @@
 
 tss_t tss_initial;
 tss_t tss_idle;
-//tss_t* tss_new_task;
-//tss_t tss_new_task;
-//uint32_t base_new_task;
-//tss_t* punteroNewTask;
+
 tss_t tss_rick[8];
 tss_t tss_morty[8];
 
-int player_idx_gdt[35];
+int player_idx_gdt[GDT_COUNT];
+bool tareasActivas[GDT_COUNT];
 
 
 
 void init_tss(void) {
 
-  // for (int i = 0; i < 35; i++){
-  //   player_idx_gdt[i]=Meeseeks;
-  // }
-  for (size_t i = 0; i < 35; i++)
-  {
+
+  for (size_t i = 0; i < 35; i++){
     player_idx_gdt[i] = -1;
   }
+  
+  for (size_t i = 0; i < GDT_COUNT; i++){
+    tareasActivas[i] = false;
+  }
+  
   uint32_t base = (uint32_t) &tss_initial;
   tss_gdt_entry_init(IDX_TSS_INIT, base, 0);
 
@@ -54,7 +54,6 @@ void init_idle(){
 
   uint32_t base_idle_task = (uint32_t) &tss_idle;
   tss_gdt_entry_init(IDX_TSS_IDLE, base_idle_task, 0);
-
 
   tss_idle.ptl = 0;
   tss_idle.unused0 = 0;
@@ -121,11 +120,10 @@ uint32_t next_free_gdt_idx = 16;
 
 void next_free_tss() {
   next_free_gdt_idx++;  
-
 }
 
-void tss_creator(int player, int task){
 
+void tss_creator(int player, int task){
 
   paddr_t code_start;
   paddr_t task_phy_address;
@@ -145,6 +143,7 @@ void tss_creator(int player, int task){
   next_free_tss();
   
   player_idx_gdt[next_free_gdt_idx] = player;
+  tareasActivas[next_free_gdt_idx] = true;
   tss_gdt_entry_init(next_free_gdt_idx, (uint32_t) tss_new_task, 3);
 
   tss_new_task->ptl = 0; //(uint32_t) tss_new_task;
@@ -188,8 +187,4 @@ void tss_creator(int player, int task){
 
 }
 
-/*
 
-
-
-*/

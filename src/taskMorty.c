@@ -7,6 +7,10 @@ void task(void) {
 
   while (1) {
     __asm volatile("nop");
+    // int n = 8;
+    // int m = 0;
+    // int k = n/m;
+    // k=k;
   }
 }
 

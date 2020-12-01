@@ -17,5 +17,9 @@
 
 void sched_init();
 uint16_t sched_next_task();
+void desactivar_tarea();
+
+uint16_t tareaActual;
+uint16_t index;
 
 #endif //  __SCHED_H__

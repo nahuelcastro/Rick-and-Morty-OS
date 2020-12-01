@@ -17,6 +17,10 @@ extern pic_finish1
 extern imprimir_excepcion
 extern print_scan_code
 
+extern desactivar_tarea
+
+extern modo_debug
+
 ;; Sched
 extern sched_next_task
 
@@ -27,11 +31,17 @@ extern sched_next_task
 global _isr%1
 
 _isr%1:
-    mov eax, %1
-    push eax
-    call imprimir_excepcion
-    add esp, 4
-    jmp $
+     mov eax, %1
+     push eax
+     call imprimir_excepcion
+     add esp, 4
+    
+     call desactivar_tarea  
+     call sched_next_task            ; obtener indice de la proxima tarea a ejecutar
+     mov [sched_task_selector], ax   ; carga el selector del segmento de la tarea a saltar
+     jmp far [sched_task_offset]     ; intercambio de tareas
+    
+     jmp $
 
 %endmacro
 
@@ -92,6 +102,10 @@ _isr33:
      in al, 0x60
 
      push eax
+     cmp eax, 0xF
+     jne .print
+     call modo_debug
+     .print:
      call print_scan_code
      add esp, 4
 
