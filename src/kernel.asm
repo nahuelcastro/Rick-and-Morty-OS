@@ -143,16 +143,50 @@ modo_protegido:
 
     ; Inicializar el directorio de paginas
     call mmu_init_kernel_dir
+    
 
     ; Cargar directorio de paginas
 	  mov eax, 0x25000
 	  mov cr3, eax
 
+    
     ; Habilitar paginacion
     mov eax, cr0
     or eax, 0x80000000
     mov cr0, eax
 
+        
+
+
+
+        ;RICK
+        ;<bochs:3> xp/25wx 0x10000
+        ;[bochs]:
+        ;0x00010000 <bogus+       0>:	0xfb1e0ff3	0x0005b953	0x24b80000	0x8901d000
+        ;0x00010010 <bogus+      16>:	0xb958cdcb	0x00000006	0xd00052b8	0xcdcb8901
+        ;0x00010020 <bogus+      32>:	0xfdeb9058	0xfb1e0ff3	0xb820eb53	0xffffffff
+        ;0x00010030 <bogus+      48>:	0x000000bb	0x837bcd00	0xfa8301c2	0xb8ec7e4f
+        ;0x00010040 <bogus+      64>:	0x00000000	0xffffffbb	0xba7bcdff	0x00000000
+        ;0x00010050 <bogus+      80>:	0x0ff3e8eb	0xeb53fb1e	0x0001b820	0x00bb0000
+        ;0x00010060 <bogus+      96>:	0xcd000000
+
+        ; MORTY
+        ;<bochs:4> xp/25wx 0x14000
+        ;[bochs]:
+        ;0x00014000 <bogus+       0>:	0xfb1e0ff3	0x0019b853	0x28bb01d0	0xb9000000
+        ;0x00014010 <bogus+      16>:	0x00000019	0xeb9058cd	0x1e0ff3fd	0xfdeb90fb
+        ;0x00014020 <bogus+      32>:	0x00000000	0x00000000	0x00000000	0x00000000
+        ;0x00014030 <bogus+      48>:	0x00000000	0x00000000	0x00000000	0x00000000
+        ;0x00014040 <bogus+      64>:	0x00000000	0x00000000	0x00000000	0x00000000
+        ;0x00014050 <bogus+      80>:	0x00000000	0x00000000	0x00000000	0x00000000
+        ;0x00014060 <bogus+      96>:	0x00000000
+
+
+
+    
+
+
+    
     call print_libretas
 
     ; Inicializar tss
@@ -169,7 +203,6 @@ modo_protegido:
     push 1 ;player = rick
     call tss_creator
     add esp, 4*2
-
 
     push 0 ;task
     push 0 ; player = morty
