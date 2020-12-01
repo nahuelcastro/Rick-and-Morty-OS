@@ -145,13 +145,16 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
   // Está en ppio que haga lo que dice enunciado 5 es decir:
   //paddr_t task_page = mmu_next_free_task_page();
   
-    // code_start = code_start;
 
   uint32_t new_cr3 = mmu_next_free_kernel_page();
   uint32_t cr3 = rcr3();
 
-  uint8_t* ptr_code_page = (uint8_t*) code_start;
-  uint8_t* ptr_virt_page = (uint8_t*) TASK_CODE_VIRTUAL;
+  // uint8_t* ptr_code_page = (uint8_t*) code_start;
+  // uint8_t* ptr_virt_page = (uint8_t*) TASK_CODE_VIRTUAL;
+
+  char* ptr_code_page = (char*) code_start;
+  char* ptr_virt_page = (char*) TASK_CODE_VIRTUAL;
+
 
   paddr_t tasks_memory = TASK_CODE_VIRTUAL;
   paddr_t phy_address = phy_start;
@@ -169,7 +172,7 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
     memory_kernel += 4096;
   }
 
-  tasks_memory = 0x1D00000;
+  tasks_memory = TASK_CODE_VIRTUAL;
   phy_address = phy_start;
 
   for (size_t i = 0; i < pages; i++){
@@ -178,13 +181,17 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
     phy_address += 4096;  // 4096 = 4kb = tamaño pagina
   }
 
-  // Ver si esto va o no:
-  // copiar las tareas de rick o morty del kernel a codigo respectivo
+
   for (size_t i = 0; i < 16384; i++){
-    *ptr_virt_page = *ptr_code_page;
-    ptr_code_page++;
-    ptr_virt_page++;
+    ptr_virt_page[i] = ptr_code_page[i];
   }
+
+  // for (size_t i = 0; i < 16384; i++)
+  // {
+  //   *ptr_virt_page = *ptr_code_page;
+  //   ptr_code_page++;
+  //   ptr_virt_page++;
+  // }
 
   for (size_t i = 0; i < pages; i++){
     mmu_unmap_page(cr3, tasks_memory);

@@ -75,6 +75,7 @@ _isr32:
      je .fin
      call next_clock
      xchg bx, bx
+     
      mov word [sched_task_selector], ax
      jmp far [sched_task_offset]
      .fin:

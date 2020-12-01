@@ -164,7 +164,7 @@ void tss_creator(int player, int task){
   tss_new_task->edx = 0;
   tss_new_task->ebx = 0;
   tss_new_task->esp = TASK_VIRTUAL_DIR + 4 * PAGE_SIZE;
-  tss_new_task->ebp = TASK_VIRTUAL_DIR + 4 * PAGE_SIZE;
+  tss_new_task->ebp = 0; //TASK_VIRTUAL_DIR + 4 * PAGE_SIZE;
   tss_new_task->esi = 0;
   tss_new_task->edi = 0;
   tss_new_task->es  = IDX_DATO_LVL_3;
