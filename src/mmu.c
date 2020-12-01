@@ -148,16 +148,13 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
   uint32_t new_cr3 = mmu_next_free_kernel_page(); //cr3: 0x000000105000
   uint32_t cr3 = 0x25000;
 
-
   paddr_t tasks_memory = TASK_CODE_VIRTUAL;
-  //paddr_t phy_address = phy_start;
-
   paddr_t memory_kernel = 0;
 
   // Mapeo kernel
   for (size_t i = 0; i < 1024; i++){
     mmu_map_page(new_cr3,memory_kernel,memory_kernel,2);
-    memory_kernel += 4096;
+    memory_kernel += 4096; 
   }
 
   // mapea espacio de tarea en el cr3 de la tarea
@@ -169,9 +166,11 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
   
   lcr3(new_cr3);
 
+  // creamos punteros para copiar el codigo
   char* ptr_code_page = (char*) code_start;
   char* ptr_virt_page = (char*) TASK_CODE_VIRTUAL;
   
+  // copiamos codigo 
   for (size_t i = 0; i < 16384; i++){
     ptr_virt_page[i] = ptr_code_page[i];
   }
@@ -181,71 +180,3 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
   return new_cr3;
 }
 
-
-
-
-/*
-paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
-  // Está en ppio que haga lo que dice enunciado 5 es decir:
-  //paddr_t task_page = mmu_next_free_task_page();
-
-  // breakpoint();
-
-  uint32_t new_cr3 = mmu_next_free_kernel_page(); //cr3: 0x000000105000
-  uint32_t cr3 = 0x25000;
-
-
-  // uint8_t* ptr_code_page = (uint8_t*) code_start;
-  // uint8_t* ptr_virt_page = (uint8_t*) TASK_CODE_VIRTUAL;
-
-  char* ptr_code_page = (char*) code_start;
-  char* ptr_virt_page = (char*) TASK_CODE_VIRTUAL;
-
-
-  paddr_t tasks_memory = TASK_CODE_VIRTUAL;
-  paddr_t phy_address = phy_start;
-
-  paddr_t memory_kernel = 0;
-
-  // Mapeo kernel
-  for (size_t i = 0; i < 1024; i++){
-    mmu_map_page(new_cr3,memory_kernel,memory_kernel,2);
-    memory_kernel += 4096;
-  }
-
-  // Mapeo de dir tareas 
-  for (size_t i = 0; i < pages; i++){
-    mmu_map_page(cr3, tasks_memory, phy_address, 2);
-    tasks_memory += 4096; // 4096 = 4kb = tamaño pagina
-    phy_address += 4096;  // 4096 = 4kb = tamaño pagina
-  }
-
-
-  tasks_memory = TASK_CODE_VIRTUAL;
-  phy_address = phy_start;
-
-  // mapea espacio de tarea en el cr3 de la tarea, no en el del kernel, este no se desmapea nunca
-  for (size_t i = 0; i < pages; i++){
-    mmu_map_page(new_cr3, tasks_memory, phy_address, 6);  //! (cambiamos con nahu) era 2 pero necesitamos privilegios de usuario sino rompe cuando entramos en tarea
-    tasks_memory += 4096; // 4096 = 4kb = tamaño pagina
-    phy_address += 4096;  // 4096 = 4kb = tamaño pagina
-  }
-
-  lcr3(new_cr3);
-
-  for (size_t i = 0; i < 16384; i++){
-    ptr_virt_page[i] = ptr_code_page[i];
-  }
-
-
-  for (size_t i = 0; i < pages; i++){
-    mmu_unmap_page(cr3, tasks_memory);
-    tasks_memory += 4096; // 4096 = 4kb = tamaño pagina
-  }
-
-
-  lcr3(0x25000);
-
-  return new_cr3;
-}
-*/

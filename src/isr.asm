@@ -104,12 +104,15 @@ global _isr88
 
 _isr88:
      pushad
+     mov ebp, esp
+     xchg bx, bx 
      push eax
      call next_clock
      mov ax,0x80 ;idle
      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
      xchg bx, bx
      jmp far [sched_task_offset]
+     pop ebp
      popad
 iret
 
