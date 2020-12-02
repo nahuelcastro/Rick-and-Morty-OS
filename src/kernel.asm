@@ -29,6 +29,8 @@ extern init_idle
 extern tss_creator
 extern sched_init
 
+extern game_init
+
 
 
 %define IDX_CODE_LVL_0 0x50
@@ -209,9 +211,6 @@ modo_protegido:
     call tss_creator
     add esp, 4*2
 
-
-
-
     ; Inicializar la IDT
     call idt_init
 
@@ -222,16 +221,8 @@ modo_protegido:
     call pic_reset
     call pic_enable
 
-    ; push 4
-    ; push 0x1D00000
-    ; push 0x1D00000
-    ; call mmu_init_task_dir
-    ; add esp, 4*3
-    ; mov cr3,eax
-    ; xor ax, ax
-    ; call init_pantalla2
-    ; mov eax, 0x25000
-    ; mov cr3, eax
+    call game_init
+
 
     ; Cargar tarea inicial
     mov ax, IDX_TSS_INICAL
@@ -251,62 +242,6 @@ modo_protegido:
     ; mov edx, 0xFFFF
     jmp $
 
-
-    ; init_pantalla2:
-
-    ; xor ecx, ecx
-
-    ; primer_fila_negra2:
-    ;     mov word [fs:2*ecx], BLUE
-    ;     inc ecx
-    ;     cmp ecx, 80
-    ;     jne primer_fila_negra2
-
-    ; filas_verdes2:
-    ;     mov word [fs:2*ecx], GREEN
-    ;     inc ecx
-    ;     cmp ecx, 3200
-    ;     jne filas_verdes2
-
-    ; xor ebx, ebx
-    ; mov ebx, ecx
-
-    ; filas_negras2:
-    ;     mov word [fs:2*ecx], BLACK
-    ;     inc ecx
-    ;     cmp ecx, 4000
-    ;     jne filas_negras2
-
-
-    ; add ebx, 168  ; dejo una fila mas de margen
-    ; mov ecx, ebx
-    ; xor edx, edx
-
-    ; tableros2:
-
-    ;     mov ebx, ecx
-    ;     add ebx, 12
-    ;     fila_tablero_rojo2:
-    ;         mov word [fs:2*ecx], RED
-    ;         inc ecx
-    ;         cmp ecx, ebx
-    ;         jne fila_tablero_rojo2
-
-    ;     add ecx, 40
-    ;     mov ebx, ecx
-    ;     add ebx, 12
-
-    ;     fila_tablero_azul2:
-    ;         mov word [fs:2*ecx], BLUE
-    ;         inc ecx
-    ;         cmp ecx, ebx
-    ;         jne fila_tablero_azul2
-
-    ;     add ecx, 16
-    ;     inc edx
-    ;     cmp edx, 3
-    ;     jne tableros2
-    ; ret
 
 
 global init_pantalla

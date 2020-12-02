@@ -94,14 +94,12 @@ iret
 ;; -------------------------------------------------------------------------- ;;
 ;; Rutina de atención del TECLADO
 ;; -------------------------------------------------------------------------- ;;
-%define k_debug       0x15 ; Y
+%define k_debug    0x15   ;  Y
 
 global _isr33
 
 _isr33:
-     pushad
-
-
+     pushad 
      in al, 0x60
      cmp al, k_debug
      jne .fin
@@ -112,11 +110,12 @@ _isr33:
      popad
      iret
 
-global _isr88
+global _isr88 
 
-_isr88:
+_isr88:    
      pushad
      mov ebp, esp
+     
      push eax
      call next_clock
      mov ax,0x80 ;idle
@@ -157,6 +156,7 @@ _isr100:
 iret
 
 
+
 global _isr123
 
 _isr123:
@@ -181,7 +181,7 @@ isrClock:            db '|/-\'
 next_clock:
         pushad
         inc DWORD [isrNumber]
-        mov ebx, [isrNumber]
+        mov ebx, [isrNumber]  
         cmp ebx, 0x4
         jl .ok
                 mov DWORD [isrNumber], 0x0

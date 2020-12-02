@@ -58,7 +58,7 @@ uint16_t sched_next_task(void)
 
 void desactivar_tarea(){
   if(tareaActual == 17 || tareaActual == 18){
-    // terminar juego
+    end_game();
   }
 
   tareasActivas[tareaActual] = false;
@@ -86,7 +86,6 @@ void modo_debug(void){
   if(modoDebug){
 
     modoDebug=false;
-    breakpoint();
     init_pantalla();
 
   } else{

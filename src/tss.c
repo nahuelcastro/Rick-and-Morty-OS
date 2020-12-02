@@ -26,8 +26,8 @@
 tss_t tss_initial;
 tss_t tss_idle;
 
-tss_t tss_rick[8];
-tss_t tss_morty[8];
+tss_t tss_rick[10];
+tss_t tss_morty[10];
 
 tss_t* TSSs[35];
 

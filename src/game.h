@@ -16,6 +16,6 @@ typedef enum e_task_type {
 } task_type_t;
 
 void game_init(void);
-
+void end_game();
 
 #endif //  __GAME_H__

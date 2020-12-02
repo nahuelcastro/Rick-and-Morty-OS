@@ -19,3 +19,4 @@ uint32_t rand(void) {
   seed = 6364136223846793005ULL * seed + 1;
   return seed;
 }
+
