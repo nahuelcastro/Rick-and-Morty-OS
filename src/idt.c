@@ -10,6 +10,7 @@
 #include "isr.h"
 #include "screen.h"
 
+int ultExcepcion=260;
 idt_entry_t idt[255] = {0};
 
 idt_descriptor_t IDT_DESC = {sizeof(idt) - 1, (uint32_t)&idt};
@@ -76,54 +77,54 @@ void idt_init() {
   IDT_ENTRY_3(123);
 }
 
-#define COLOR_EXP 0x0A
 
 void imprimir_excepcion(int codigo){
 
-  print("Excepcion, ", 0, 0, COLOR_EXP);
-  if (codigo == 0) { print("Divide Error(0)", 11, 0, COLOR_EXP);}
+  ultExcepcion = codigo;
+  print("Excepcion, ", 0, 0, C_FG_LIGHT_GREEN);
+  if (codigo == 0) { print("Divide Error(0)", 41, 2, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 1) { print("RESERVED (1)",11,0, COLOR_EXP);}
+  if (codigo == 1) { print("RESERVED (1)",41,2, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 2) { print("NMI Interrupt (2)",11,0, COLOR_EXP);}
+  if (codigo == 2) { print("NMI Interrupt (2)",41,2, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 3) { print("Breackpoint (3)", 11,0, COLOR_EXP);}
+  if (codigo == 3) { print("Breackpoint (3)", 41,2, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 4) { print("Overflow (4)", 11,0, COLOR_EXP);}
+  if (codigo == 4) { print("Overflow (4)", 41,2, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 5) { print("BOUND Range Exceeded (5)", 11,0, COLOR_EXP);}
+  if (codigo == 5) { print("BOUND Range Exceeded (5)", 41,2, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 6) { print("Invalid Opcode (Undifined Opcode) (6)", 11,0, COLOR_EXP);}
+  if (codigo == 6) { print("Invalid Opcode (Undifined Opcode) (6)", 41,2, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 7) { print("Device Not Avaiable (No Math Coprocessor) (7) ", 11,0, COLOR_EXP);}
+  if (codigo == 7) { print("Device Not Avaiable (No Math Coprocessor) (7) ", 41,2, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 8) { print("Double Fault (8)", 11,0, COLOR_EXP);}
+  if (codigo == 8) { print("Double Fault (8)", 41,2, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 9) { print("Coprocessor Segment Overrun (reserved) (9)", 11, 0, COLOR_EXP);}
+  if (codigo == 9) { print("Coprocessor Segment Overrun (reserved) (9)", 41, 2, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 10){ print("Invalid TSS (10)", 11,0, COLOR_EXP);}
+  if (codigo == 10){ print("Invalid TSS (10)", 41,2, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 11){ print("Segment Not Present (11)", 11,0, COLOR_EXP);}
+  if (codigo == 11){ print("Segment Not Present (11)", 41,2, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 12){ print("Stack-Segment Fault (12)", 11,0, COLOR_EXP);}
+  if (codigo == 12){ print("Stack-Segment Fault (12)", 41,2, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 13){ print("General Protection (13)", 11,0, COLOR_EXP);}
+  if (codigo == 13){ print("General Protection (13)", 41,2, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 14){ print("Page Fault (14)", 11,0, COLOR_EXP);}
+  if (codigo == 14){ print("Page Fault (14)", 41,2, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 15){ print("(Intel reserved. Do Not Use.) (15)", 11,0, COLOR_EXP);}
+  if (codigo == 15){ print("(Intel reserved. Do Not Use.) (15)", 41,2, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 16){ print("x87 FPU Floating-Point Error (Math Fault) (16)", 11,0, COLOR_EXP);}
+  if (codigo == 16){ print("x87 FPU Floating-Point Error (Math Fault) (16)", 41,0, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 17){ print("Alignment Check (17)", 11,0, COLOR_EXP);}
+  if (codigo == 17){ print("Alignment Check (17)", 11,0, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 18){print("Machine Check (18)", 11,0, COLOR_EXP);}
+  if (codigo == 18){print("Machine Check (18)", 11,0, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 19){ print("SIMD Floating-Point Exception (19)", 11,0, COLOR_EXP);}
+  if (codigo == 19){ print("SIMD Floating-Point Exception (19)", 11,0, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 33){ print("ESTAN ESCRIBIENDOOOOO!! (33)", 11,0, COLOR_EXP);}
+  if (codigo == 33){ print("ESTAN ESCRIBIENDOOOOO!! (33)", 11,0, C_FG_LIGHT_GREEN);}
 
-  if (codigo == 88){ print("Entramos en una tarea!! (88)", 11,0,COLOR_EXP);}
+  if (codigo == 88){ print("Entramos en una tarea!! (88)", 11,0,C_FG_LIGHT_GREEN);}
 }
 
 

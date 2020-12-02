@@ -10,6 +10,7 @@
 #define __IDT_H__
 
 #include "types.h"
+#include "colors.h"
 
 /* Struct de descriptor de IDT */
 typedef struct str_idt_descriptor {
@@ -27,6 +28,8 @@ typedef struct str_idt_entry_fld {
 
 extern idt_entry_t idt[];
 extern idt_descriptor_t IDT_DESC;
+extern int ultExcepcion;
+void imprimir_excepcion(int);
 
 void idt_init(void);
 

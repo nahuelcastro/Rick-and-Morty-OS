@@ -252,67 +252,72 @@ modo_protegido:
     jmp $
 
 
-    init_pantalla2:
+    ; init_pantalla2:
 
-    xor ecx, ecx
+    ; xor ecx, ecx
 
-    primer_fila_negra2:
-        mov word [fs:2*ecx], BLUE
-        inc ecx
-        cmp ecx, 80
-        jne primer_fila_negra2
+    ; primer_fila_negra2:
+    ;     mov word [fs:2*ecx], BLUE
+    ;     inc ecx
+    ;     cmp ecx, 80
+    ;     jne primer_fila_negra2
 
-    filas_verdes2:
-        mov word [fs:2*ecx], GREEN
-        inc ecx
-        cmp ecx, 3200
-        jne filas_verdes2
+    ; filas_verdes2:
+    ;     mov word [fs:2*ecx], GREEN
+    ;     inc ecx
+    ;     cmp ecx, 3200
+    ;     jne filas_verdes2
 
-    xor ebx, ebx
-    mov ebx, ecx
+    ; xor ebx, ebx
+    ; mov ebx, ecx
 
-    filas_negras2:
-        mov word [fs:2*ecx], BLACK
-        inc ecx
-        cmp ecx, 4000
-        jne filas_negras2
+    ; filas_negras2:
+    ;     mov word [fs:2*ecx], BLACK
+    ;     inc ecx
+    ;     cmp ecx, 4000
+    ;     jne filas_negras2
 
 
-    add ebx, 168  ; dejo una fila mas de margen
-    mov ecx, ebx
-    xor edx, edx
+    ; add ebx, 168  ; dejo una fila mas de margen
+    ; mov ecx, ebx
+    ; xor edx, edx
 
-    tableros2:
+    ; tableros2:
 
-        mov ebx, ecx
-        add ebx, 12
-        fila_tablero_rojo2:
-            mov word [fs:2*ecx], RED
-            inc ecx
-            cmp ecx, ebx
-            jne fila_tablero_rojo2
+    ;     mov ebx, ecx
+    ;     add ebx, 12
+    ;     fila_tablero_rojo2:
+    ;         mov word [fs:2*ecx], RED
+    ;         inc ecx
+    ;         cmp ecx, ebx
+    ;         jne fila_tablero_rojo2
 
-        add ecx, 40
-        mov ebx, ecx
-        add ebx, 12
+    ;     add ecx, 40
+    ;     mov ebx, ecx
+    ;     add ebx, 12
 
-        fila_tablero_azul2:
-            mov word [fs:2*ecx], BLUE
-            inc ecx
-            cmp ecx, ebx
-            jne fila_tablero_azul2
+    ;     fila_tablero_azul2:
+    ;         mov word [fs:2*ecx], BLUE
+    ;         inc ecx
+    ;         cmp ecx, ebx
+    ;         jne fila_tablero_azul2
 
-        add ecx, 16
-        inc edx
-        cmp edx, 3
-        jne tableros2
-    ret
+    ;     add ecx, 16
+    ;     inc edx
+    ;     cmp edx, 3
+    ;     jne tableros2
+    ; ret
 
+
+global init_pantalla
 
 init_pantalla:
+pushad 
 
+
+mov ax, 1110000b
+mov fs, ax
 xor ecx, ecx
-
 primer_fila_negra:
     mov word [fs:2*ecx], BLACK
     inc ecx
@@ -333,7 +338,6 @@ filas_negras:
     inc ecx
     cmp ecx, 4000
     jne filas_negras
-
 
 add ebx, 168  ; dejo una fila mas de margen
 mov ecx, ebx
@@ -364,7 +368,35 @@ tableros:
     cmp edx, 3
     jne tableros
 
+popad
 ret
+
+global pantalla_negra_debug
+
+pantalla_negra_debug:
+pushad
+    mov ax, 1110000b
+    mov fs, ax
+    xor ecx, ecx
+    add ecx, 60
+    xor eax, eax 
+    _39_veces:
+    inc eax
+    add ecx, 40
+    mov edx, ecx
+    add edx, 40
+        pintar_negro:
+        mov word [fs:2*ecx], BLACK
+        inc ecx
+        cmp ecx, edx
+        jne pintar_negro
+    cmp dword eax, 39
+    jne _39_veces   
+ 
+popad
+ret
+
+
 
 
 ;; -------------------------------------------------------------------------- ;;

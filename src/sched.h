@@ -14,6 +14,9 @@
 #include "tss.h" // Lo agregamoo
 #include "i386.h" // Lo agregamoo
 #include "screen.h"
+#include "idt.h"
+#include "colors.h"
+
 
 void sched_init();
 uint16_t sched_next_task();

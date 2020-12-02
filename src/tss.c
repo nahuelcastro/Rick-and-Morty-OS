@@ -29,6 +29,8 @@ tss_t tss_idle;
 tss_t tss_rick[8];
 tss_t tss_morty[8];
 
+tss_t* TSSs[35];
+
 int player_idx_gdt[GDT_COUNT];
 bool tareasActivas[GDT_COUNT];
 
@@ -48,6 +50,7 @@ void init_tss(void) {
   uint32_t base = (uint32_t) &tss_initial;
   tss_gdt_entry_init(IDX_TSS_INIT, base, 0);
 
+  TSSs[15] = &tss_initial;
 }
 
 void init_idle(){
@@ -94,6 +97,7 @@ void init_idle(){
   tss_idle.dtrap = 0;
   tss_idle.iomap = 0xFFFF;
 
+  TSSs[16] = &tss_idle;
 }
 
 
@@ -185,6 +189,12 @@ void tss_creator(int player, int task){
   tss_new_task->dtrap = 0;
   tss_new_task->iomap = 0xFFFF;
 
+  if (player == 1){                                 // 1 = Rick
+    TSSs[next_free_gdt_idx] = tss_new_task;
+  }
+  else{                                             // 0 = Morty
+    TSSs[next_free_gdt_idx] = tss_new_task;
+  }
 }
 
 

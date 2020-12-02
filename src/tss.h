@@ -64,5 +64,6 @@ void init_idle();
 
 void tss_gdt_entry_init(uint32_t index, uint32_t base, int dpl);
 
+extern tss_t* TSSs[35];
 
 #endif //  __TSS_H__
