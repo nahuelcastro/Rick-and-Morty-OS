@@ -44,8 +44,8 @@ void update_seed(void);
 void add_score(uint16_t player);
 _Bool same(coordenadas a, coordenadas b);
 int8_t next_index_meeseek_free(int player);
-int8_t index_in_seed(coordenadas coord);
+int index_in_seed(coordenadas coord);
 uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y);
-void bye_seed(int8_t idx);
+void bye_seed(int idx);
 
 #endif //  __GAME_H__

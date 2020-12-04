@@ -1,4 +1,5 @@
- #include "syscall.h"
+#include "syscall.h"
+#include "i386.h"
 
 void meeseks1_func(void);
 
@@ -19,6 +20,8 @@ void meeseks1_func(void) {
   while (1) {
     __asm volatile("nop");
   }
+
+  // breakpoint();
 
   int8_t deltax, deltay;
 

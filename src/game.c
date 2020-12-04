@@ -72,12 +72,13 @@ void game_init(void) {
         uint8_t y = rand();
         print("s", x % 79, y % 40, GREEN_YELLOW);
         coordenadas coord;
-        coord.x = x;
-        coord.y = y;
+        coord.x = x % 79;
+        coord.y = y % 40;
         indexSemilla++;
         semillas[indexSemilla].p = true;
         semillas[indexSemilla].coord = coord;
     }
+    
 
     // setear todos los meeseeks como inactivos
     for ( int player = 0; player < 2; player++){
@@ -102,7 +103,11 @@ void add_score(uint16_t player){
     print_dec(score[MORTY], 8, 62, 43, WHITE_BLUE);
 }
 
-_Bool same(coordenadas a, coordenadas b){
+bool same(coordenadas a, coordenadas b){
+    // print_dec(a.x, 2 ,2,  i - 1, WHITE_RED);
+    // print_dec(a.y, 2 ,6,  i - 1, WHITE_RED);
+    // print_dec(b.x, 2 ,12, i - 1, WHITE_RED);
+    // print_dec(b.y, 2 ,18, i - 1, WHITE_RED);
     return (a.x == b.x && a.y == b.y);
 }
 
@@ -116,13 +121,11 @@ int8_t next_index_meeseek_free(int player){
 }
 
     // busca si la coordenada esta sobre una semilla, ret -1 = no hay semilla en tal cordenada, ret x =  en semillas[x] esta la semilla encontrada
-int8_t index_in_seed(coordenadas coord){        //! cambiar mañána que devuelva -1 si es false, y el index en caso de true asi queda mejor
+int index_in_seed(coordenadas coord){        //! cambiar mañána que devuelva -1 si es false, y el index en caso de true asi queda mejor
     for (int i = 0; i < MAX_CANT_SEMILLAS; i++)
     {
         if (semillas[i].p){
             if ( same(coord, semillas[i].coord) ){
-                // breakpoint();
-                // print_dec(i, 8, 10, 8, WHITE_RED);
                 return i;
             }
         }
@@ -130,10 +133,21 @@ int8_t index_in_seed(coordenadas coord){        //! cambiar mañána que devuelv
     return -1;
 }
 
-void bye_seed(int8_t idx){
+void bye_seed(int idx){
     update_map_seed(semillas[idx].coord);
     semillas[idx].p = false; // chau semillas                 //! FALTA ACUTALIZAR EL MAPA(SACAR LA SEMILLA)
 }
+
+
+
+
+
+
+
+
+
+
+
 
 // ;
 // in EAX = code Código de la tarea Mr Meeseeks a ser ejecutada.;
@@ -142,7 +156,9 @@ void bye_seed(int8_t idx){
 
 //code 4KB  Tener en cuenta que este código debe estar declarado dentro del espacio de memoria de usuario de la tarea.
 uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y ){
-    
+
+    // breakpoint();
+
     int16_t player = player_idx_gdt[tareaActual];
 
     // filtro jugador                               VEER SI NO ES MEJOR FILTRAR ANTES
@@ -166,11 +182,9 @@ uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y ){
 
 
     // si meeseek justo cae en semilla, suma puntos y chau semilla
-    int8_t index_aux = index_in_seed(coord_actual);
+    int index_aux = index_in_seed(coord_actual);
     bool in_seed = index_aux != -1;
-    // if(player == MORTY){
-    //     in_seed = 1;
-    // }
+
 
     //print_dec(in_seed, 8, 10, 7, WHITE_RED);
 
@@ -191,6 +205,8 @@ uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y ){
     meeseeks[player][index_meeseek].p = 1;
     meeseeks[player][index_meeseek].coord = coord_actual;
     update_meeseek_map(player, coord_actual, 1);  // 1 = ADD
+
+    // breakpoint();
 
     return virt_res;
 }

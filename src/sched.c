@@ -26,8 +26,7 @@ void sched_init(void)
   modoDebug = false;
 }
 
-uint16_t sched_next_task(void)
-{
+uint16_t sched_next_task(void){
 
   // breakpoint();
 

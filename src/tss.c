@@ -209,7 +209,7 @@ void tss_creator(int8_t player, int task){
 paddr_t tss_meeseeks_creator(int player, /*int*/ uint8_t task, uint32_t code_start){
 
   // print_hex(task_phy_address, 8, 49, 5, C_FG_LIGHT_GREEN);
-  //  breakpoint();
+  // breakpoint();
 
   uint32_t cr3 = rcr3();    //! NO SE SI ESTO ESTA BIEN O ES FALOPEADA, ME SUENA RARO DEVOLVER LA TAREA CON EL CR3 DEL KERNEL
 
@@ -296,6 +296,7 @@ paddr_t tss_meeseeks_creator(int player, /*int*/ uint8_t task, uint32_t code_sta
   }
 
   lcr3(cr3);    //! PARTE DE LA FALOPEADA
+
 
   return task_virt_address;
 }

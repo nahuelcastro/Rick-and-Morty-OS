@@ -245,6 +245,7 @@ paddr_t mmu_init_task_meeseeks_dir(paddr_t phy_start, paddr_t code_start, paddr_
   lcr3(new_cr3);
 
   // breakpoint();
+  // breakpoint();
 
   // copiamos codigo
   for (int i = 0; i < PAGE_SIZE ; i++)     //! EXPLOTA ACA
@@ -255,6 +256,7 @@ paddr_t mmu_init_task_meeseeks_dir(paddr_t phy_start, paddr_t code_start, paddr_
   // breakpoint();
 
   lcr3(cr3);
+
 
   return new_cr3;
 }

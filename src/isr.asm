@@ -42,7 +42,7 @@ _isr%1:
      call imprimir_excepcion
      add esp, 4
 
-     xchg bx, bx
+     ; xchg bx, bx
 
      call desactivar_tarea  
      call sched_next_task            ; obtener indice de la proxima tarea a ejecutar
@@ -94,7 +94,7 @@ _isr32:
      je .fin
      call next_clock
      mov word [sched_task_selector], ax
-     
+     xchg bx, bx
      jmp far [sched_task_offset]
      .fin:
      popad
@@ -142,6 +142,7 @@ global _isr88
 ; in ECX=y          Fila en el mapa donde crear el Mr Meeseeks
 
 _isr88:    
+     ; xchg bx,bx
      pushad
      mov ebp, esp
      
@@ -153,6 +154,11 @@ _isr88:
 
      mov [temp], ax ; mov eax a variable temporal
      add esp,12     ; tenemos 3 parametros de entrada
+
+     call next_clock
+     mov ax,0x80 ;idle
+     mov word [sched_task_selector], ax  ; (cambiamos con nahu) ; NO SE SI VA ESTO DE PEDIR PROX TAREA
+     jmp far [sched_task_offset]
 
      popad          ; recupero registros
      mov ax, [temp] ; recupero registros
