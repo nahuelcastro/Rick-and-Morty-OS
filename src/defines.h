@@ -71,4 +71,15 @@
 
 //int player_idx_gdt[35] = {2};
 
+#define MORTY 0
+#define RICK  1
+
+#define DELETE 0;
+#define ADD 1;
+
+#define MAX_CANT_MEESEEKS 10
+#define MAX_CANT_SEMILLAS 50
+
+
+
 #endif //  __DEFINES_H__

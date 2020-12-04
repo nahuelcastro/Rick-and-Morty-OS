@@ -235,6 +235,18 @@ modo_protegido:
     jmp IDX_TSS_IDLE:0
 
 
+
+
+    ; push ecx       ; Código de la tarea Mr Meeseeks a ser ejecutada.
+    ; push ebx       ; Columna en el mapa donde crear el Mr Meeseeks.
+    ; push eax       ; Fila en el mapa donde crear el Mr Meeseeks
+
+    ;  call create_meeseek
+
+
+
+
+
     ; Ciclar infinitamente (por si algo sale mal...)
     ; mov eax, 0xFFFF
     ; mov ebx, 0xFFFF

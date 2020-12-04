@@ -17,11 +17,15 @@
 #define MMU_FLAG_READ_WRITE 0x01
 
 uint32_t next_free_kernel_page;
+uint32_t next_free_virt_meeseek_page;
+uint32_t next_free_phy_meeseek_page;
 //uint32_t next_free_task_page;
 
 void mmu_init(void) {
   //En memoria fisica, 0x100000 es el inicio del área libre de kernel.
   next_free_kernel_page = 0x100000;
+  next_free_virt_meeseek_page = 0x08000000;
+  next_free_phy_meeseek_page = 0x400000;
 
   //En memoria fisica, 0x400000 es el inicio del área libre de tareas.
   //next_free_task_page = 0x400000;
@@ -30,6 +34,18 @@ void mmu_init(void) {
 paddr_t mmu_next_free_kernel_page(void) {
   paddr_t free_page = next_free_kernel_page;
   next_free_kernel_page += 0x1000;
+  return free_page;
+}
+
+paddr_t mmu_next_free_virt_meeseek_page(){
+  // breakpoint();
+  paddr_t free_page = next_free_virt_meeseek_page;
+  next_free_virt_meeseek_page += 0x2000;
+  return free_page;
+}
+paddr_t mmu_next_free_phy_meeseek_page() {
+  paddr_t free_page = next_free_phy_meeseek_page;
+  next_free_phy_meeseek_page += 0x2000;
   return free_page;
 }
 
@@ -152,7 +168,7 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
   paddr_t memory_kernel = 0;
 
   // Mapeo kernel
-  for (size_t i = 0; i < 1024; i++){
+  for (size_t i = 0; i < 1024; i++){                            //! PARA MI, FALTA DESMAPEAR EL KERNEL
     mmu_map_page(new_cr3,memory_kernel,memory_kernel,2);
     memory_kernel += 4096; 
   }
@@ -180,3 +196,65 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
   return new_cr3;
 }
 
+paddr_t mmu_init_task_meeseeks_dir(paddr_t phy_start, paddr_t code_start, paddr_t tasks_virt_memory, paddr_t player_task_phy_address, paddr_t player_code_start, size_t pages)
+{
+
+  // breakpoint();
+
+  // breakpoint();
+  uint32_t new_cr3 = mmu_next_free_kernel_page(); //cr3: 0x000000105000
+  uint32_t cr3;
+  cr3 = /*rcr3()*/ 0x25000;
+
+  // paddr_t tasks_virt_memory = mmu_next_free_virt_meeseek_page;
+
+  // creamos punteros para luego copiar el codigo
+  char *ptr_code_page = (char *)code_start;
+  char *ptr_virt_page = (char *)tasks_virt_memory;
+
+  // breakpoint();
+  
+  // Mapeo kernel
+  paddr_t memory_kernel = 0;
+  for (int i = 0; i < 1024; i++)
+  {
+    mmu_map_page(new_cr3, memory_kernel, memory_kernel, 2);
+    memory_kernel += 4096;
+  }
+
+  // breakpoint();
+  // mapea los lugares de rick o morty
+  for (int i = 0; i < 4; i++){ // 4 pages
+    mmu_map_page(new_cr3, player_code_start, player_task_phy_address, 6);
+    player_code_start += PAGE_SIZE;
+    player_task_phy_address += PAGE_SIZE;
+  }
+  // breakpoint();
+  // mapea espacio de tarea en el cr3 de la tarea
+
+  for (size_t i = 0; i < pages; i++)
+  {
+    mmu_map_page(new_cr3, tasks_virt_memory, phy_start, 6);
+    // mmu_map_page(new_cr3, 0x08000000, 0x400000, 6);
+    tasks_virt_memory += PAGE_SIZE;                         
+    phy_start += PAGE_SIZE;
+  }
+
+  // breakpoint();
+
+  lcr3(new_cr3);
+
+  // breakpoint();
+
+  // copiamos codigo
+  for (int i = 0; i < PAGE_SIZE ; i++)     //! EXPLOTA ACA
+  {
+    ptr_virt_page[i] = ptr_code_page[i];
+  }
+
+  // breakpoint();
+
+  lcr3(cr3);
+
+  return new_cr3;
+}

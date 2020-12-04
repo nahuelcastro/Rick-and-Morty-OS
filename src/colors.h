@@ -39,4 +39,18 @@
 
 #define C_BLINK (0x8 << 4)
 
+// primero color fuente y luego color fondo
+#define WHITE_RED 0x4f
+#define WHITE_BLUE 0x1f
+#define BLACK_RED 0x04
+#define BLACK_BLUE 0x01
+#define GREEN_YELLOW 0x2E
+
+#define BLUE_GREEN 0x21
+#define RED_GREEN 0x24
+#define GREEN_GREEN 0x22
+
+#define RICK_MEESEEK_COLOR RED_GREEN
+#define MORTY_MEESEEK_COLOR BLUE_GREEN
+
 #endif //  __COLORS_H__

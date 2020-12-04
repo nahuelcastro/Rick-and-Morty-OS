@@ -26,12 +26,16 @@
 tss_t tss_initial;
 tss_t tss_idle;
 
-tss_t tss_rick[10];
-tss_t tss_morty[10];
+tss_t tss_rick[11];   // 10
+tss_t tss_morty[11];  // 10
 
 tss_t* TSSs[35];
 
-int player_idx_gdt[GDT_COUNT];
+meeseek_t meeseeks[2][MAX_CANT_MEESEEKS];
+
+uint8_t cant_meeseeks[2];
+
+int8_t player_idx_gdt[GDT_COUNT];
 bool tareasActivas[GDT_COUNT];
 
 
@@ -51,6 +55,9 @@ void init_tss(void) {
   tss_gdt_entry_init(IDX_TSS_INIT, base, 0);
 
   TSSs[15] = &tss_initial;
+
+  cant_meeseeks[MORTY] = 0;
+  cant_meeseeks[RICK] = 0;
 }
 
 void init_idle(){
@@ -127,7 +134,7 @@ void next_free_tss() {
 }
 
 
-void tss_creator(int player, int task){
+void tss_creator(int8_t player, int task){
 
   paddr_t code_start;
   paddr_t task_phy_address;
@@ -198,3 +205,97 @@ void tss_creator(int player, int task){
 }
 
 
+
+paddr_t tss_meeseeks_creator(int player, /*int*/ uint8_t task, uint32_t code_start){
+
+  // print_hex(task_phy_address, 8, 49, 5, C_FG_LIGHT_GREEN);
+  //  breakpoint();
+
+  uint32_t cr3 = rcr3();    //! NO SE SI ESTO ESTA BIEN O ES FALOPEADA, ME SUENA RARO DEVOLVER LA TAREA CON EL CR3 DEL KERNEL
+
+  // paddr_t code_start;
+  paddr_t task_phy_address;
+  paddr_t task_virt_address;
+  tss_t *tss_new_task;
+
+  paddr_t player_code_start;
+  paddr_t player_task_phy_address;
+
+  if (player == RICK){
+    player_task_phy_address = 0x1D00000;
+    player_code_start = 0x1D00000;
+    tss_new_task = &tss_rick[task];
+  }
+  else{
+    player_task_phy_address = 0x1D04000;
+    player_code_start = 0x1D00000;          //! CAMBIAR NOMBRE, YA NO ES CODE START AHORA ES PHY PLAYER
+    tss_new_task = &tss_morty[task];
+  }
+
+  // consigo proxima phy libre para meeseeks
+  task_phy_address = mmu_next_free_phy_meeseek_page();
+  
+  // consigo proxima virt libre para meeseeks
+  task_virt_address = mmu_next_free_virt_meeseek_page();
+
+  paddr_t new_cr3 = mmu_init_task_meeseeks_dir(task_phy_address, code_start, task_virt_address, player_task_phy_address, player_code_start, 2);
+  paddr_t stack_level_0 = mmu_next_free_kernel_page();    //! despues modificar esta funcion para que aproveche los de los meeseeks que murieron
+
+
+  next_free_tss();
+
+  player_idx_gdt[next_free_gdt_idx] = player;
+  tareasActivas[next_free_gdt_idx] = true;
+  tss_gdt_entry_init(next_free_gdt_idx, (uint32_t)tss_new_task, 3);
+
+  tss_new_task->ptl = 0; //(uint32_t) tss_new_task;
+  tss_new_task->unused0 = 0;
+  tss_new_task->esp0 = stack_level_0 + PAGE_SIZE;
+  tss_new_task->ss0 = IDX_DATO_LVL_0;
+  tss_new_task->unused1 = 0;
+  tss_new_task->esp1 = 0;
+  tss_new_task->ss1 = 0;
+  tss_new_task->unused2 = 0;
+  tss_new_task->esp2 = 0;
+  tss_new_task->ss2 = 0;
+  tss_new_task->unused3 = 0;
+  tss_new_task->cr3 = new_cr3;
+  tss_new_task->eip = task_virt_address;
+  tss_new_task->eflags = 0x202;
+  tss_new_task->eax = 0;
+  tss_new_task->ecx = 0;
+  tss_new_task->edx = 0;
+  tss_new_task->ebx = 0;
+  tss_new_task->esp = task_virt_address + 4 * PAGE_SIZE;     
+  tss_new_task->ebp = 0; //TASK_VIRTUAL_DIR + 4 * PAGE_SIZE;
+  tss_new_task->esi = 0;
+  tss_new_task->edi = 0;
+  tss_new_task->es = IDX_DATO_LVL_3;
+  tss_new_task->unused4 = 0;
+  tss_new_task->cs = IDX_CODE_LVL_3;
+  tss_new_task->unused5 = 0;
+  tss_new_task->ss = IDX_DATO_LVL_3;
+  tss_new_task->unused6 = 0;
+  tss_new_task->ds = IDX_DATO_LVL_3;
+  tss_new_task->unused7 = 0;
+  tss_new_task->fs = IDX_DATO_LVL_3;
+  tss_new_task->unused8 = 0;
+  tss_new_task->gs = IDX_DATO_LVL_3;
+  tss_new_task->unused9 = 0;
+  tss_new_task->ldt = 0;
+  tss_new_task->unused10 = 0;
+  tss_new_task->dtrap = 0;
+  tss_new_task->iomap = 0xFFFF;
+
+
+  if (player == RICK){
+    TSSs[next_free_gdt_idx] = tss_new_task;
+  }
+  else{
+    TSSs[next_free_gdt_idx] = tss_new_task;
+  }
+
+  lcr3(cr3);    //! PARTE DE LA FALOPEADA
+
+  return task_virt_address;
+}

@@ -24,6 +24,10 @@ extern sched_next_task
 extern cmpScanCode
 extern modo_debug
 
+extern create_meeseek
+
+temp: dd 0         ; variable temporal
+
 
 ;;
 ;; Definición de MACROS
@@ -33,11 +37,16 @@ global _isr%1
 
 _isr%1:
      mov eax, %1
-     ;push eax
-     ;call imprimir_excepcion
-     ;add esp, 4
+
+     push eax
+     call imprimir_excepcion
+     add esp, 4
+
+     xchg bx, bx
+
      call desactivar_tarea  
      call sched_next_task            ; obtener indice de la proxima tarea a ejecutar
+
      mov [sched_task_selector], ax   ; carga el selector del segmento de la tarea a saltar
      jmp far [sched_task_offset]     ; intercambio de tareas
     
@@ -112,19 +121,48 @@ _isr33:
 
 global _isr88 
 
+; _isr88:    
+;      pushad
+;      mov ebp, esp
+     
+     
+;      push eax
+;      call next_clock
+;      mov ax,0x80 ;idle
+;      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
+;      jmp far [sched_task_offset]
+;      pop ebp
+;      popad
+; iret
+
+
+
+; in EAX=code       Código de la tarea Mr Meeseeks a ser ejecutada.
+; in EBX=x          Columna en el mapa donde crear el Mr Meeseeks.
+; in ECX=y          Fila en el mapa donde crear el Mr Meeseeks
+
 _isr88:    
      pushad
      mov ebp, esp
      
-     
-     push eax
-     call next_clock
-     mov ax,0x80 ;idle
-     mov word [sched_task_selector], ax  ; (cambiamos con nahu)
-     jmp far [sched_task_offset]
+     push ecx       ; Código de la tarea Mr Meeseeks a ser ejecutada.
+     push ebx       ; Columna en el mapa donde crear el Mr Meeseeks.
+     push eax       ; Fila en el mapa donde crear el Mr Meeseeks
+
+     call create_meeseek
+
+     mov [temp], ax ; mov eax a variable temporal
+     add esp,12     ; tenemos 3 parametros de entrada
+
+     popad          ; recupero registros
+     mov ax, [temp] ; recupero registros
+     ; pop eax
+     ; pop ebx
+     ; pop ecx
      pop ebp
-     popad
 iret
+
+
 
 global _isr89
 

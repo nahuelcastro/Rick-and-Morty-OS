@@ -29,6 +29,8 @@ void sched_init(void)
 uint16_t sched_next_task(void)
 {
 
+  // breakpoint();
+
   for (int i = 0; i < GDT_COUNT - 1; i++)
   { /// TOCAR EL I
     if (index == GDT_COUNT)
@@ -36,7 +38,7 @@ uint16_t sched_next_task(void)
       index = 15;
     }
 
-    bool esUnJugador = player_idx_gdt[index + 1] == 1 || player_idx_gdt[index + 1] == 0;
+    bool esUnJugador = player_idx_gdt[index + 1] == RICK || player_idx_gdt[index + 1] == MORTY;
     bool esOtroJugador = (player_idx_gdt[index + 1] != player_idx_gdt[tareaActual]) && esUnJugador;
     bool estaPresente = gdt[index + 1].p == 1;
     bool estaActiva = tareasActivas[index + 1];
@@ -62,7 +64,6 @@ void desactivar_tarea(){
   }
 
   tareasActivas[tareaActual] = false;
-
 }
 
 
