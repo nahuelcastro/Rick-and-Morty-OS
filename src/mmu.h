@@ -62,4 +62,15 @@ paddr_t mmu_init_task_meeseeks_dir(paddr_t phy_start, paddr_t code_start, paddr_
 paddr_t mmu_next_free_virt_meeseek_page();
 paddr_t mmu_next_free_phy_meeseek_page();
 
+typedef struct info_meeseek
+{
+  // paddr_t phy;
+  bool p;
+  paddr_t virt;
+  paddr_t stack_level_0;
+  paddr_t cr3;
+} info_reciclaje_meeseek;
+
+extern info_reciclaje_meeseek info_reciclaje_meeseeks[PLAYERS][MAX_CANT_MEESEEKS];
+
 #endif //  __MMU_H__

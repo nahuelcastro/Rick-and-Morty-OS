@@ -20,12 +20,20 @@ uint32_t next_free_kernel_page;
 uint32_t next_free_virt_meeseek_page;
 uint32_t next_free_phy_meeseek_page;
 //uint32_t next_free_task_page;
+info_reciclaje_meeseek info_reciclaje_meeseeks[PLAYERS][MAX_CANT_MEESEEKS];
 
 void mmu_init(void) {
   //En memoria fisica, 0x100000 es el inicio del área libre de kernel.
   next_free_kernel_page = 0x100000;
   next_free_virt_meeseek_page = 0x08000000;
   next_free_phy_meeseek_page = 0x400000;
+
+  // seteo todos los reciclados como no presentes
+  for (int player = 0; player < PLAYERS; player++){
+    for (int i = 0; i < MAX_CANT_MEESEEKS; i++){
+      info_reciclaje_meeseeks[player][i].p = false;
+    }
+  }
 
   //En memoria fisica, 0x400000 es el inicio del área libre de tareas.
   //next_free_task_page = 0x400000;
@@ -37,8 +45,8 @@ paddr_t mmu_next_free_kernel_page(void) {
   return free_page;
 }
 
-paddr_t mmu_next_free_virt_meeseek_page(){
-  // breakpoint();
+
+paddr_t mmu_next_free_virt_meeseek_page(void){
   paddr_t free_page = next_free_virt_meeseek_page;
   next_free_virt_meeseek_page += 0x2000;
   return free_page;
@@ -48,6 +56,8 @@ paddr_t mmu_next_free_phy_meeseek_page() {
   next_free_phy_meeseek_page += 0x2000;
   return free_page;
 }
+
+
 
 /*paddr_t mmu_next_free_task_page(void) {
   paddr_t free_page = next_free_task_page;

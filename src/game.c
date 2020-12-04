@@ -18,8 +18,9 @@ extern void pantalla_negra_debug();
 seed semillas[MAX_CANT_SEMILLAS];
 uint8_t indexSemilla;
 uint16_t cant_semillas;
-uint32_t score[2];
-
+uint32_t score[PLAYERS];
+const bool ADD = true;
+const bool DELETE = false;
 
 // void update_map(void){
 //     update_seed();
@@ -34,9 +35,9 @@ void update_map_seed(coordenadas coord){
     clean_cell(coord);
 }
 
-void update_meeseek_map(int8_t player, coordenadas coord,uint8_t reason){
+void update_meeseek_map(player_t player, coordenadas coord,bool reason){
     
-    if (reason){
+    if (reason){                            // ADD
         uint8_t PLAYER_MEESEEK_COLOR;
         if (player == RICK){   
             PLAYER_MEESEEK_COLOR = RICK_MEESEEK_COLOR; 
@@ -44,7 +45,7 @@ void update_meeseek_map(int8_t player, coordenadas coord,uint8_t reason){
             PLAYER_MEESEEK_COLOR = MORTY_MEESEEK_COLOR;
         }
         print("M", coord.x, coord.y, PLAYER_MEESEEK_COLOR);
-    } else{ // reason == DELETE
+    } else{                                 // reason == DELETE
         clean_cell(coord);
     }
     
@@ -81,8 +82,8 @@ void game_init(void) {
     
 
     // setear todos los meeseeks como inactivos
-    for ( int player = 0; player < 2; player++){
-        for (int i = 0; i < MAX_CANT_MEESEEKS; i++){
+    for (player_t player = 0; player < 2; player++){
+        for (player_t i = 0; i < MAX_CANT_MEESEEKS; i++){
             meeseeks[player][i].p = 0;
         }
     }
@@ -96,7 +97,7 @@ void end_game(void){
     print("FIN DEL JUEGO", 35, 5, C_FG_WHITE); // ver si quead centrado
 }
 
-void add_score(uint16_t player){
+void add_update_score(player_t player){
     breakpoint();
     score[player] += 425;
     print_dec(score[RICK], 8, 10, 43, WHITE_RED);
@@ -111,7 +112,7 @@ bool same(coordenadas a, coordenadas b){
     return (a.x == b.x && a.y == b.y);
 }
 
-int8_t next_index_meeseek_free(int player){
+int8_t next_index_meeseek_free(player_t player){
     for (int8_t i = 0; i < MAX_CANT_MEESEEKS; i++){
         if (!meeseeks[player][i].p){
             return i;
@@ -133,21 +134,33 @@ int index_in_seed(coordenadas coord){        //! cambiar mañána que devuelva -
     return -1;
 }
 
+
+
 void bye_seed(int idx){
     update_map_seed(semillas[idx].coord);
     semillas[idx].p = false; // chau semillas                 //! FALTA ACUTALIZAR EL MAPA(SACAR LA SEMILLA)
 }
 
+void msk_found_seed(player_t player, int idx_msk, int idx_seed){
 
+    // delete msk
+    meeseeks[player][idx_msk].p = false;
 
+    // delete seed
+    bye_seed(idx_seed);
 
+    // update
+    update_meeseek_map(player, meeseeks[player][idx_msk].coord, DELETE);
+    add_update_score(player);
+    cant_meeseeks[player] --;
 
+    // flag_off  recycling msk memory
+    info_reciclaje_meeseeks[player][idx_msk].p = false;
 
+    // clean_stack_level_0 para reciclar
 
-
-
-
-
+    // unmap msk
+}
 
 // ;
 // in EAX = code Código de la tarea Mr Meeseeks a ser ejecutada.;
@@ -159,7 +172,7 @@ uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y ){
 
     // breakpoint();
 
-    int16_t player = player_idx_gdt[tareaActual];
+    player_t player = player_idx_gdt[tareaActual];
 
     // filtro jugador                               VEER SI NO ES MEJOR FILTRAR ANTES
     if (player != RICK && player != MORTY){
@@ -190,7 +203,7 @@ uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y ){
 
     if (in_seed){
         bye_seed(index_aux);
-        add_score(player);
+        add_update_score(player);
         return 0;
     }
     
@@ -204,7 +217,9 @@ uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y ){
 
     meeseeks[player][index_meeseek].p = 1;
     meeseeks[player][index_meeseek].coord = coord_actual;
-    update_meeseek_map(player, coord_actual, 1);  // 1 = ADD
+    update_meeseek_map(player, coord_actual, ADD);  // 1 = ADD
+
+    cant_meeseeks[player] ++;
 
     // breakpoint();
 

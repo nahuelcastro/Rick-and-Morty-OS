@@ -74,12 +74,12 @@
 #define MORTY 0
 #define RICK  1
 
-#define DELETE 0;
-#define ADD 1;
+// #define DELETE 0;
+// #define ADD 1;
 
 #define MAX_CANT_MEESEEKS 10
 #define MAX_CANT_SEMILLAS 50
 
-
+#define PLAYERS 2
 
 #endif //  __DEFINES_H__
