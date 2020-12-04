@@ -158,8 +158,10 @@ void msk_found_seed(player_t player, int idx_msk, int idx_seed){
     info_reciclaje_meeseeks[player][idx_msk].p = false;
 
     // clean_stack_level_0 para reciclar
+    //! implementar un mmu_clean_stack_lvl_0 que lo pise todo en uno
 
     // unmap msk
+    //! implementar
 }
 
 // ;

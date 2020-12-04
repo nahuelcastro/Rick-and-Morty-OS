@@ -164,7 +164,6 @@ paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt){
   pte_map[off_pt].present = 0; //Al tener presente en 0 lo va a desmapear
   paddr_t phyAddr = (pte_map[off_pt].physical_adress_base >> 12); //off_dir;
   return phyAddr;
-
 }
 
 
@@ -206,42 +205,46 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
   return new_cr3;
 }
 
+void mmu_map_kernel(paddr_t cr3){
+  paddr_t memory_kernel = 0;
+  for (int i = 0; i < 1024; i++)
+  {
+    mmu_map_page(cr3, memory_kernel, memory_kernel, 2);
+    memory_kernel += 4096;
+  }
+}
+
+void mmu_unmap_kernel(paddr_t cr3){
+  paddr_t memory_kernel = 0;
+  for (int i = 0; i < 1024; i++){
+    mmu_unmap_page(cr3, memory_kernel);
+    memory_kernel += 4096;
+  }
+}
+
 paddr_t mmu_init_task_meeseeks_dir(paddr_t phy_start, paddr_t code_start, paddr_t tasks_virt_memory, paddr_t player_task_phy_address, paddr_t player_code_start, size_t pages)
 {
-
-  // breakpoint();
-
-  // breakpoint();
   uint32_t new_cr3 = mmu_next_free_kernel_page(); //cr3: 0x000000105000
   uint32_t cr3;
   cr3 = /*rcr3()*/ 0x25000;
 
-  // paddr_t tasks_virt_memory = mmu_next_free_virt_meeseek_page;
 
   // creamos punteros para luego copiar el codigo
   char *ptr_code_page = (char *)code_start;
   char *ptr_virt_page = (char *)tasks_virt_memory;
 
-  // breakpoint();
-  
-  // Mapeo kernel
-  paddr_t memory_kernel = 0;
-  for (int i = 0; i < 1024; i++)
-  {
-    mmu_map_page(new_cr3, memory_kernel, memory_kernel, 2);
-    memory_kernel += 4096;
-  }
 
-  // breakpoint();
+  // Mapeo kernel
+  mmu_map_kernel(new_cr3);
+
   // mapea los lugares de rick o morty
   for (int i = 0; i < 4; i++){ // 4 pages
     mmu_map_page(new_cr3, player_code_start, player_task_phy_address, 6);
     player_code_start += PAGE_SIZE;
     player_task_phy_address += PAGE_SIZE;
   }
-  // breakpoint();
-  // mapea espacio de tarea en el cr3 de la tarea
 
+  // mapea espacio de tarea en el cr3 de la tarea
   for (size_t i = 0; i < pages; i++)
   {
     mmu_map_page(new_cr3, tasks_virt_memory, phy_start, 6);
@@ -250,12 +253,7 @@ paddr_t mmu_init_task_meeseeks_dir(paddr_t phy_start, paddr_t code_start, paddr_
     phy_start += PAGE_SIZE;
   }
 
-  // breakpoint();
-
   lcr3(new_cr3);
-
-  // breakpoint();
-  // breakpoint();
 
   // copiamos codigo
   for (int i = 0; i < PAGE_SIZE ; i++)     //! EXPLOTA ACA
@@ -263,10 +261,11 @@ paddr_t mmu_init_task_meeseeks_dir(paddr_t phy_start, paddr_t code_start, paddr_
     ptr_virt_page[i] = ptr_code_page[i];
   }
 
-  // breakpoint();
-
   lcr3(cr3);
 
+  //mmu_unmap_kernel(new_cr3); //! este ahora creo que no hay que desmapearlo, porque sino no tendria manera de acceder a la pila de nivel 0
+  
+  //! para mi, falta unmapear la tarea del player tambien
 
   return new_cr3;
 }
