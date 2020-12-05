@@ -12,6 +12,7 @@
 #include "sched.h"
 #include "mmu.h"
 
+
 #include "stdint.h"
 extern void pantalla_negra_debug();
 
@@ -54,6 +55,8 @@ void update_meeseek_map(player_t player, coordenadas coord,bool reason){
 }
 
 void game_init(void) {
+    tss_creator(1,0);
+    tss_creator(0,0);
     indexSemilla = 0;
     score[MORTY] = 0;
     score[RICK]  = 0;
