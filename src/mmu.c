@@ -270,14 +270,3 @@ paddr_t mmu_init_task_meeseeks_dir(paddr_t phy_start,               // dir fisic
   return new_cr3;
 }
 
-
-/*
-<bochs:4> x/30 0x01d00016
-[bochs]:
-0x01d00016 <bogus+       0>:	0xfb1e0ff3	0xb820eb53	0xffffffff	0x000000bb
-0x01d00026 <bogus+      16>:	0x837bcd00	0xfa8301c2	0xb8ec7e4f	0x00000000
-0x01d00036 <bogus+      32>:	0xffffffbb	0xba7bcdff	0x00000000	0x0ff3e8eb
-0x01d00046 <bogus+      48>:	0xeb53fb1e	0x0001b820	0x00bb0000	0xcd000000
-0x01d00056 <bogus+      64>:	0x01c2837b	0x7e4ffa83	0x0000b8ec	0x01bb0000
-0x01d00066 <bogus+      80>:	0xcd000000	0x0000ba7b
-*/

@@ -20,14 +20,18 @@ void task(void) {
   }
 }
 
-void meeseks1_func(void) {
+
+void meeseks1_func(void){
   while (1) {
-    for (int i = 0; i < 80; i++) {
-      syscall_move(-1, 0);
-    }
-    syscall_move(0, -1);
+    __asm volatile("nop");
+    //   for (int i = 0; i < 80; i++) {
+    //     syscall_move(-1, 0);
+    //   }
+    //   syscall_move(0, -1);
+    // }
   }
 }
+  
 
 void meeseks2_func(void) {
   while (1) {

@@ -95,6 +95,7 @@ _isr32:
      je .fin
      call next_clock
      mov word [sched_task_selector], ax
+     ;xchg bx, bx 
      jmp far [sched_task_offset]
      .fin:
      popad
@@ -151,7 +152,6 @@ _isr88:
      push eax       ; Fila en el mapa donde crear el Mr Meeseeks
 
      call create_meeseek
-     xchg bx, bx 
 
      mov [temp], ax ; mov eax a variable temporal
      add esp,12     ; tenemos 3 parametros de entrada
