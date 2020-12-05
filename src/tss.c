@@ -232,16 +232,13 @@ paddr_t tss_meeseeks_creator(int player, /*int*/ uint8_t task, uint32_t code_sta
     tss_new_task = &tss_morty[task];
   }
 
-  // consigo proxima phy, virt, cr3 y stack_lvl_0 libres para meeseeks
   int8_t idx_msk = task - 1;
 
-  bool reciclar = info_reciclaje_meeseeks[player][idx_msk].p;
-
-
-  // conseguir memoria
+  // consigo proxima phy, virt, cr3 y stack_lvl_0 libres para meeseeks
   paddr_t new_cr3;
   paddr_t stack_level_0;
   task_phy_address = mmu_next_free_phy_meeseek_page();
+  bool reciclar = info_reciclaje_meeseeks[player][idx_msk].p;
 
   if (reciclar){
     task_virt_address = info_reciclaje_meeseeks[player][idx_msk].virt;
@@ -254,9 +251,9 @@ paddr_t tss_meeseeks_creator(int player, /*int*/ uint8_t task, uint32_t code_sta
   }
 
   // guardo la info importante para luego poder reciclar la memoria de meeseeks muertos
-  info_reciclaje_meeseeks[player][task - 1].p    = true;
-  info_reciclaje_meeseeks[player][task - 1].virt = task_virt_address;
-  info_reciclaje_meeseeks[player][task - 1].virt = stack_level_0;
+  info_reciclaje_meeseeks[player][idx_msk].p    = true;
+  info_reciclaje_meeseeks[player][idx_msk].virt = task_virt_address;
+  info_reciclaje_meeseeks[player][idx_msk].virt = stack_level_0;
   // info_reciclaje_meeseeks[player][task - 1].cr3  = new_cr3;
 
   next_free_tss();
@@ -312,8 +309,7 @@ paddr_t tss_meeseeks_creator(int player, /*int*/ uint8_t task, uint32_t code_sta
     TSSs[next_free_gdt_idx] = tss_new_task;
   }
 
-  lcr3(cr3);    //! PARTE DE LA FALOPEADA
-
+  lcr3(cr3); //! PARTE DE LA FALOPEADA, creo que al final no es falopeada. Revisar :)
 
   return task_virt_address;
 }
