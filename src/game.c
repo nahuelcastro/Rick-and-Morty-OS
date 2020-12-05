@@ -44,8 +44,10 @@ void update_meeseek_map(player_t player, coordenadas coord,bool reason){
         } else{
             PLAYER_MEESEEK_COLOR = MORTY_MEESEEK_COLOR;
         }
+        //breakpoint();
         print("M", coord.x, coord.y, PLAYER_MEESEEK_COLOR);
     } else{                                 // reason == DELETE
+        //breakpoint();
         clean_cell(coord);
     }
     
@@ -63,9 +65,6 @@ void game_init(void) {
     print("M",57, 41, BLACK_BLUE); // M azul
     print("00 01 02 03 04 05 06 07 08 09 ",26, 45,BLACK_BLUE); // letras azules
 
-
-
-    
 
     // print semillas al azar
     for(int i=1; i < MAX_CANT_SEMILLAS; i++){
@@ -120,7 +119,7 @@ int8_t next_index_meeseek_free(player_t player){
     }
     return -1;         // 255 = no existe lugar libre para otro meeseek
 }
-
+ 
     // busca si la coordenada esta sobre una semilla, ret -1 = no hay semilla en tal cordenada, ret x =  en semillas[x] esta la semilla encontrada
 int index_in_seed(coordenadas coord){        //! cambiar mañána que devuelva -1 si es false, y el index en caso de true asi queda mejor
     for (int i = 0; i < MAX_CANT_SEMILLAS; i++)
@@ -136,7 +135,7 @@ int index_in_seed(coordenadas coord){        //! cambiar mañána que devuelva -
 
 
 
-void bye_seed(int idx){
+void remove_seed(int idx){
     update_map_seed(semillas[idx].coord);
     semillas[idx].p = false; // chau semillas                 //! FALTA ACUTALIZAR EL MAPA(SACAR LA SEMILLA)
 }
@@ -147,7 +146,7 @@ void msk_found_seed(player_t player, int idx_msk, int idx_seed){
     meeseeks[player][idx_msk].p = false;
 
     // delete seed
-    bye_seed(idx_seed);
+    remove_seed(idx_seed);
 
     // update
     update_meeseek_map(player, meeseeks[player][idx_msk].coord, DELETE);
@@ -155,7 +154,7 @@ void msk_found_seed(player_t player, int idx_msk, int idx_seed){
     cant_meeseeks[player] --;
 
     // flag_off  recycling msk memory
-    info_reciclaje_meeseeks[player][idx_msk].p = false;
+    backup_meeseks[player][idx_msk].p = false;
 
     // clean_stack_level_0 para reciclar
     //! implementar un mmu_clean_stack_lvl_0 que lo pise todo en uno
@@ -176,7 +175,7 @@ uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y ){
 
     player_t player = player_idx_gdt[tareaActual];
 
-    // filtro jugador                               VEER SI NO ES MEJOR FILTRAR ANTES
+    // filtro jugador                               VEER SI NO ES MEJOR FILTRAR ANTES (juan dice creo que con filtar aca esta bien)
     if (player != RICK && player != MORTY){
         return 0;
     }
@@ -204,7 +203,7 @@ uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y ){
     //print_dec(in_seed, 8, 10, 7, WHITE_RED);
 
     if (in_seed){
-        bye_seed(index_aux);
+        remove_seed(index_aux);
         add_update_score(player);
         return 0;
     }

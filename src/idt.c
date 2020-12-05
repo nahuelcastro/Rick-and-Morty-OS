@@ -81,7 +81,7 @@ void idt_init() {
 void imprimir_excepcion(int codigo){
 
   ultExcepcion = codigo;
-  print("Excepcion, ", 0, 0, C_FG_LIGHT_GREEN);
+  //print("Excepcion, ", 0, 0, C_FG_LIGHT_GREEN);
   if (codigo == 0) { print("Divide Error(0)", 41, 2, C_FG_LIGHT_GREEN);}
 
   if (codigo == 1) { print("RESERVED (1)",41,2, C_FG_LIGHT_GREEN);}

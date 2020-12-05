@@ -139,7 +139,7 @@ void tss_creator(int8_t player, int task){
   paddr_t code_start;
   paddr_t task_phy_address;
   tss_t* tss_new_task;
-  if(player == 1){                                   // 1 = Rick
+  if(player == RICK){                                   // 1 = Rick
     task_phy_address = 0x1D00000;
     code_start = 0x10000;
     tss_new_task = &tss_rick[task];
@@ -225,8 +225,7 @@ paddr_t tss_meeseeks_creator(int player, /*int*/ uint8_t task, uint32_t code_sta
     player_task_phy_address = 0x1D00000;
     player_code_start = 0x1D00000;
     tss_new_task = &tss_rick[task];
-  }
-  else{
+  }else{
     player_task_phy_address = 0x1D04000;
     player_code_start = 0x1D00000;          //! CAMBIAR NOMBRE, YA NO ES CODE START AHORA ES PHY PLAYER
     tss_new_task = &tss_morty[task];
@@ -238,12 +237,12 @@ paddr_t tss_meeseeks_creator(int player, /*int*/ uint8_t task, uint32_t code_sta
   paddr_t new_cr3;
   paddr_t stack_level_0;
   task_phy_address = mmu_next_free_phy_meeseek_page();
-  bool reciclar = info_reciclaje_meeseeks[player][idx_msk].p;
+  bool reciclar = backup_meeseks[player][idx_msk].p;
 
   if (reciclar){
-    task_virt_address = info_reciclaje_meeseeks[player][idx_msk].virt;
+    task_virt_address = backup_meeseks[player][idx_msk].virt;
     new_cr3 = mmu_init_task_meeseeks_dir(task_phy_address, code_start, task_virt_address, player_task_phy_address, player_code_start, 2);
-    stack_level_0 = info_reciclaje_meeseeks[player][idx_msk].stack_level_0;
+    stack_level_0 = backup_meeseks[player][idx_msk].stack_level_0;
   } else{
     task_virt_address = mmu_next_free_virt_meeseek_page();
     new_cr3 = mmu_init_task_meeseeks_dir(task_phy_address, code_start, task_virt_address, player_task_phy_address, player_code_start, 2);
@@ -251,10 +250,10 @@ paddr_t tss_meeseeks_creator(int player, /*int*/ uint8_t task, uint32_t code_sta
   }
 
   // guardo la info importante para luego poder reciclar la memoria de meeseeks muertos
-  info_reciclaje_meeseeks[player][idx_msk].p    = true;
-  info_reciclaje_meeseeks[player][idx_msk].virt = task_virt_address;
-  info_reciclaje_meeseeks[player][idx_msk].virt = stack_level_0;
-  // info_reciclaje_meeseeks[player][task - 1].cr3  = new_cr3;
+  backup_meeseks[player][idx_msk].p    = true;
+  backup_meeseks[player][idx_msk].virt = task_virt_address;
+  backup_meeseks[player][idx_msk].virt = stack_level_0;
+  // backup_meeseks[player][task - 1].cr3  = new_cr3;
 
   next_free_tss();
 

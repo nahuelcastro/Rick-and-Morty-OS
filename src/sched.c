@@ -8,7 +8,7 @@
 
 #include "sched.h"
 
-uint16_t ultimoJugador = 0;
+uint16_t ultimoJugador = 0;  // 0001 0011
 uint16_t jugadorActual = 1;
 uint16_t index;
 uint16_t tareaActual;
@@ -30,10 +30,8 @@ uint16_t sched_next_task(void){
 
   // breakpoint();
 
-  for (int i = 0; i < GDT_COUNT - 1; i++)
-  { /// TOCAR EL I
-    if (index == GDT_COUNT)
-    {
+  for (int i = 0; i < GDT_COUNT - 1; i++){ /// TOCAR EL I
+    if (index == GDT_COUNT){
       index = 15;
     }
 
@@ -42,14 +40,11 @@ uint16_t sched_next_task(void){
     bool estaPresente = gdt[index + 1].p == 1;
     bool estaActiva = tareasActivas[index + 1];
 
-    if (estaPresente && esOtroJugador && estaActiva)
-    {
+    if (estaPresente && esOtroJugador && estaActiva){
       index++;
       tareaActual = index;
       return (index << 3); //! ver si hace falta sumarle 3 por los niveles de privilegio
-    }
-    else
-    {
+    } else{
       index++;
     }
   }
@@ -61,7 +56,6 @@ void desactivar_tarea(){
   if(tareaActual == 17 || tareaActual == 18){
     end_game();
   }
-
   tareasActivas[tareaActual] = false;
 }
 

@@ -9,7 +9,7 @@
 
 BITS 32
 
-sched_task_offset:     dd 0
+sched_task_offset:     dd 0     
 sched_task_selector:   dw 0
 
 ;; PIC
@@ -49,8 +49,9 @@ _isr%1:
 
      mov [sched_task_selector], ax   ; carga el selector del segmento de la tarea a saltar
      jmp far [sched_task_offset]     ; intercambio de tareas
+
     
-     jmp $
+     ;jmp $
 
 %endmacro
 
@@ -94,7 +95,6 @@ _isr32:
      je .fin
      call next_clock
      mov word [sched_task_selector], ax
-     xchg bx, bx
      jmp far [sched_task_offset]
      .fin:
      popad
@@ -151,21 +151,14 @@ _isr88:
      push eax       ; Fila en el mapa donde crear el Mr Meeseeks
 
      call create_meeseek
+     xchg bx, bx 
 
      mov [temp], ax ; mov eax a variable temporal
      add esp,12     ; tenemos 3 parametros de entrada
 
-     call next_clock
-     mov ax,0x80 ;idle
-     mov word [sched_task_selector], ax  ; (cambiamos con nahu) ; NO SE SI VA ESTO DE PEDIR PROX TAREA
-     jmp far [sched_task_offset]
-
      popad          ; recupero registros
-     mov ax, [temp] ; recupero registros
-     ; pop eax
-     ; pop ebx
-     ; pop ecx
-     pop ebp
+     mov ax, [temp] ; returneo en ceax   
+     ; pop ebp
 iret
 
 
@@ -181,7 +174,7 @@ _isr89:
      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
      xchg bx, bx
      jmp far [sched_task_offset]
-     pop ebp
+     ;pop ebp
      popad
 iret
 
@@ -196,7 +189,7 @@ _isr100:
      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
      xchg bx, bx
      jmp far [sched_task_offset]
-     pop ebp
+     ;pop ebp
      popad
 iret
 
@@ -213,7 +206,7 @@ _isr123:
      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
      xchg bx, bx
      jmp far [sched_task_offset]
-     pop ebp
+     ;pop ebp
      popad
 iret
 

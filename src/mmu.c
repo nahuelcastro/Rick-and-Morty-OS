@@ -20,7 +20,7 @@ uint32_t next_free_kernel_page;
 uint32_t next_free_virt_meeseek_page;
 uint32_t next_free_phy_meeseek_page;
 //uint32_t next_free_task_page;
-info_reciclaje_meeseek info_reciclaje_meeseeks[PLAYERS][MAX_CANT_MEESEEKS];
+backup_meesek backup_meeseks[PLAYERS][MAX_CANT_MEESEEKS];
 
 void mmu_init(void) {
   //En memoria fisica, 0x100000 es el inicio del área libre de kernel.
@@ -31,7 +31,7 @@ void mmu_init(void) {
   // seteo todos los reciclados como no presentes
   for (int player = 0; player < PLAYERS; player++){
     for (int i = 0; i < MAX_CANT_MEESEEKS; i++){
-      info_reciclaje_meeseeks[player][i].p = false;
+      backup_meeseks[player][i].p = false;
     }
   }
 
@@ -51,7 +51,7 @@ paddr_t mmu_next_free_virt_meeseek_page(void){
   next_free_virt_meeseek_page += 0x2000;
   return free_page;
 }
-paddr_t mmu_next_free_phy_meeseek_page() {
+paddr_t mmu_next_free_phy_meeseek_page(void) {
   paddr_t free_page = next_free_phy_meeseek_page;
   next_free_phy_meeseek_page += 0x2000;
   return free_page;
@@ -174,19 +174,14 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
   uint32_t cr3 = 0x25000;
 
   paddr_t tasks_memory = TASK_CODE_VIRTUAL;
-  paddr_t memory_kernel = 0;
-
-  // Mapeo kernel
-  for (size_t i = 0; i < 1024; i++){                            //! PARA MI, FALTA DESMAPEAR EL KERNEL
-    mmu_map_page(new_cr3,memory_kernel,memory_kernel,2);
-    memory_kernel += 4096; 
-  }
-
+  
+  mmu_map_kernel(new_cr3);
+  
   // mapea espacio de tarea en el cr3 de la tarea
   for (size_t i = 0; i < pages; i++){
     mmu_map_page(new_cr3, tasks_memory, phy_start, 6);  //era 2 pero necesitamos privilegios de usuario sino rompe cuando entramos en tarea
-    tasks_memory += 4096; // 4096 = 4kb = tamaño pagina
-    phy_start += 4096;  
+    tasks_memory += PAGE_SIZE; // 4096 = 4kb = tamaño pagina
+    phy_start += PAGE_SIZE;  
   }
   
   lcr3(new_cr3);
@@ -196,7 +191,7 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
   char* ptr_virt_page = (char*) TASK_CODE_VIRTUAL;
   
   // copiamos codigo 
-  for (size_t i = 0; i < 16384; i++){
+  for (size_t i = 0; i < PAGE_SIZE * 4; i++){
     ptr_virt_page[i] = ptr_code_page[i];
   }
 
@@ -210,7 +205,7 @@ void mmu_map_kernel(paddr_t cr3){
   for (int i = 0; i < 1024; i++)
   {
     mmu_map_page(cr3, memory_kernel, memory_kernel, 2);
-    memory_kernel += 4096;
+    memory_kernel += PAGE_SIZE;
   }
 }
 
@@ -218,25 +213,32 @@ void mmu_unmap_kernel(paddr_t cr3){
   paddr_t memory_kernel = 0;
   for (int i = 0; i < 1024; i++){
     mmu_unmap_page(cr3, memory_kernel);
-    memory_kernel += 4096;
+    memory_kernel += PAGE_SIZE;
   }
 }
 
-paddr_t mmu_init_task_meeseeks_dir(paddr_t phy_start, paddr_t code_start, paddr_t tasks_virt_memory, paddr_t player_task_phy_address, paddr_t player_code_start, size_t pages)
-{
+paddr_t mmu_init_task_meeseeks_dir(paddr_t phy_start,               // dir fisica meessek : 0x400.000
+                                   paddr_t code_start,              // entra de parametro en la syscall, como codigo de la tarea
+                                   paddr_t tasks_virt_memory,       // dir virtual meessek :0x8.000.000
+                                   paddr_t player_task_phy_address, // dir física jugador (0x1D00000 o 0x1D04000)
+                                   paddr_t player_code_start,       // dir virtual jugador (0x1D00000)
+                                   size_t pages
+                                   ){
+
   uint32_t new_cr3 = mmu_next_free_kernel_page(); //cr3: 0x000000105000
   uint32_t cr3;
-  cr3 = /*rcr3()*/ 0x25000;
+  cr3 = rcr3(); // antes estaba puesto que vuelva al cr3 del kernel, pero creo que no tiene sentido porque se llama a esta funcion con alguna tarea rick o morty, no la idle ni la inical (juan)
 
 
   // creamos punteros para luego copiar el codigo
-  char *ptr_code_page = (char *)code_start;
-  char *ptr_virt_page = (char *)tasks_virt_memory;
+  char* ptr_code_page = (char*)code_start;
+  char* ptr_virt_page = (char*)tasks_virt_memory;
 
 
   // Mapeo kernel
   mmu_map_kernel(new_cr3);
 
+  uint32_t playerCodeStart = player_code_start;
   // mapea los lugares de rick o morty
   for (int i = 0; i < 4; i++){ // 4 pages
     mmu_map_page(new_cr3, player_code_start, player_task_phy_address, 6);
@@ -245,10 +247,8 @@ paddr_t mmu_init_task_meeseeks_dir(paddr_t phy_start, paddr_t code_start, paddr_
   }
 
   // mapea espacio de tarea en el cr3 de la tarea
-  for (size_t i = 0; i < pages; i++)
-  {
+  for (size_t i = 0; i < pages; i++){
     mmu_map_page(new_cr3, tasks_virt_memory, phy_start, 6);
-    // mmu_map_page(new_cr3, 0x08000000, 0x400000, 6);
     tasks_virt_memory += PAGE_SIZE;                         
     phy_start += PAGE_SIZE;
   }
@@ -256,16 +256,28 @@ paddr_t mmu_init_task_meeseeks_dir(paddr_t phy_start, paddr_t code_start, paddr_
   lcr3(new_cr3);
 
   // copiamos codigo
-  for (int i = 0; i < PAGE_SIZE ; i++)     //! EXPLOTA ACA
-  {
+  for (int i = 0; i < PAGE_SIZE * 2; i++){
     ptr_virt_page[i] = ptr_code_page[i];
+  }
+  
+  for (int i = 0; i < 4; i++){ // 4 pages
+    mmu_unmap_page(new_cr3, playerCodeStart);
+    playerCodeStart += PAGE_SIZE; 
   }
 
   lcr3(cr3);
-
-  //mmu_unmap_kernel(new_cr3); //! este ahora creo que no hay que desmapearlo, porque sino no tendria manera de acceder a la pila de nivel 0
   
-  //! para mi, falta unmapear la tarea del player tambien
-
   return new_cr3;
 }
+
+
+/*
+<bochs:4> x/30 0x01d00016
+[bochs]:
+0x01d00016 <bogus+       0>:	0xfb1e0ff3	0xb820eb53	0xffffffff	0x000000bb
+0x01d00026 <bogus+      16>:	0x837bcd00	0xfa8301c2	0xb8ec7e4f	0x00000000
+0x01d00036 <bogus+      32>:	0xffffffbb	0xba7bcdff	0x00000000	0x0ff3e8eb
+0x01d00046 <bogus+      48>:	0xeb53fb1e	0x0001b820	0x00bb0000	0xcd000000
+0x01d00056 <bogus+      64>:	0x01c2837b	0x7e4ffa83	0x0000b8ec	0x01bb0000
+0x01d00066 <bogus+      80>:	0xcd000000	0x0000ba7b
+*/

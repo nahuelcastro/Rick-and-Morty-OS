@@ -27,7 +27,7 @@ typedef struct coordenadas{
 
 typedef struct seed{
   coordenadas coord;
-  _Bool p;
+  bool p;   //_Bool
 } seed;
 
 extern seed semillas[MAX_CANT_SEMILLAS];
@@ -46,6 +46,6 @@ _Bool same(coordenadas a, coordenadas b);
 int8_t next_index_meeseek_free(player_t player);
 int index_in_seed(coordenadas coord);
 uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y);
-void bye_seed(int idx);
+void remove_seed(int idx);
 
 #endif //  __GAME_H__

@@ -53,6 +53,9 @@ paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt);
 
 paddr_t mmu_init_kernel_dir(void);
 
+void mmu_map_kernel(paddr_t cr3);
+void mmu_unmap_kernel(paddr_t cr3);
+
 paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages);
 
 paddr_t mmu_init_task_meeseeks_dir(paddr_t phy_start, paddr_t code_start, paddr_t tasks_virt_memory, paddr_t player_task_phy_address, paddr_t player_code_start, size_t pages);
@@ -69,8 +72,8 @@ typedef struct info_meeseek
   paddr_t virt;
   paddr_t stack_level_0;
   paddr_t cr3;
-} info_reciclaje_meeseek;
+} backup_meesek;
 
-extern info_reciclaje_meeseek info_reciclaje_meeseeks[PLAYERS][MAX_CANT_MEESEEKS];
+extern backup_meesek backup_meeseks[PLAYERS][MAX_CANT_MEESEEKS];
 
 #endif //  __MMU_H__

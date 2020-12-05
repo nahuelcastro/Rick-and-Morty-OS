@@ -1,13 +1,19 @@
 #include "syscall.h"
 #include "i386.h"
 
+
 void meeseks1_func(void);
 
 void task(void) {
+
   syscall_meeseeks((uint32_t)&meeseks1_func, 40, 25);
+  
+  int count = 0;
 
   while (1) {
     __asm volatile("nop");
+    syscall_meeseeks((uint32_t)&meeseks1_func, count % 79 , 10);
+    count++;
     // int n = 8;
     // int m = 0;
     // int k = n/m;
@@ -19,9 +25,9 @@ void meeseks1_func(void) {
   // Do Nothing!
   while (1) {
     __asm volatile("nop");
+
   }
 
-  // breakpoint();
 
   int8_t deltax, deltay;
 
