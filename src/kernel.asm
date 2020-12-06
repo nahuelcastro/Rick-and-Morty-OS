@@ -200,18 +200,7 @@ modo_protegido:
 
     ; Inicializar el scheduler
     call sched_init
-    
-    ;esto que sigue tendria que estar en game_init
 
-    ; push 0 ;task
-    ; push 1 ;player = rick
-    ; call tss_creator
-    ; add esp, 4*2
-
-    ; push 0 ;task
-    ; push 0 ; player = morty
-    ; call tss_creator
-    ; add esp, 4*2
 
     ; Inicializar la IDT
     call idt_init
@@ -224,7 +213,6 @@ modo_protegido:
     call pic_enable
 
     call game_init
-
 
     ; Cargar tarea inicial
     mov ax, IDX_TSS_INICAL

@@ -153,11 +153,11 @@ _isr88:
 
      call create_meeseek
 
-     mov [temp], ax ; mov eax a variable temporal
+     mov [temp], eax ; mov eax a variable temporal
      add esp,12     ; tenemos 3 parametros de entrada
 
      popad          ; recupero registros
-     mov ax, [temp] ; returneo en ceax   
+     mov eax, [temp] ; returneo en ceax   
      ; pop ebp
 iret
 
@@ -197,16 +197,14 @@ iret
 
 global _isr123
 
+; in EAX=x Desplazamiento en x
+; in EBX=y Desplazamiento en y
+; out EAX=worked 0: No se desplazo, 1: Se desplazo
 _isr123:
      pushad
-     mov ebp, esp
-     push eax
-     call next_clock
-     mov ax,0x80 ;idle
-     mov word [sched_task_selector], ax  ; (cambiamos con nahu)
-     xchg bx, bx
-     jmp far [sched_task_offset]
-     ;pop ebp
+     ; push eax
+     ; push ebx
+
      popad
 iret
 

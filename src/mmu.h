@@ -10,6 +10,7 @@
 #define __MMU_H__
 
 #include "types.h"
+#include "game.h"
 
 #include "defines.h"
 // #include "tss.h"
@@ -60,6 +61,7 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages);
 
 void mmu_init_task_meeseeks_dir(paddr_t phy_start, paddr_t code_start, paddr_t tasks_virt_memory);
 
+paddr_t mmu_phy_map_decoder(coordenadas coord);
 
 
 paddr_t mmu_next_free_virt_meeseek_page();
@@ -67,11 +69,9 @@ paddr_t mmu_next_free_phy_meeseek_page();
 
 typedef struct info_meeseek
 {
-  // paddr_t phy;
   bool p;
   paddr_t virt;
   paddr_t stack_level_0;
-  paddr_t cr3;
 } backup_meesek;
 
 extern backup_meesek backup_meeseks[PLAYERS][MAX_CANT_MEESEEKS];

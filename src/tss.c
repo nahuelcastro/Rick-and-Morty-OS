@@ -206,10 +206,10 @@ void tss_creator(int8_t player, int task){
 
 
 
-paddr_t tss_meeseeks_creator(int player,uint8_t task, uint32_t code_start){
+paddr_t tss_meeseeks_creator(int player,uint8_t task, uint32_t code_start, coordenadas coord){
 
   // print_hex(task_phy_address, 8, 49, 5, C_FG_LIGHT_GREEN);
-  // breakpoint();
+  
 
   uint32_t cr3 = rcr3();    //! NO SE SI ESTO ESTA BIEN O ES FALOPEADA, ME SUENA RARO DEVOLVER LA TAREA CON EL CR3 DEL KERNEL
 
@@ -218,26 +218,19 @@ paddr_t tss_meeseeks_creator(int player,uint8_t task, uint32_t code_start){
   paddr_t task_virt_address;
   tss_t *tss_new_task;
 
-  paddr_t player_code_start;
-  paddr_t player_task_phy_address;
-
   if (player == RICK){
-    player_task_phy_address = 0x1D00000;
-    player_code_start = 0x1D00000;
     tss_new_task = &tss_rick[task];
   }else{
-    player_task_phy_address = 0x1D04000;
-    player_code_start = 0x1D00000;          //! CAMBIAR NOMBRE, YA NO ES CODE START AHORA ES PHY PLAYER
     tss_new_task = &tss_morty[task];
   }
 
   int8_t idx_msk = task - 1;
 
-  // consigo proxima phy, virt, cr3 y stack_lvl_0 libres para meeseeks
-  paddr_t new_cr3;
+  // consigo proxima phy, virt y stack_lvl_0 libres para meeseeks
   paddr_t stack_level_0;
-  task_phy_address = mmu_next_free_phy_meeseek_page();
+  task_phy_address = mmu_phy_map_decoder(coord);
   bool reciclar = backup_meeseks[player][idx_msk].p;
+
 
   if (reciclar){
     task_virt_address = backup_meeseks[player][idx_msk].virt;
@@ -247,13 +240,12 @@ paddr_t tss_meeseeks_creator(int player,uint8_t task, uint32_t code_start){
     task_virt_address = mmu_next_free_virt_meeseek_page();
     mmu_init_task_meeseeks_dir(task_phy_address, code_start, task_virt_address);
     stack_level_0 = mmu_next_free_kernel_page();    
-  }
 
-  // guardo la info importante para luego poder reciclar la memoria de meeseeks muertos
-  backup_meeseks[player][idx_msk].p    = true;
-  backup_meeseks[player][idx_msk].virt = task_virt_address;
-  backup_meeseks[player][idx_msk].virt = stack_level_0;
-  // backup_meeseks[player][task - 1].cr3  = new_cr3;
+    // guardo la info importante para luego poder reciclar la memoria de meeseeks muertos
+    backup_meeseks[player][idx_msk].p    = true;
+    backup_meeseks[player][idx_msk].virt = task_virt_address;
+    backup_meeseks[player][idx_msk].stack_level_0 = stack_level_0;
+  }
 
   next_free_tss();
 
@@ -272,7 +264,7 @@ paddr_t tss_meeseeks_creator(int player,uint8_t task, uint32_t code_start){
   tss_new_task->esp2 = 0;
   tss_new_task->ss2 = 0;
   tss_new_task->unused3 = 0;
-  tss_new_task->cr3 = new_cr3;
+  tss_new_task->cr3 = cr3;
   tss_new_task->eip = task_virt_address;
   tss_new_task->eflags = 0x202;
   tss_new_task->eax = 0;

@@ -159,21 +159,32 @@ void msk_found_seed(player_t player, int idx_msk, int idx_seed){
     backup_meeseks[player][idx_msk].p = false;
 
     // clean_stack_level_0 para reciclar
-    //! implementar un mmu_clean_stack_lvl_0 que lo pise todo en uno
+    char* ptr_virt_page = (char*) backup_meeseks[player][idx_msk].stack_level_0;
+
+    for (int i = 0; i < PAGE_SIZE; i++){
+        ptr_virt_page[i] = 0;
+    }
 
     // unmap msk
-    //! implementar
+    uint32_t cr32 = rcr3();
+
+    paddr_t virt2 =backup_meeseks[player][idx_msk].virt;
+    
+    for (int i = 0; i < 2; i++){
+        mmu_unmap_page(cr32, virt2);
+        virt2 += PAGE_SIZE;    
+    }           
 
 }
 
-// ;
-// in EAX = code Código de la tarea Mr Meeseeks a ser ejecutada.;
-// in EBX = x Columna en el mapa donde crear el Mr Meeseeks.;
-// in ECX = y Fila en el mapa donde crear el Mr Meeseeks
+    // ;
+    // in EAX = code Código de la tarea Mr Meeseeks a ser ejecutada.;
+    // in EBX = x Columna en el mapa donde crear el Mr Meeseeks.;
+    // in ECX = y Fila en el mapa donde crear el Mr Meeseeks
 
-//code 4KB  Tener en cuenta que este código debe estar declarado dentro del espacio de memoria de usuario de la tarea.
-uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y ){
-
+    //code 4KB  Tener en cuenta que este código debe estar declarado dentro del espacio de memoria de usuario de la tarea.
+    
+uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y){
     // breakpoint();
 
     player_t player = player_idx_gdt[tareaActual];
@@ -189,7 +200,7 @@ uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y ){
     }
 
     // filtramos que los meeseeks del jugador no esten en el limite de capacidad
-    if (cant_meeseeks[player] == MAX_CANT_MEESEEKS){ 
+    if (cant_meeseeks[player] == MAX_CANT_MEESEEKS){
         return 0;
     }
 
@@ -197,11 +208,9 @@ uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y ){
     coord_actual.x = x;
     coord_actual.y = y;
 
-
     // si meeseek justo cae en semilla, suma puntos y chau semilla
     int index_aux = index_in_seed(coord_actual);
     bool in_seed = index_aux != -1;
-
 
     //print_dec(in_seed, 8, 10, 7, WHITE_RED);
 
@@ -210,44 +219,22 @@ uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y ){
         add_update_score(player);
         return 0;
     }
-    
+
     // crear Meeseek
 
     int8_t index_meeseek = next_index_meeseek_free(player);
 
     // mapear
     paddr_t virt_res;
-    virt_res = tss_meeseeks_creator(player, index_meeseek + 1, code);
+    virt_res = tss_meeseeks_creator(player, index_meeseek + 1, code, coord_actual);
 
     meeseeks[player][index_meeseek].p = 1;
     meeseeks[player][index_meeseek].coord = coord_actual;
-    update_meeseek_map(player, coord_actual, ADD);  // 1 = ADD
+    update_meeseek_map(player, coord_actual, ADD); // 1 = ADD
 
-    cant_meeseeks[player] ++;
+    cant_meeseeks[player]++;
 
     // breakpoint();
 
     return virt_res;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    }

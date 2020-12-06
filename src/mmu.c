@@ -9,7 +9,7 @@
 #include "mmu.h"
 #include "i386.h"
 #include "types.h"
-#include "game.h"
+
 #include "kassert.h"
 
 #define MMU_FLAG_PRESENT 0x01
@@ -46,24 +46,23 @@ paddr_t mmu_next_free_kernel_page(void) {
 }
 
 
-// paddr_t mmu_next_free_virt_meeseek_page(void){
-//   paddr_t free_page = next_free_virt_meeseek_page;
-//   next_free_virt_meeseek_page += 0x2000;
-//   return free_page;
-// }
+paddr_t mmu_next_free_virt_meeseek_page(void){
+  paddr_t free_page = next_free_virt_meeseek_page;
+  next_free_virt_meeseek_page += 0x2000;
+  return free_page;
+}
 // paddr_t mmu_next_free_phy_meeseek_page(void) {
 //   paddr_t free_page = next_free_phy_meeseek_page;
 //   next_free_phy_meeseek_page += 0x2000;
 //   return free_page;
 // }
 
-paddr_t mmu_phy_map_decoder(coordenadas coord) {
+paddr_t mmu_phy_map_decoder(coordenadas coord)
+{
   paddr_t phy = phy_init_msk_map;
   phy = phy + (coord.x + (coord.y * 80) * 2 * PAGE);
   return phy;
 }
-
-
 
 paddr_t mmu_init_kernel_dir(void) {
   page_directory_entry *pd = (page_directory_entry *)KERNEL_PAGE_DIR;
@@ -222,8 +221,13 @@ void mmu_init_task_meeseeks_dir(paddr_t phy_start,            // dir fisica mees
                                 paddr_t tasks_virt_memory     // dir virtual meessek :0x8.000.000
                                 ){
 
+  
+  
   uint32_t cr3 = rcr3(); 
 
+  // creamos punteros para luego copiar el codigo
+  char* ptr_code_page = (char*)code_start;
+  char* ptr_virt_page = (char*)tasks_virt_memory;
 
   // mapea espacio de tarea
   for (size_t i = 0; i < 2; i++){
@@ -232,14 +236,12 @@ void mmu_init_task_meeseeks_dir(paddr_t phy_start,            // dir fisica mees
     phy_start += PAGE_SIZE;
   }
   
-  // creamos punteros para luego copiar el codigo
-  char* ptr_code_page = (char*)code_start;
-  char* ptr_virt_page = (char*)tasks_virt_memory;
 
   // copiamos codigo
   for (int i = 0; i < PAGE_SIZE * 2; i++){
     ptr_virt_page[i] = ptr_code_page[i];
   }
+  
 
 }
 
