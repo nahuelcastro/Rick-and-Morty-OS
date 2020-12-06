@@ -9,7 +9,7 @@
 #include "mmu.h"
 #include "i386.h"
 #include "types.h"
-
+#include "game.h"
 #include "kassert.h"
 
 #define MMU_FLAG_PRESENT 0x01
@@ -19,7 +19,7 @@
 uint32_t next_free_kernel_page;
 uint32_t next_free_virt_meeseek_page;
 uint32_t next_free_phy_meeseek_page;
-//uint32_t next_free_task_page;
+
 backup_meesek backup_meeseks[PLAYERS][MAX_CANT_MEESEEKS];
 
 void mmu_init(void) {
@@ -46,24 +46,24 @@ paddr_t mmu_next_free_kernel_page(void) {
 }
 
 
-paddr_t mmu_next_free_virt_meeseek_page(void){
-  paddr_t free_page = next_free_virt_meeseek_page;
-  next_free_virt_meeseek_page += 0x2000;
-  return free_page;
+// paddr_t mmu_next_free_virt_meeseek_page(void){
+//   paddr_t free_page = next_free_virt_meeseek_page;
+//   next_free_virt_meeseek_page += 0x2000;
+//   return free_page;
+// }
+// paddr_t mmu_next_free_phy_meeseek_page(void) {
+//   paddr_t free_page = next_free_phy_meeseek_page;
+//   next_free_phy_meeseek_page += 0x2000;
+//   return free_page;
+// }
+
+paddr_t mmu_phy_map_decoder(coordenadas coord) {
+  paddr_t phy = phy_init_msk_map;
+  phy = phy + (coord.x + (coord.y * 80) * 2 * PAGE);
+  return phy;
 }
-paddr_t mmu_next_free_phy_meeseek_page(void) {
-  paddr_t free_page = next_free_phy_meeseek_page;
-  next_free_phy_meeseek_page += 0x2000;
-  return free_page;
-}
 
 
-
-/*paddr_t mmu_next_free_task_page(void) {
-  paddr_t free_page = next_free_task_page;
-  next_free_task_page += 0x1000;
-  return free_page;
-}*/
 
 paddr_t mmu_init_kernel_dir(void) {
   page_directory_entry *pd = (page_directory_entry *)KERNEL_PAGE_DIR;
@@ -217,56 +217,29 @@ void mmu_unmap_kernel(paddr_t cr3){
   }
 }
 
-paddr_t mmu_init_task_meeseeks_dir(paddr_t phy_start,               // dir fisica meessek : 0x400.000
-                                   paddr_t code_start,              // entra de parametro en la syscall, como codigo de la tarea
-                                   paddr_t tasks_virt_memory,       // dir virtual meessek :0x8.000.000
-                                   paddr_t player_task_phy_address, // dir física jugador (0x1D00000 o 0x1D04000)
-                                   paddr_t player_code_start,       // dir virtual jugador (0x1D00000)
-                                   size_t pages
-                                   ){
+void mmu_init_task_meeseeks_dir(paddr_t phy_start,            // dir fisica meessek : 0x400.000
+                                paddr_t code_start,           // entra de parametro en la syscall, como codigo de la tarea
+                                paddr_t tasks_virt_memory     // dir virtual meessek :0x8.000.000
+                                ){
 
-  uint32_t new_cr3 = mmu_next_free_kernel_page(); //cr3: 0x000000105000
-  uint32_t cr3;
-  cr3 = rcr3(); // antes estaba puesto que vuelva al cr3 del kernel, pero creo que no tiene sentido porque se llama a esta funcion con alguna tarea rick o morty, no la idle ni la inical (juan)
+  uint32_t cr3 = rcr3(); 
 
 
-  // creamos punteros para luego copiar el codigo
-  char* ptr_code_page = (char*)code_start;
-  char* ptr_virt_page = (char*)tasks_virt_memory;
-
-
-  // Mapeo kernel
-  mmu_map_kernel(new_cr3);
-
-  uint32_t playerCodeStart = player_code_start;
-  // mapea los lugares de rick o morty
-  for (int i = 0; i < 4; i++){ // 4 pages
-    mmu_map_page(new_cr3, player_code_start, player_task_phy_address, 6);
-    player_code_start += PAGE_SIZE;
-    player_task_phy_address += PAGE_SIZE;
-  }
-
-  // mapea espacio de tarea en el cr3 de la tarea
-  for (size_t i = 0; i < pages; i++){
-    mmu_map_page(new_cr3, tasks_virt_memory, phy_start, 6);
+  // mapea espacio de tarea
+  for (size_t i = 0; i < 2; i++){
+    mmu_map_page(cr3, tasks_virt_memory, phy_start, 6);
     tasks_virt_memory += PAGE_SIZE;                         
     phy_start += PAGE_SIZE;
   }
-
-  lcr3(new_cr3);
+  
+  // creamos punteros para luego copiar el codigo
+  char* ptr_code_page = (char*)code_start;
+  char* ptr_virt_page = (char*)tasks_virt_memory;
 
   // copiamos codigo
   for (int i = 0; i < PAGE_SIZE * 2; i++){
     ptr_virt_page[i] = ptr_code_page[i];
   }
-  
-  for (int i = 0; i < 4; i++){ // 4 pages
-    mmu_unmap_page(new_cr3, playerCodeStart);
-    playerCodeStart += PAGE_SIZE; 
-  }
 
-  lcr3(cr3);
-  
-  return new_cr3;
 }
 

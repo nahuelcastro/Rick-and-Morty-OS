@@ -77,6 +77,6 @@ extern uint8_t cant_meeseeks[PLAYERS];                 // cant_meeseeks[player]
 extern meeseek_t meeseeks[PLAYERS][MAX_CANT_MEESEEKS]; // meeseeks[player][index_meeseek]
 
 void tss_creator(int8_t player, int task);
-paddr_t tss_meeseeks_creator(int player, /*int*/ uint8_t task, uint32_t code_start);
+paddr_t tss_meeseeks_creator(int player, uint8_t task, uint32_t code_start);
 
 #endif //  __TSS_H__

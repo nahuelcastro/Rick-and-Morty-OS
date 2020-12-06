@@ -100,7 +100,6 @@ void end_game(void){
 }
 
 void add_update_score(player_t player){
-    breakpoint();
     score[player] += 425;
     print_dec(score[RICK], 8, 10, 43, WHITE_RED);
     print_dec(score[MORTY], 8, 62, 43, WHITE_BLUE);
@@ -120,7 +119,7 @@ int8_t next_index_meeseek_free(player_t player){
             return i;
         }   
     }
-    return -1;         // 255 = no existe lugar libre para otro meeseek
+    return -1;  //no entra nunca, pero sino tira warning      // 255 = no existe lugar libre para otro meeseek
 }
  
     // busca si la coordenada esta sobre una semilla, ret -1 = no hay semilla en tal cordenada, ret x =  en semillas[x] esta la semilla encontrada
@@ -164,6 +163,7 @@ void msk_found_seed(player_t player, int idx_msk, int idx_seed){
 
     // unmap msk
     //! implementar
+
 }
 
 // ;
@@ -189,7 +189,7 @@ uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y ){
     }
 
     // filtramos que los meeseeks del jugador no esten en el limite de capacidad
-    if (cant_meeseeks[player] == MAX_CANT_MEESEEKS){
+    if (cant_meeseeks[player] == MAX_CANT_MEESEEKS){ 
         return 0;
     }
 

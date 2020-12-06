@@ -206,7 +206,7 @@ void tss_creator(int8_t player, int task){
 
 
 
-paddr_t tss_meeseeks_creator(int player, /*int*/ uint8_t task, uint32_t code_start){
+paddr_t tss_meeseeks_creator(int player,uint8_t task, uint32_t code_start){
 
   // print_hex(task_phy_address, 8, 49, 5, C_FG_LIGHT_GREEN);
   // breakpoint();
@@ -241,11 +241,11 @@ paddr_t tss_meeseeks_creator(int player, /*int*/ uint8_t task, uint32_t code_sta
 
   if (reciclar){
     task_virt_address = backup_meeseks[player][idx_msk].virt;
-    new_cr3 = mmu_init_task_meeseeks_dir(task_phy_address, code_start, task_virt_address, player_task_phy_address, player_code_start, 2);
+    mmu_init_task_meeseeks_dir(task_phy_address, code_start, task_virt_address);
     stack_level_0 = backup_meeseks[player][idx_msk].stack_level_0;
   } else{
     task_virt_address = mmu_next_free_virt_meeseek_page();
-    new_cr3 = mmu_init_task_meeseeks_dir(task_phy_address, code_start, task_virt_address, player_task_phy_address, player_code_start, 2);
+    mmu_init_task_meeseeks_dir(task_phy_address, code_start, task_virt_address);
     stack_level_0 = mmu_next_free_kernel_page();    
   }
 

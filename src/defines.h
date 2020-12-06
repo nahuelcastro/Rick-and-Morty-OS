@@ -82,4 +82,8 @@
 
 #define PLAYERS 2
 
+#define phy_init_msk_map 0x400000
+
+#define PAGE 0x1000
+
 #endif //  __DEFINES_H__

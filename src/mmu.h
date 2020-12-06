@@ -58,9 +58,9 @@ void mmu_unmap_kernel(paddr_t cr3);
 
 paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages);
 
-paddr_t mmu_init_task_meeseeks_dir(paddr_t phy_start, paddr_t code_start, paddr_t tasks_virt_memory, paddr_t player_task_phy_address, paddr_t player_code_start, size_t pages);
-//paddr_t mmu_init_task_dir(void);
-/* */
+void mmu_init_task_meeseeks_dir(paddr_t phy_start, paddr_t code_start, paddr_t tasks_virt_memory);
+
+
 
 paddr_t mmu_next_free_virt_meeseek_page();
 paddr_t mmu_next_free_phy_meeseek_page();
