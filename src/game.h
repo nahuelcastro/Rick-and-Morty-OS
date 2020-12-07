@@ -30,6 +30,13 @@ typedef struct seed{
   bool p;   //_Bool
 } seed;
 
+typedef struct meeseeks_info{
+  /* bool p;   //_Bool */
+  uint8_t idx_msk; 
+  player_t player;
+  uint32_t ticks_counter;
+} info_gdt_meeseek;
+
 extern seed semillas[MAX_CANT_SEMILLAS];
 extern uint8_t indexSemilla;
 extern uint16_t cant_semillas;
@@ -47,5 +54,13 @@ int8_t next_index_meeseek_free(player_t player);
 int index_in_seed(coordenadas coord);
 uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y);
 void remove_seed(int idx);
+void ticks_counter(void);
+int abs(int n);
+
+
+extern info_gdt_meeseek info_gdt_meeseeks[GDT_COUNT];
+
+// extern uint32_t move(uint32_t x, uint32_t y)
 
 #endif //  __GAME_H__
+

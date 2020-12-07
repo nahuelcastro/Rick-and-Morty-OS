@@ -206,7 +206,7 @@ void tss_creator(int8_t player, int task){
 
 
 
-paddr_t tss_meeseeks_creator(int player,uint8_t task, uint32_t code_start, coordenadas coord){
+paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, coordenadas coord){
 
   // print_hex(task_phy_address, 8, 49, 5, C_FG_LIGHT_GREEN);
   
@@ -237,7 +237,7 @@ paddr_t tss_meeseeks_creator(int player,uint8_t task, uint32_t code_start, coord
     mmu_init_task_meeseeks_dir(task_phy_address, code_start, task_virt_address);
     stack_level_0 = backup_meeseks[player][idx_msk].stack_level_0;
   } else{
-    task_virt_address = mmu_next_free_virt_meeseek_page();
+    task_virt_address = mmu_next_free_virt_meeseek_page(player);
     mmu_init_task_meeseeks_dir(task_phy_address, code_start, task_virt_address);
     stack_level_0 = mmu_next_free_kernel_page();    
 
@@ -248,6 +248,10 @@ paddr_t tss_meeseeks_creator(int player,uint8_t task, uint32_t code_start, coord
   }
 
   next_free_tss();
+
+  info_gdt_meeseeks[next_free_gdt_idx].idx_msk = idx_msk;
+  info_gdt_meeseeks[next_free_gdt_idx].player = player;
+  info_gdt_meeseeks[next_free_gdt_idx].ticks_counter = 0;
 
   player_idx_gdt[next_free_gdt_idx] = player;
   tareasActivas[next_free_gdt_idx] = true;

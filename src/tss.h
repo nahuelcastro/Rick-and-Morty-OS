@@ -13,7 +13,7 @@
 #include "types.h"
 #include "game.h"
 
-extern int8_t player_idx_gdt[35];
+extern int8_t player_idx_gdt[GDT_COUNT];
 extern bool tareasActivas[GDT_COUNT];
 
 typedef struct str_tss {
@@ -68,6 +68,7 @@ extern tss_t* TSSs[35];
 
 typedef struct meeseek{
   uint8_t p;
+  uint8_t gdt_index;
   coordenadas coord;
   tss_t tss;
 } meeseek_t;
@@ -77,6 +78,6 @@ extern uint8_t cant_meeseeks[PLAYERS];                 // cant_meeseeks[player]
 extern meeseek_t meeseeks[PLAYERS][MAX_CANT_MEESEEKS]; // meeseeks[player][index_meeseek]
 
 void tss_creator(int8_t player, int task);
-paddr_t tss_meeseeks_creator(int player, uint8_t task, uint32_t code_start, coordenadas coord);
+paddr_t tss_meeseeks_creator(player_t player, uint8_t task, uint32_t code_start, coordenadas coord);
 
 #endif //  __TSS_H__

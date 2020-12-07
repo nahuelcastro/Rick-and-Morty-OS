@@ -31,7 +31,7 @@
 /* Indices en la gdt */
 /* -------------------------------------------------------------------------- */
 #define GDT_IDX_NULL_DESC 0
-#define GDT_COUNT         35
+#define GDT_COUNT         50/*35*/
 
 
 /* Offsets en la gdt */

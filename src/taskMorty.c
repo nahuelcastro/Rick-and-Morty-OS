@@ -4,21 +4,44 @@
 
 void meeseks1_func(void);
 
+
 void task(void) {
 
   syscall_meeseeks((uint32_t)&meeseks1_func, 41, 25);
+  syscall_meeseeks((uint32_t)&meeseks1_func, 1, 25);
+  syscall_meeseeks((uint32_t)&meeseks1_func, 11, 25);
+  syscall_meeseeks((uint32_t)&meeseks1_func, 21, 25);
+  syscall_meeseeks((uint32_t)&meeseks1_func, 31, 25);
+
+  syscall_meeseeks((uint32_t)&meeseks1_func, 51, 25);
+  syscall_meeseeks((uint32_t)&meeseks1_func, 61, 25);
+  syscall_meeseeks((uint32_t)&meeseks1_func, 71, 25);
+  syscall_meeseeks((uint32_t)&meeseks1_func, 56, 11);
+  syscall_meeseeks((uint32_t)&meeseks1_func, 23, 8);
+
+  //syscall_meeseeks((uint32_t)&meeseks1_func, 67, 27);
   
   while (1) {
     __asm volatile("nop");
   }
 }
 
-void meeseks1_func(void) {
-  // Do Nothing!
-  while (1) {
-    __asm volatile("nop");
-  }
+// void meeseks1_func(void) {
+//   // Do Nothing!
+//   while (1) {
+//     __asm volatile("nop");
+//   }
 
+
+void meeseks1_func(void){
+  while (1) {
+    // __asm volatile("nop");
+      for (int i = 0; i < 80; i++) {
+        syscall_move(4,0);
+      }
+      syscall_move(0, 0);
+    }
+//}
 
   int8_t deltax, deltay;
 

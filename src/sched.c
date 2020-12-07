@@ -8,11 +8,12 @@
 
 #include "sched.h"
 
-uint16_t ultimoJugador = 0;  // 0001 0011
+player_t ultimoJugador;  // 0001 0011
 uint16_t jugadorActual = 1;
 uint16_t index;
 uint16_t tareaActual;
 tss_t* tssActual;
+uint16_t tareaActualAnterior = 16;
 
 extern void pantalla_negra_debug();
 extern void init_pantalla();
@@ -28,7 +29,7 @@ void sched_init(void)
 
 uint16_t sched_next_task(void){
 
-  // breakpoint();
+  tareaActual = tareaActualAnterior;
 
   for (int i = 0; i < GDT_COUNT - 1; i++){ /// TOCAR EL I
     if (index == GDT_COUNT){
@@ -36,14 +37,17 @@ uint16_t sched_next_task(void){
     }
 
     bool esUnJugador = player_idx_gdt[index + 1] == RICK || player_idx_gdt[index + 1] == MORTY;
-    bool esOtroJugador = (player_idx_gdt[index + 1] != player_idx_gdt[tareaActual]) && esUnJugador;
+    //bool esOtroJugador = (player_idx_gdt[index + 1] != player_idx_gdt[tareaActual]) && esUnJugador;
+    bool esOtroJugador = (player_idx_gdt[index + 1] != ultimoJugador) && esUnJugador;
     bool estaPresente = gdt[index + 1].p == 1;
     bool estaActiva = tareasActivas[index + 1];
 
     if (estaPresente && esOtroJugador && estaActiva){
       index++;
       tareaActual = index;
-      return (index << 3); //! ver si hace falta sumarle 3 por los niveles de privilegio
+      tareaActualAnterior= index;
+      ultimoJugador = player_idx_gdt[tareaActual];
+      return (index << 3);
     } else{
       index++;
     }
@@ -57,6 +61,12 @@ void desactivar_tarea(){
     end_game();
   }
   tareasActivas[tareaActual] = false;
+}
+
+uint16_t sched_idle(){
+  tareaActualAnterior = tareaActual;
+  tareaActual = 16;;
+  return 0x80;
 }
 
 

@@ -25,6 +25,9 @@ extern cmpScanCode
 extern modo_debug
 
 extern create_meeseek
+extern move
+extern ticks_counter
+extern sched_idle
 
 temp: dd 0         ; variable temporal
 
@@ -42,7 +45,7 @@ _isr%1:
      call imprimir_excepcion
      add esp, 4
 
-     ; xchg bx, bx
+     ;xchg bx, bx
 
      call desactivar_tarea  
      call sched_next_task            ; obtener indice de la proxima tarea a ejecutar
@@ -88,6 +91,9 @@ _isr32:
      pushad
      ;avisar al pic que se recibio la interrupcion
      call pic_finish1
+
+     ;contador de ticks de para move
+     call ticks_counter 
      ;imprimir el reloj de sistema
      call sched_next_task ; Crear esta funcion en C que basicamente cicle entre las tareas que hay y cuando llega a la ultima vuelva a la primera
      str cx
@@ -95,7 +101,7 @@ _isr32:
      je .fin
      call next_clock
      mov word [sched_task_selector], ax
-     ;xchg bx, bx 
+     xchg bx, bx 
      jmp far [sched_task_offset]
      .fin:
      popad
@@ -156,6 +162,11 @@ _isr88:
      mov [temp], eax ; mov eax a variable temporal
      add esp,12     ; tenemos 3 parametros de entrada
 
+     call sched_idle
+     mov word [sched_task_selector], ax  ; (cambiamos con nahu)
+     jmp far [sched_task_offset]
+
+
      popad          ; recupero registros
      mov eax, [temp] ; returneo en ceax   
      ; pop ebp
@@ -200,13 +211,40 @@ global _isr123
 ; in EAX=x Desplazamiento en x
 ; in EBX=y Desplazamiento en y
 ; out EAX=worked 0: No se desplazo, 1: Se desplazo
+
+
+
 _isr123:
      pushad
-     ; push eax
-     ; push ebx
+     
+     push ebx
+     push eax
+     call move
+     mov [temp], eax ; mov eax a variable temporal
+     add esp, 8
 
-     popad
+     ; call sched_idle
+     ; mov word [sched_task_selector], ax  ; (cambiamos con nahu)
+     ; jmp far [sched_task_offset]
+
+
+     popad          ; recupero registros
+     mov eax, [temp] ; returneo en ceax   
 iret
+
+
+; _isr123:
+;      pushad
+;      mov ebp, esp
+;      push eax
+;      call next_clock
+;      mov ax,0x80 ;idle
+;      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
+;      jmp far [sched_task_offset]
+;      ;pop ebp
+;      popad
+; iret
+
 
 ;; Rutinas de atención de las SYSCALLS
 ;; -------------------------------------------------------------------------- ;;

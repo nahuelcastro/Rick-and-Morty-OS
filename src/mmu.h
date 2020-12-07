@@ -63,9 +63,10 @@ void mmu_init_task_meeseeks_dir(paddr_t phy_start, paddr_t code_start, paddr_t t
 
 paddr_t mmu_phy_map_decoder(coordenadas coord);
 
+void mmu_remap_meeseek(paddr_t new_phy, paddr_t virt);
 
-paddr_t mmu_next_free_virt_meeseek_page();
-paddr_t mmu_next_free_phy_meeseek_page();
+
+paddr_t mmu_next_free_virt_meeseek_page(player_t player);
 
 typedef struct info_meeseek
 {

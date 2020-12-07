@@ -21,8 +21,10 @@
 void sched_init();
 uint16_t sched_next_task();
 void desactivar_tarea();
+uint16_t sched_idle();
 
 extern uint16_t tareaActual;
 extern uint16_t index;
+extern player_t  ultimoJugador;
 
 #endif //  __SCHED_H__
