@@ -13,7 +13,7 @@ uint16_t jugadorActual = 1;
 uint16_t index;
 uint16_t tareaActual;
 tss_t* tssActual;
-uint16_t tareaActualAnterior = 16;
+uint16_t tareaActualAnterior;
 
 extern void pantalla_negra_debug();
 extern void init_pantalla();
@@ -24,6 +24,7 @@ void sched_init(void)
 {
   index = 16;
   tareaActual = index;
+  tareaActualAnterior = tareaActual;
   modoDebug = false;
 }
 

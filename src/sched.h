@@ -24,6 +24,7 @@ void desactivar_tarea();
 uint16_t sched_idle();
 
 extern uint16_t tareaActual;
+extern uint16_t tareaActualAnterior;
 extern uint16_t index;
 extern player_t  ultimoJugador;
 

@@ -53,9 +53,9 @@ void update_meeseek_map(player_t player, coordenadas coord, bool reason) {
 }
 
 void game_init(void) {
-  ultimoJugador = 1;
-  tss_creator(1, 0);
-  tss_creator(0, 0);
+  ultimoJugador = MORTY;
+  tss_creator(RICK, 0);
+  tss_creator(MORTY, 0);
   indexSemilla = 0;
   score[MORTY] = 0;
   score[RICK] = 0;
@@ -139,7 +139,7 @@ void remove_seed(int idx) {
 }
 
 void msk_found_seed(player_t player, int idx_msk, int idx_seed) {
-  // breakpoint();
+  breakpoint();
 
   // delete msk
   meeseeks[player][idx_msk].p = false;
@@ -159,22 +159,22 @@ void msk_found_seed(player_t player, int idx_msk, int idx_seed) {
 
   // clean_stack_level_0 para reciclar
   char* ptr_virt_page = (char*)backup_meeseks[player][idx_msk].stack_level_0;
-
   for (int i = 0; i < PAGE_SIZE; i++) {
     ptr_virt_page[i] = 0;
   }
 
-  // unmap msk
-  uint32_t cr32 = rcr3();
 
-  paddr_t virt2 = backup_meeseks[player][idx_msk].virt;
+  // unmap msk
+  uint32_t cr3 = rcr3();
+
+  paddr_t virt = backup_meeseks[player][idx_msk].virt;
 
   for (int i = 0; i < 2; i++) {
-    mmu_unmap_page(cr32, virt2);
-    virt2 += PAGE_SIZE;
+    mmu_unmap_page(cr3, virt);
+    virt += PAGE_SIZE;
   }
 
-  //   breakpoint();
+  breakpoint();
 }
 
 // ;
@@ -278,7 +278,12 @@ uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y) {
 
 
 
-uint32_t move(uint32_t x, uint32_t y) {
+uint32_t sys_move(uint32_t x, uint32_t y) {
+
+  if(tareaActual == 17 | tareaActual == 18 ){ // verificar que funcione
+    desactivar_tarea();
+  }
+
 
   uint8_t idx_msk = info_gdt_meeseeks[tareaActual].idx_msk;
   player_t player = info_gdt_meeseeks[tareaActual].player;
@@ -289,9 +294,16 @@ uint32_t move(uint32_t x, uint32_t y) {
     return 0;
   }
 
-  uint8_t ticks = info_gdt_meeseeks[tareaActual].ticks_counter;
+  // info_gdt_meeseeks[tareaActual].ticks_counter ++; 
 
-  uint8_t moveConTicks = (abs(x) + abs(y) + (ticks / 2));
+  uint8_t ticks = info_gdt_meeseeks[tareaActual].ticks_counter;
+  // print_hex(tareaActual, 4, 8, 31, WHITE_RED);
+  // print_hex(info_gdt_meeseeks[tareaActual].ticks_counter, 4, 8, 30, WHITE_RED);
+
+   
+
+  uint8_t moveConTicks = (abs(x) + abs(y) + (ticks/2));
+  
   if (7 < moveConTicks) {
     return 0;
   }
@@ -301,15 +313,19 @@ uint32_t move(uint32_t x, uint32_t y) {
   new_coord.x = (new_coord.x % 80 + 80) % 80;
   new_coord.y = (new_coord.y % 40 + 40) % 40;
   clean_cell(coord_actual);
-  update_meeseek_map(player, new_coord, ADD);
 
   int index_aux = index_in_seed(coord_actual);
   bool in_seed = index_aux != -1;
+  
 
   if (in_seed) {
     msk_found_seed(player, idx_msk, index_aux);
+    breakpoint();
+
+    return 1;
   }
 
+  update_meeseek_map(player, new_coord, ADD);
   meeseeks[player][idx_msk].coord = new_coord;
 
   if (!in_seed) {
@@ -324,12 +340,9 @@ uint32_t move(uint32_t x, uint32_t y) {
 
 // va actualiznado los ticks
 void ticks_counter() {
-  if (1) {
-    if (info_gdt_meeseeks[tareaActual].ticks_counter < 12) {
-      info_gdt_meeseeks[tareaActual].ticks_counter++;
-    }
+    if (info_gdt_meeseeks[tareaActualAnterior].ticks_counter < 12) { //revisar que funcione a la perfeccion, ver de a una tarea
+      info_gdt_meeseeks[tareaActualAnterior].ticks_counter++;
   }
-
 }
 
 int abs(int n) {
@@ -339,6 +352,39 @@ int abs(int n) {
   return n;
 }
 
+
+int16_t sys_look (){
+
+  uint8_t idx_msk = info_gdt_meeseeks[tareaActual].idx_msk;
+  player_t player = info_gdt_meeseeks[tareaActual].player;
+
+  coordenadas coord_actual = meeseeks[player][idx_msk].coord;
+
+  uint8_t min_candidate = 255;
+  uint32_t min_idx_seed  = MAX_CANT_SEMILLAS + 1; 
+  for (uint32_t i = 0; i < MAX_CANT_SEMILLAS; i++){
+    if(semillas[i].p){
+      uint8_t actual_dist = abs(coord_actual.x - semillas[i].coord.x) + abs(coord_actual.y - semillas[i].coord.y); 
+      if(actual_dist < min_candidate){
+        min_candidate = actual_dist;
+        min_idx_seed = i;
+      }
+    }
+  }
+  
+  //ya tenemos la i de la semilla
+  int16_t displacement_x = (int16_t)(semillas[min_idx_seed].coord.x  - coord_actual.x);  
+  int16_t displacement_y = (int16_t)(semillas[min_idx_seed].coord.y  - coord_actual.y);
+
+  int16_t res = 0;
+  res = displacement_x;     //FFFF FFFC   , FFFC
+  res << 8;
+  displacement_y = displacement_y && 0x00FF;
+  res = res || displacement_y;
+
+  return res;
+
+}
 
 
 

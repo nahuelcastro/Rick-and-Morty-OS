@@ -275,7 +275,7 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
   tss_new_task->ecx = 0;
   tss_new_task->edx = 0;
   tss_new_task->ebx = 0;
-  tss_new_task->esp = task_virt_address + 4 * PAGE_SIZE;     
+  tss_new_task->esp = task_virt_address + 2 * PAGE_SIZE;     
   tss_new_task->ebp = 0; //TASK_VIRTUAL_DIR + 4 * PAGE_SIZE;
   tss_new_task->esi = 0;
   tss_new_task->edi = 0;

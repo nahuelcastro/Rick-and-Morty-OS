@@ -31,7 +31,7 @@ typedef struct str_page_directory_entry{
 
 typedef struct str_page_table_entry
 {
-  uint8_t present : 1;
+  uint8_t present : 1;  // gola
   uint8_t read_write : 1;
   uint8_t user_supervisor : 1;
   uint8_t page_write_through : 1;

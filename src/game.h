@@ -57,6 +57,7 @@ void remove_seed(int idx);
 void ticks_counter(void);
 int abs(int n);
 
+uint32_t sys_move(uint32_t x, uint32_t y);
 
 extern info_gdt_meeseek info_gdt_meeseeks[GDT_COUNT];
 

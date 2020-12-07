@@ -28,6 +28,7 @@ extern create_meeseek
 extern move
 extern ticks_counter
 extern sched_idle
+extern sys_look
 
 temp: dd 0         ; variable temporal
 
@@ -40,12 +41,12 @@ global _isr%1
 
 _isr%1:
      mov eax, %1
+     xchg bx, bx
 
      push eax
      call imprimir_excepcion
      add esp, 4
 
-     ;xchg bx, bx
 
      call desactivar_tarea  
      call sched_next_task            ; obtener indice de la proxima tarea a ejecutar
@@ -101,7 +102,7 @@ _isr32:
      je .fin
      call next_clock
      mov word [sched_task_selector], ax
-     xchg bx, bx 
+     ;xchg bx, bx 
      jmp far [sched_task_offset]
      .fin:
      popad
@@ -128,22 +129,6 @@ _isr33:
 
 global _isr88 
 
-; _isr88:    
-;      pushad
-;      mov ebp, esp
-     
-     
-;      push eax
-;      call next_clock
-;      mov ax,0x80 ;idle
-;      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
-;      jmp far [sched_task_offset]
-;      pop ebp
-;      popad
-; iret
-
-
-
 ; in EAX=code       Código de la tarea Mr Meeseeks a ser ejecutada.
 ; in EBX=x          Columna en el mapa donde crear el Mr Meeseeks.
 ; in ECX=y          Fila en el mapa donde crear el Mr Meeseeks
@@ -153,6 +138,7 @@ _isr88:
      pushad
      mov ebp, esp
      
+
      push ecx       ; Código de la tarea Mr Meeseeks a ser ejecutada.
      push ebx       ; Columna en el mapa donde crear el Mr Meeseeks.
      push eax       ; Fila en el mapa donde crear el Mr Meeseeks
@@ -194,14 +180,21 @@ global _isr100
 _isr100:
      pushad
      mov ebp, esp
+     
+     push ebx
      push eax
-     call next_clock
-     mov ax,0x80 ;idle
+
+     call sys_look
+     mov [temp], eax
+     add esp, 8
+
+     call sched_idle
      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
-     xchg bx, bx
      jmp far [sched_task_offset]
-     ;pop ebp
+
      popad
+     ;COMPLETAR BIEN DEL TODO VER COMO DEVOLVER LOS 2 VALORES
+
 iret
 
 
@@ -219,13 +212,13 @@ _isr123:
      
      push ebx
      push eax
-     call move
+     call sys_move
      mov [temp], eax ; mov eax a variable temporal
      add esp, 8
 
-     ; call sched_idle
-     ; mov word [sched_task_selector], ax  ; (cambiamos con nahu)
-     ; jmp far [sched_task_offset]
+     call sched_idle
+     mov word [sched_task_selector], ax  ; (cambiamos con nahu)
+     jmp far [sched_task_offset]
 
 
      popad          ; recupero registros
