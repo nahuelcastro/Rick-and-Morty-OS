@@ -27,7 +27,8 @@ void task(void) {
   syscall_meeseeks((uint32_t)&meeseks1_func, 71, 25);
   syscall_meeseeks((uint32_t)&meeseks1_func, 56, 11);
   syscall_meeseeks((uint32_t)&meeseks1_func, 23, 8);
-  syscall_meeseeks((uint32_t)&meeseks1_func, 67, 27);
+
+  // syscall_meeseeks((uint32_t)&meeseks1_func, 67, 27);
   
   while (1) {
     __asm volatile("nop");
@@ -43,41 +44,73 @@ void task(void) {
 
 void meeseks1_func(void){
   
+  while (0) {
+  //   // __asm volatile("nop");
+  //   // for (int i = 0; i < 6; i++) {
+  //   //     syscall_move(1,0);
+  //   //     // int a = 8;
+  //   //     // a=a;
+  //   //   }
+
+
+  //   // for (int i = 0; i < 100; i++){
+  //   //   int8_t deltax, deltay;
+  //   //   syscall_look(&deltax, &deltay);
+  //   //   syscall_move(deltax,deltay);
+  //   //   syscall_move(0, 4);
+  //   //   syscall_move(0, 1);
+  //   // }
+  }
+
+
+
+  int8_t deltax, deltay;
+
   while (1) {
-    // __asm volatile("nop");
-    //for (int i = 0; i < 100; i++) {
-      // int8_t deltax, deltay;
-      // syscall_look(&deltax, &deltay);
-      // syscall_move(deltax,deltay);
-      //syscall_move(0, 4);
-     syscall_move(0, 1);
-    }
-  //}
-}
-
-
-  //int8_t deltax, deltay;
-
-  // while (0) {
 
     
-  //   syscall_move(deltax, deltay);
-  //   continue;
-  //   while (deltax < 0) {
-  //     syscall_move(-1, 0);
-  //     deltax++;
-  //   }
-  //   while (deltay < 0) {
-  //     syscall_move(0, -1);
-  //     deltay++;
-  //   }
-  //   while (deltax > 0) {
-  //     syscall_move(1, 0);
-  //     deltax--;
-  //   }
-  //   while (deltay > 0) {
-  //     syscall_move(0, 1);
-  //     deltay--;
+    syscall_look(&deltax, &deltay);
+
+    // print_dec(deltay, 4, 8, 30, WHITE_RED);
+    // print_dec(deltax, 4, 8, 40, WHITE_RED);
+
+    // continue;
+    while (deltax < 0) {
+      syscall_move(-1, 0);
+      deltax++;
+    }
+    while (deltay < 0) {
+      syscall_move(0, -1);
+      deltay++;
+    }
+    while (deltax > 0) {
+      syscall_move(1, 0);
+      deltax--;
+    }
+    while (deltay > 0) {
+      syscall_move(0, 1);
+      deltay--;
+    }
+
+  } // while
+}
+
+/*
+
+  //   for (int i = 0; i < 100; i++){
+  //     int8_t deltax, deltay;
+  //     syscall_look(&deltax, &deltay);
+  //     syscall_move(deltax,deltay);
+  //     syscall_move(0, 4);
+  //    syscall_move(0, 1);
   //   }
   // }
 
+
+
+
+  CR2=page fault laddr=0x00000502
+
+
+
+*/

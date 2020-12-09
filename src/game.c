@@ -121,8 +121,8 @@ int8_t next_index_meeseek_free(player_t player) {
 
 // busca si la coordenada esta sobre una semilla, ret -1 = no hay semilla en tal
 // cordenada, ret x =  en semillas[x] esta la semilla encontrada
-int index_in_seed(coordenadas coord) {
-  for (int i = 0; i < MAX_CANT_SEMILLAS; i++) {
+int16_t index_in_seed(coordenadas coord) {
+  for (int16_t i = 0; i < MAX_CANT_SEMILLAS; i++) {
     if (semillas[i].p) {
       if (same(coord, semillas[i].coord)) {
         return i;
@@ -138,8 +138,8 @@ void remove_seed(int idx) {
                             // ACUTALIZAR EL MAPA(SACAR LA SEMILLA)
 }
 
-void msk_found_seed(player_t player, int idx_msk, int idx_seed) {
-  //  breakpoint();
+void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
+
 
   // delete msk
   meeseeks[player][idx_msk].p = false;
@@ -155,13 +155,16 @@ void msk_found_seed(player_t player, int idx_msk, int idx_seed) {
   tareasActivas[tareaActual] = false;
 
   // flag_off  recycling msk memory
-  backup_meeseks[player][idx_msk].p = false;
+  backup_meeseks[player][idx_msk].p = true; /*tenia false, pero tendria que ser true*/
 
-  // clean_stack_level_0 para reciclar
-  char* ptr_virt_page = (char*)backup_meeseks[player][idx_msk].stack_level_0;
-  for (int i = 0; i < PAGE_SIZE; i++) {
-    ptr_virt_page[i] = 0;
-  }
+
+  //! ESTA M***** PARECE SER LA QUE TIRA EL #UD
+  // // clean_stack_level_0 para reciclar
+  // char* ptr_virt_page = (char*)backup_meeseks[player][idx_msk].stack_level_0;
+  // for (int i = 0; i < PAGE_SIZE; i++) {
+  //   ptr_virt_page[i] = 0;
+  // }
+
 
 
   // unmap msk
@@ -174,7 +177,7 @@ void msk_found_seed(player_t player, int idx_msk, int idx_seed) {
     virt += PAGE_SIZE;
   }
 
-  //  breakpoint();  
+  // breakpoint();  
 }
 
 // va actualiznado los ticks
@@ -260,6 +263,9 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
 
   cant_meeseeks[player]++;
 
+    // breakpoint();
+
+
   return virt_res;
 }
 
@@ -267,6 +273,8 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
 
 
 uint32_t sys_move(uint32_t x, uint32_t y) {
+
+  // breakpoint();
 
   if(tareaActual == 17 || tareaActual == 18 ){ // verificar que funcione
     desactivar_tarea();
@@ -301,13 +309,15 @@ uint32_t sys_move(uint32_t x, uint32_t y) {
   new_coord.x = (new_coord.x % 80 + 80) % 80;
   new_coord.y = (new_coord.y % 40 + 40) % 40;
 
-  int index_aux = index_in_seed(coord_actual);
+  int16_t index_aux = index_in_seed(coord_actual);
   bool in_seed = index_aux != -1;
   
   clean_cell(coord_actual);
 
   if (in_seed) {
+    // breakpoint();
     msk_found_seed(player, idx_msk, index_aux);
+    // breakpoint();
     return 1;
   }
 
@@ -320,6 +330,7 @@ uint32_t sys_move(uint32_t x, uint32_t y) {
     mmu_remap_meeseek(new_phy, virt);
   }
 
+  // breakpoint();
 
   return 1;
 }

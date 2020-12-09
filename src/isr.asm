@@ -50,7 +50,7 @@ global _isr%1
 
 _isr%1:
      mov eax, %1
-     ;xchg bx, bx
+     xchg bx, bx
 
      push eax
      call imprimir_excepcion

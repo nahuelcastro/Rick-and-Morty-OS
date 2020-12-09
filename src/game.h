@@ -56,10 +56,12 @@ void update_seed(void);
 void add_update_score(player_t player);
 _Bool same(coordenadas a, coordenadas b);
 int8_t next_index_meeseek_free(player_t player);
-int index_in_seed(coordenadas coord);
+int16_t index_in_seed(coordenadas coord);
 void remove_seed(int idx);
 void ticks_counter(void);
 int abs(int n);
+
+void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed);
 
 uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y);
 uint32_t sys_move(uint32_t x, uint32_t y);

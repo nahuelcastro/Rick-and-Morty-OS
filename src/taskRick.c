@@ -28,20 +28,24 @@ void task(void) {
 
   while (1) {
     __asm volatile("nop");
-    // syscall_meeseeks((uint32_t)&meeseks2_func, 6, 6);
+    // syscall_meeseeks((uint32_t)&meeseks1_func, 6, 6);
   }
 }
 
 
 void meeseks1_func(void){
-  
   while (1) {
     // __asm volatile("nop");
-      for (int i = 0; i < 6; i++) {
-        syscall_move(0,3);
+      for (int i = 0; i < 100; i++) {
+        syscall_move(1,0);
+        // int a = 8;
+        // a=a;
       }
-      syscall_move(0, 1);
-    }
+      // syscall_move(1, 1);
+      // syscall_move(0, 1);
+      // syscall_move(0, 1);
+      // syscall_move(1, -1);
+  }
 }
 
   
@@ -64,6 +68,7 @@ void meeseks1_func(void){
 //       syscall_move(0, 0);
 //     }
 //   }
+
 
 /*
 
