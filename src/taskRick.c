@@ -8,7 +8,7 @@ void meeseks3_func(void);
 
 
 void task(void) {
-  syscall_meeseeks((uint32_t)&meeseks1_func, 5, 5);
+  syscall_meeseeks((uint32_t)&meeseks1_func, 79, 1);
   syscall_meeseeks((uint32_t)&meeseks1_func, 15, 5);
   syscall_meeseeks((uint32_t)&meeseks1_func, 25, 5);
   syscall_meeseeks((uint32_t)&meeseks1_func, 35, 5);
@@ -40,7 +40,7 @@ void meeseks1_func(void){
       for (int i = 0; i < 6; i++) {
         syscall_move(0,3);
       }
-      syscall_move(1, 0);
+      syscall_move(0, 1);
     }
 }
 

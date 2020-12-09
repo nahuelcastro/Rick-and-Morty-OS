@@ -25,6 +25,11 @@ typedef struct coordenadas{
   uint8_t y;
 } coordenadas;
 
+typedef struct ret_2{
+  int8_t x;
+  int8_t y;
+} ret_2;
+
 typedef struct seed{
   coordenadas coord;
   bool p;   //_Bool
@@ -52,11 +57,11 @@ void add_update_score(player_t player);
 _Bool same(coordenadas a, coordenadas b);
 int8_t next_index_meeseek_free(player_t player);
 int index_in_seed(coordenadas coord);
-uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y);
 void remove_seed(int idx);
 void ticks_counter(void);
 int abs(int n);
 
+uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y);
 uint32_t sys_move(uint32_t x, uint32_t y);
 
 extern info_gdt_meeseek info_gdt_meeseeks[GDT_COUNT];

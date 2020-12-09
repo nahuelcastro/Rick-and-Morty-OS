@@ -1,4 +1,4 @@
-/* ** por compatibilidad se omiten tildes **
+    /* ** por compatibilidad se omiten tildes **
 ================================================================================
  TRABAJO PRACTICO 3 - System Programming - ORGANIZACION DE COMPUTADOR II - FCEN
 ================================================================================
@@ -139,7 +139,7 @@ void remove_seed(int idx) {
 }
 
 void msk_found_seed(player_t player, int idx_msk, int idx_seed) {
-  breakpoint();
+  //  breakpoint();
 
   // delete msk
   meeseeks[player][idx_msk].p = false;
@@ -174,8 +174,34 @@ void msk_found_seed(player_t player, int idx_msk, int idx_seed) {
     virt += PAGE_SIZE;
   }
 
-  breakpoint();
+  //  breakpoint();  
 }
+
+// va actualiznado los ticks
+void ticks_counter() {
+    if (info_gdt_meeseeks[tareaActualAnterior].ticks_counter < 12) { //revisar que funcione a la perfeccion, ver de a una tarea
+      info_gdt_meeseeks[tareaActualAnterior].ticks_counter++;
+  }
+}
+
+int abs(int n) {
+  if (n < 0) {
+    n = n * (-1);
+  }
+  return n;
+}
+
+//! ACORDARSE DE VER LO DE LA TAREA IDLE, CUANDO TERMINA DE EJECUTAR ALGUNA
+//! TAREA
+//! Por otro lado, ninguno de los servicios debe modicar ningún registro, a
+//! excepción de los indicados anteriormente.Tener en consideración que luego
+//! del llamado a cualquiera de los servicios, la tarea en ejecución pierde el
+//! turno.Es decir, que es desalojada del scheduler, y debe esperar hasta que
+//! pueda ser ejecutada nuevamente.En el tiempo entre que la tarea es desalojada
+//! y llega una interrupción de reloj para ejecutar la próxima tarea, el sistema
+//! debe ejecutar a la tarea Idle.Esta última, no tiene más propósito que
+//! mantener al procesador realizando alguna tarea, a la espera del próximo
+//! punto de sincronismo.
 
 // ;
 // in EAX = code Código de la tarea Mr Meeseeks a ser ejecutada.;
@@ -185,44 +211,7 @@ void msk_found_seed(player_t player, int idx_msk, int idx_seed) {
 // code 4KB  Tener en cuenta que este código debe estar declarado dentro del
 // espacio de memoria de usuario de la tarea.
 
-//! MAXI NO ME SAQUES ESTOS COMENTARIOS POR FAVOR :)
-//! ACORDARSE DE VER LO DE LA TAREA IDLE, CUANDO TERMINA DE EJECUTAR ALGUNA
-//! TAREA
-//! Por otro lado, ninguno de los servicios debe modicar ningún registro, a
-//! excepción de los indicados anteriormente.Tener en consideración que luego
-//! del llamado a cualquiera de los servicios, la tarea en ejecución pierde el
-//! turno.Es decir, que es desalojada del scheduler, y debe esperar hasta que
-//! pueda ser ejecutada nuevamente.En el tiempo entre que la tarea es desalojada
-//! y llega una interrupción de reloj para ejecutar la próxima tarea, el sistema
-//! debe ejecutar a la tarea Idle.Esta última, no tiene más propósito que
-//! mantener al procesador realizando alguna tarea, a la espera del próximo
-//! punto de sincronismo.
-
-//! ACORDARSE DE VER LO DE LA TAREA IDLE, CUANDO TERMINA DE EJECUTAR ALGUNA
-//! TAREA
-//! Por otro lado, ninguno de los servicios debe modicar ningún registro, a
-//! excepción de los indicados anteriormente.Tener en consideración que luego
-//! del llamado a cualquiera de los servicios, la tarea en ejecución pierde el
-//! turno.Es decir, que es desalojada del scheduler, y debe esperar hasta que
-//! pueda ser ejecutada nuevamente.En el tiempo entre que la tarea es desalojada
-//! y llega una interrupción de reloj para ejecutar la próxima tarea, el sistema
-//! debe ejecutar a la tarea Idle.Esta última, no tiene más propósito que
-//! mantener al procesador realizando alguna tarea, a la espera del próximo
-//! punto de sincronismo.
-
-//! ACORDARSE DE VER LO DE LA TAREA IDLE, CUANDO TERMINA DE EJECUTAR ALGUNA
-//! TAREA
-//! Por otro lado, ninguno de los servicios debe modicar ningún registro, a
-//! excepción de los indicados anteriormente.Tener en consideración que luego
-//! del llamado a cualquiera de los servicios, la tarea en ejecución pierde el
-//! turno.Es decir, que es desalojada del scheduler, y debe esperar hasta que
-//! pueda ser ejecutada nuevamente.En el tiempo entre que la tarea es desalojada
-//! y llega una interrupción de reloj para ejecutar la próxima tarea, el sistema
-//! debe ejecutar a la tarea Idle.Esta última, no tiene más propósito que
-//! mantener al procesador realizando alguna tarea, a la espera del próximo
-//! punto de sincronismo.
-
-uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y) {
+uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
   // breakpoint();
   player_t player = player_idx_gdt[tareaActual];
 
@@ -277,10 +266,9 @@ uint32_t create_meeseek(uint32_t code, uint8_t x, uint8_t y) {
 
 
 
-
 uint32_t sys_move(uint32_t x, uint32_t y) {
 
-  if(tareaActual == 17 | tareaActual == 18 ){ // verificar que funcione
+  if(tareaActual == 17 || tareaActual == 18 ){ // verificar que funcione
     desactivar_tarea();
   }
 
@@ -312,16 +300,14 @@ uint32_t sys_move(uint32_t x, uint32_t y) {
   new_coord.y = y + coord_actual.y;
   new_coord.x = (new_coord.x % 80 + 80) % 80;
   new_coord.y = (new_coord.y % 40 + 40) % 40;
-  clean_cell(coord_actual);
 
   int index_aux = index_in_seed(coord_actual);
   bool in_seed = index_aux != -1;
   
+  clean_cell(coord_actual);
 
   if (in_seed) {
     msk_found_seed(player, idx_msk, index_aux);
-    breakpoint();
-
     return 1;
   }
 
@@ -338,22 +324,62 @@ uint32_t sys_move(uint32_t x, uint32_t y) {
   return 1;
 }
 
-// va actualiznado los ticks
-void ticks_counter() {
-    if (info_gdt_meeseeks[tareaActualAnterior].ticks_counter < 12) { //revisar que funcione a la perfeccion, ver de a una tarea
-      info_gdt_meeseeks[tareaActualAnterior].ticks_counter++;
-  }
-}
 
-int abs(int n) {
-  if (n < 0) {
-    n = n * (-1);
-  }
-  return n;
-}
+ret_2 res;
 
 
-int16_t sys_look (){
+// ret_2* sys_look (){
+    
+//   // breakpoint();
+
+//   uint8_t idx_msk = info_gdt_meeseeks[tareaActual].idx_msk;
+//   player_t player = info_gdt_meeseeks[tareaActual].player;
+
+//   coordenadas coord_actual = meeseeks[player][idx_msk].coord;
+
+//   uint8_t min_candidate = 255;
+//   uint32_t min_idx_seed  = MAX_CANT_SEMILLAS + 1; 
+//   for (uint32_t i = 0; i < MAX_CANT_SEMILLAS; i++){
+//     if(semillas[i].p){
+//       uint8_t actual_dist = abs(coord_actual.x - semillas[i].coord.x) + abs(coord_actual.y - semillas[i].coord.y); 
+//       if(actual_dist < min_candidate){
+//         min_candidate = actual_dist;
+//         min_idx_seed = i;
+//       }
+//     }
+//   }
+  
+//   //ya tenemos la i de la semilla
+//   int16_t movement_x = (int16_t)(semillas[min_idx_seed].coord.x  - coord_actual.x);  
+//   int16_t movement_y = (int16_t)(semillas[min_idx_seed].coord.y  - coord_actual.y);
+
+//   print_hex(movement_x,4, 10,30,WHITE_RED);
+//   print_hex(movement_y,4, 10,35,WHITE_RED);
+//     // print_dec(deltay, 4, 8, 30, WHITE_RED);
+//     // print_dec(deltax, 4, 8, 40, WHITE_RED);
+
+
+//   // int16_t res = 0;
+//   // res = movement_x;     //FFFF FFFC   , FFFC
+//   // res = res << 8;
+//   // print_hex(res,4, 10,40,WHITE_RED);
+//   // // movement_y = movement_y && 0x00FF;
+//   // // movement_y = (movement_y <<8);
+//   // movement_y = (movement_y >> 8);
+//   // print_hex(movement_y,4, 10,35,WHITE_RED);
+//   // res = res || movement_y;
+
+
+  
+//   res.x = movement_x;
+//   res.y = movement_y;
+
+//   return &res;
+
+// }
+
+
+int8_t sys_look (uint8_t flag){
 
   uint8_t idx_msk = info_gdt_meeseeks[tareaActual].idx_msk;
   player_t player = info_gdt_meeseeks[tareaActual].player;
@@ -372,21 +398,13 @@ int16_t sys_look (){
     }
   }
   
-  //ya tenemos la i de la semilla
-  int16_t displacement_x = (int16_t)(semillas[min_idx_seed].coord.x  - coord_actual.x);  
-  int16_t displacement_y = (int16_t)(semillas[min_idx_seed].coord.y  - coord_actual.y);
+  int16_t movement_x = (int16_t)(semillas[min_idx_seed].coord.x  - coord_actual.x);  
+  int16_t movement_y = (int16_t)(semillas[min_idx_seed].coord.y  - coord_actual.y);
 
-  int16_t res = 0;
-  res = displacement_x;     //FFFF FFFC   , FFFC
-  res << 8;
-  displacement_y = displacement_y && 0x00FF;
-  res = res || displacement_y;
-
-  return res;
+  if(flag == 0){
+    return movement_x;
+  }else{
+    return movement_y;
+  }
 
 }
-
-
-
-  // print_hex(tareaActual, 4, 8, 30, WHITE_RED);
-  // print_hex(moveConTicks, 4, 8, 40, WHITE_RED);

@@ -17,20 +17,29 @@ extern pic_finish1
 extern imprimir_excepcion
 extern print_scan_code
 
-extern desactivar_tarea
 
 ;; Sched
 extern sched_next_task
 extern cmpScanCode
+extern sched_idle
+extern desactivar_tarea
 extern modo_debug
 
-extern create_meeseek
-extern move
 extern ticks_counter
-extern sched_idle
+
+;; Syscalls
+extern sys_meeseek
+extern sys_move
 extern sys_look
 
+
 temp: dd 0         ; variable temporal
+
+tempw1: db 0         ; variable temporal
+tempw2: db 0         ; variable temporal
+
+tempb1: db 0         ; variable temporal
+tempb2: db 0         ; variable temporal
 
 
 ;;
@@ -41,7 +50,7 @@ global _isr%1
 
 _isr%1:
      mov eax, %1
-     xchg bx, bx
+     ;xchg bx, bx
 
      push eax
      call imprimir_excepcion
@@ -143,7 +152,7 @@ _isr88:
      push ebx       ; Columna en el mapa donde crear el Mr Meeseeks.
      push eax       ; Fila en el mapa donde crear el Mr Meeseeks
 
-     call create_meeseek
+     call sys_meeseek
 
      mov [temp], eax ; mov eax a variable temporal
      add esp,12     ; tenemos 3 parametros de entrada
@@ -177,23 +186,57 @@ iret
 
 global _isr100
 
+; _isr100:
+;      pushad
+;      mov ebp, esp
+
+;      call sys_look
+;      ; xchg bx, bx 
+;      ; mov byte  [tempw1], al
+;      ; ;shr ax, 8
+;      ; mov byte [tempw2],ah
+
+;      mov byte bl, [eax]
+;      mov byte  [tempb1], bl
+;      add eax, 8;
+;      mov byte bl, [eax] 
+;      mov byte [tempb2],bl
+
+
+;      call sched_idle
+;      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
+;      jmp far [sched_task_offset]
+
+;      popad
+;      mov byte eax, [tempb1]
+;      mov byte ebx, [tempb2]
+
+;      xchg bx, bx 
+;      ;COMPLETAR BIEN DEL TODO VER COMO DEVOLVER LOS 2 VALORES
+
+; iret
+
 _isr100:
      pushad
      mov ebp, esp
-     
-     push ebx
-     push eax
-
+     push 0
      call sys_look
-     mov [temp], eax
-     add esp, 8
+     mov byte  [tempw1], al
+     add esp, 4
+
+     push 1
+     call sys_look
+     mov byte  [tempw2], al
+     add esp, 4
+
 
      call sched_idle
      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
      jmp far [sched_task_offset]
 
      popad
-     ;COMPLETAR BIEN DEL TODO VER COMO DEVOLVER LOS 2 VALORES
+     mov byte eax, [tempw1]
+     mov byte ebx, [tempw2]
 
 iret
 
@@ -258,3 +301,7 @@ next_clock:
                 print_text_pm ebx, 1, 0x0f, 49, 79
                 popad
         ret
+
+
+
+
