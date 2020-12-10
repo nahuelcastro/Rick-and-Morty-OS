@@ -74,6 +74,15 @@ typedef struct meeseek{
 } meeseek_t;
 
 
+typedef struct info_task{
+  bool active;
+  uint8_t idx_gdt;
+  uint8_t p_loop_sc;
+  player_t player;
+} info_task_t;
+
+
+extern info_task_t info_task[GDT_COUNT];
 extern uint8_t cant_meeseeks[PLAYERS];                 // cant_meeseeks[player]
 extern meeseek_t meeseeks[PLAYERS][MAX_CANT_MEESEEKS]; // meeseeks[player][index_meeseek]
 

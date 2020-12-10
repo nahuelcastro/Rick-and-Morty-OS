@@ -16,52 +16,39 @@ void meeseks1_func(void);
 
 void task(void) {
 
-  syscall_meeseeks((uint32_t)&meeseks1_func,79,0);
-  syscall_meeseeks((uint32_t)&meeseks1_func, 1, 25); 
-  syscall_meeseeks((uint32_t)&meeseks1_func, 11, 25);
-  syscall_meeseeks((uint32_t)&meeseks1_func, 21, 25);
-  syscall_meeseeks((uint32_t)&meeseks1_func, 31, 25);
+  syscall_meeseeks((uint32_t)&meeseks1_func, 79 , 0); // 20
+  syscall_meeseeks((uint32_t)&meeseks1_func, 1 , 24); // 22
+  syscall_meeseeks((uint32_t)&meeseks1_func, 11, 25); // 24
+  syscall_meeseeks((uint32_t)&meeseks1_func, 21, 26); // 26
+  syscall_meeseeks((uint32_t)&meeseks1_func, 31, 27); // 28
 
-  syscall_meeseeks((uint32_t)&meeseks1_func, 51, 25);
-  syscall_meeseeks((uint32_t)&meeseks1_func, 61, 25);
-  syscall_meeseeks((uint32_t)&meeseks1_func, 71, 25);
-  syscall_meeseeks((uint32_t)&meeseks1_func, 56, 11);
-  syscall_meeseeks((uint32_t)&meeseks1_func, 23, 8);
+  syscall_meeseeks((uint32_t)&meeseks1_func, 51, 28); // 30
+  syscall_meeseeks((uint32_t)&meeseks1_func, 61, 29); // 32
+  syscall_meeseeks((uint32_t)&meeseks1_func, 71, 25); // 34
+  syscall_meeseeks((uint32_t)&meeseks1_func, 56, 11); // 36
+  syscall_meeseeks((uint32_t)&meeseks1_func, 23 , 8); // 38
 
-  // syscall_meeseeks((uint32_t)&meeseks1_func, 67, 27);
   
   while (1) {
     __asm volatile("nop");
+    // syscall_meeseeks((uint32_t)&meeseks1_func,79,0);
   }
 }
 
-// void meeseks1_func(void) {
-//   // Do Nothing!
-//   while (1) {
-//     __asm volatile("nop");
-//   }
-
 
 void meeseks1_func(void){
-  
   while (0) {
-  //   // __asm volatile("nop");
-  //   // for (int i = 0; i < 6; i++) {
-  //   //     syscall_move(1,0);
-  //   //     // int a = 8;
-  //   //     // a=a;
-  //   //   }
-
-
-  //   // for (int i = 0; i < 100; i++){
-  //   //   int8_t deltax, deltay;
-  //   //   syscall_look(&deltax, &deltay);
-  //   //   syscall_move(deltax,deltay);
-  //   //   syscall_move(0, 4);
-  //   //   syscall_move(0, 1);
-  //   // }
+    // __asm volatile("nop");
+      for (int i = 0; i < 20; i++) {
+        syscall_move(1,0);
+        // int a = 8;
+        // a=a;
+      }
+      // syscall_move(1, 1);
+      // syscall_move(0, 1);
+      // syscall_move(0, 1);
+      // syscall_move(1, -1);
   }
-
 
 
   int8_t deltax, deltay;
@@ -71,10 +58,6 @@ void meeseks1_func(void){
     
     syscall_look(&deltax, &deltay);
 
-    // print_dec(deltay, 4, 8, 30, WHITE_RED);
-    // print_dec(deltax, 4, 8, 40, WHITE_RED);
-
-    // continue;
     while (deltax < 0) {
       syscall_move(-1, 0);
       deltax++;
@@ -92,25 +75,6 @@ void meeseks1_func(void){
       deltay--;
     }
 
-  } // while
+  }
+
 }
-
-/*
-
-  //   for (int i = 0; i < 100; i++){
-  //     int8_t deltax, deltay;
-  //     syscall_look(&deltax, &deltay);
-  //     syscall_move(deltax,deltay);
-  //     syscall_move(0, 4);
-  //    syscall_move(0, 1);
-  //   }
-  // }
-
-
-
-
-  CR2=page fault laddr=0x00000502
-
-
-
-*/

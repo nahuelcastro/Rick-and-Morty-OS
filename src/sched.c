@@ -28,9 +28,33 @@ void sched_init(void)
   modoDebug = false;
 }
 
+
+
+
 uint16_t sched_next_task(void){
 
   tareaActual = tareaActualAnterior;
+
+    // //! MAXI NO BORRES COMENTARIOS QUE SON LA PUTA HOSTIA (PRINTEADOR DE TAREAS)
+    // for (int i = 0; i < 41; i++)
+    // {
+    //   print_dec(9 ,8 , 5,i,GREEN_GREEN);
+    // }
+
+    // print("i" , 5,0,WHITE_RED);
+    // print("a" ,8,0,WHITE_RED);
+    // print("p", 10,0,WHITE_RED);
+
+    // for (int i = 18; i < 40 - 1; i++){
+    // bool estaPresente = gdt[i + 1].p == 1;
+    // bool estaActiva = tareasActivas[i + 1];
+
+    // int j = 2*i;
+    // print_dec(i + 1 ,2 , 5,j - 34,WHITE_RED);
+    // print_dec(estaActiva,1, 8,j - 34,WHITE_RED);
+    // print_dec(estaPresente,1, 10,j - 34,WHITE_RED);
+    // }
+    
 
   for (int i = 0; i < GDT_COUNT - 1; i++){ /// TOCAR EL I
     if (index == GDT_COUNT){
@@ -38,7 +62,6 @@ uint16_t sched_next_task(void){
     }
 
     bool esUnJugador = player_idx_gdt[index + 1] == RICK || player_idx_gdt[index + 1] == MORTY;
-    //bool esOtroJugador = (player_idx_gdt[index + 1] != player_idx_gdt[tareaActual]) && esUnJugador;
     bool esOtroJugador = (player_idx_gdt[index + 1] != ultimoJugador) && esUnJugador;
     bool estaPresente = gdt[index + 1].p == 1;
     bool estaActiva = tareasActivas[index + 1];
@@ -46,16 +69,87 @@ uint16_t sched_next_task(void){
     if (estaPresente && esOtroJugador && estaActiva){
       index++;
       tareaActual = index;
-      tareaActualAnterior= index;
+      tareaActualAnterior = index;
       ultimoJugador = player_idx_gdt[tareaActual];
+      print_dec(tareaActual,4, 15,30,WHITE_RED);
+      breakpoint();
       return (index << 3);
     } else{
       index++;
     }
   }
   tssActual = TSSs[tareaActual];
+
+  print_dec(tareaActual,4, 15,30,WHITE_RED);
+  breakpoint();
   return (tareaActual << 3);
 }
+
+
+
+
+
+
+
+//! SCHED NAJUANCHO
+uint16_t sched_next_task(void){
+
+  tareaActual = tareaActualAnterior;
+
+  for (int i = 0; i < GDT_COUNT - 1; i++){ 
+    if (index == GDT_COUNT){
+      index = 15;
+    }
+
+    bool esUnJugador = player_idx_gdt[index + 1] == RICK || player_idx_gdt[index + 1] == MORTY;
+    bool esOtroJugador = (player_idx_gdt[index + 1] != ultimoJugador) && esUnJugador;
+    bool estaPresente = gdt[index + 1].p == 1;
+    bool estaActiva = tareasActivas[index + 1];
+
+    if (estaPresente && esOtroJugador && estaActiva){
+      index++;
+      tareaActual = index;
+      tareaActualAnterior = index;
+
+      return (index << 3);
+    } else{
+      index++;
+    }
+  }
+  tssActual = TSSs[tareaActual];
+
+
+  return (tareaActual << 3);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void desactivar_tarea(){
   if(tareaActual == 17 || tareaActual == 18){

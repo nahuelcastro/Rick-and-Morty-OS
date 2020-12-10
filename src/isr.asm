@@ -111,7 +111,7 @@ _isr32:
      je .fin
      call next_clock
      mov word [sched_task_selector], ax
-     ;xchg bx, bx 
+     ;    xchg bx, bx 
      jmp far [sched_task_offset]
      .fin:
      popad
@@ -219,6 +219,7 @@ global _isr100
 _isr100:
      pushad
      mov ebp, esp
+     
      push 0
      call sys_look
      mov byte  [tempw1], al
@@ -252,6 +253,7 @@ global _isr123
 
 _isr123:
      pushad
+     mov ebp,esp 
      
      push ebx
      push eax

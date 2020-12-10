@@ -44,7 +44,7 @@ void update_meeseek_map(player_t player, coordenadas coord, bool reason) {
     } else {
       PLAYER_MEESEEK_COLOR = MORTY_MEESEEK_COLOR;
     }
-    // breakpoint();
+    
     print("M", coord.x, coord.y + 1, PLAYER_MEESEEK_COLOR);
   } else {  // reason == DELETE
     // breakpoint();
@@ -140,7 +140,6 @@ void remove_seed(int idx) {
 
 void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
 
-
   // delete msk
   meeseeks[player][idx_msk].p = false;
 
@@ -152,16 +151,23 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
   add_update_score(player);
   cant_meeseeks[player]--;
   info_gdt_meeseeks[tareaActual].ticks_counter = 0;
-  tareasActivas[tareaActual] = false;
+  tareasActivas[tareaActual] = false; 
 
   // flag_off  recycling msk memory
   backup_meeseks[player][idx_msk].p = true; /*tenia false, pero tendria que ser true*/
 
 
-  //! ESTA M***** PARECE SER LA QUE TIRA EL #UD
+  // //! ESTA M***** PARECE SER LA QUE TIRA EL #UD
   // // clean_stack_level_0 para reciclar
-  // char* ptr_virt_page = (char*)backup_meeseks[player][idx_msk].stack_level_0;
+  // uint32_t stack = backup_meeseks[player][idx_msk].stack_level_0;
+  // stack = stack + PAGE_SIZE - 1;
+  // char* ptr_virt_page = (char*)stack;
+  // //char* ptr_virt_page = (char*)backup_meeseks[player][idx_msk].stack_level_0;
   // for (int i = 0; i < PAGE_SIZE; i++) {
+  //   ptr_virt_page[i] = 0;
+  // }
+  
+  // for (int i = PAGE_SIZE; i < 0; i--) {
   //   ptr_virt_page[i] = 0;
   // }
 
@@ -176,8 +182,8 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
     mmu_unmap_page(cr3, virt);
     virt += PAGE_SIZE;
   }
-
-  // breakpoint();  
+  
+  
 }
 
 // va actualiznado los ticks
@@ -194,32 +200,19 @@ int abs(int n) {
   return n;
 }
 
-//! ACORDARSE DE VER LO DE LA TAREA IDLE, CUANDO TERMINA DE EJECUTAR ALGUNA
-//! TAREA
-//! Por otro lado, ninguno de los servicios debe modicar ningún registro, a
-//! excepción de los indicados anteriormente.Tener en consideración que luego
-//! del llamado a cualquiera de los servicios, la tarea en ejecución pierde el
-//! turno.Es decir, que es desalojada del scheduler, y debe esperar hasta que
-//! pueda ser ejecutada nuevamente.En el tiempo entre que la tarea es desalojada
-//! y llega una interrupción de reloj para ejecutar la próxima tarea, el sistema
-//! debe ejecutar a la tarea Idle.Esta última, no tiene más propósito que
-//! mantener al procesador realizando alguna tarea, a la espera del próximo
-//! punto de sincronismo.
-
 // ;
 // in EAX = code Código de la tarea Mr Meeseeks a ser ejecutada.;
 // in EBX = x Columna en el mapa donde crear el Mr Meeseeks.;
 // in ECX = y Fila en el mapa donde crear el Mr Meeseeks
 
+
 // code 4KB  Tener en cuenta que este código debe estar declarado dentro del
 // espacio de memoria de usuario de la tarea.
 
 uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
-  // breakpoint();
+
   player_t player = player_idx_gdt[tareaActual];
 
-  // filtro jugador                               VEER SI NO ES MEJOR FILTRAR
-  // ANTES (juan dice creo que con filtar aca esta bien)
   if (player != RICK && player != MORTY) {
     return 0;
   }
@@ -254,17 +247,13 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
 
   // mapear
   paddr_t virt_res;
-  virt_res =
-      tss_meeseeks_creator(player, index_meeseek + 1, code, coord_actual);
+  virt_res = tss_meeseeks_creator(player, index_meeseek + 1, code, coord_actual);
 
   meeseeks[player][index_meeseek].p = 1;
   meeseeks[player][index_meeseek].coord = coord_actual;
   update_meeseek_map(player, coord_actual, ADD);  // 1 = ADD
 
   cant_meeseeks[player]++;
-
-    // breakpoint();
-
 
   return virt_res;
 }
@@ -274,16 +263,16 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
 
 uint32_t sys_move(uint32_t x, uint32_t y) {
 
-  // breakpoint();
+  print("task", 19, 31, WHITE_RED);
+  print_dec(tareaActual, 4, 26, 31, WHITE_RED);
 
   if(tareaActual == 17 || tareaActual == 18 ){ // verificar que funcione
     desactivar_tarea();
   }
 
-
+  
   uint8_t idx_msk = info_gdt_meeseeks[tareaActual].idx_msk;
   player_t player = info_gdt_meeseeks[tareaActual].player;
-
   coordenadas coord_actual = meeseeks[player][idx_msk].coord;
 
   if (x % 80 == 0 && y % 40 == 0) {
@@ -303,17 +292,18 @@ uint32_t sys_move(uint32_t x, uint32_t y) {
   if (7 < moveConTicks) {
     return 0;
   }
+
+  clean_cell(coord_actual);
+
   coordenadas new_coord;
   new_coord.x = x + coord_actual.x;
   new_coord.y = y + coord_actual.y;
   new_coord.x = (new_coord.x % 80 + 80) % 80;
   new_coord.y = (new_coord.y % 40 + 40) % 40;
 
-  int16_t index_aux = index_in_seed(coord_actual);
+  int16_t index_aux = index_in_seed(new_coord);
   bool in_seed = index_aux != -1;
   
-  clean_cell(coord_actual);
-
   if (in_seed) {
     // breakpoint();
     msk_found_seed(player, idx_msk, index_aux);
@@ -330,8 +320,9 @@ uint32_t sys_move(uint32_t x, uint32_t y) {
     mmu_remap_meeseek(new_phy, virt);
   }
 
-  // breakpoint();
 
+  
+  
   return 1;
 }
 
@@ -392,10 +383,18 @@ ret_2 res;
 
 int8_t sys_look (uint8_t flag){
 
+  breakpoint();
+
+  if(tareaActual == 17 || tareaActual == 18 ){ // verificar que funcione
+    desactivar_tarea();
+  }
+
   uint8_t idx_msk = info_gdt_meeseeks[tareaActual].idx_msk;
   player_t player = info_gdt_meeseeks[tareaActual].player;
 
   coordenadas coord_actual = meeseeks[player][idx_msk].coord;
+
+
 
   uint8_t min_candidate = 255;
   uint32_t min_idx_seed  = MAX_CANT_SEMILLAS + 1; 
@@ -412,10 +411,45 @@ int8_t sys_look (uint8_t flag){
   int16_t movement_x = (int16_t)(semillas[min_idx_seed].coord.x  - coord_actual.x);  
   int16_t movement_y = (int16_t)(semillas[min_idx_seed].coord.y  - coord_actual.y);
 
-  if(flag == 0){
-    return movement_x;
-  }else{
-    return movement_y;
-  }
+
+  //! NO BORRAR 
+  // if(movement_x == movement_y && movement_x == 0){
+  //   print("id_m:", 64,30,WHITE_RED);
+  //   print("M:x,y:", 64,32,WHITE_RED);
+  //   print("S:x,y:", 64,34,WHITE_RED);
+    
+  //   print_dec(idx_msk,4, 70,30,WHITE_RED);                          // para ver si levantamos la tarea que queremos 
+  //   print_dec(coord_actual.x,2, 70,32,WHITE_RED);                   // coordenadas de la actual
+  //   print_dec(coord_actual.y,2, 73,32,WHITE_RED);
+  //   print_dec(semillas[min_idx_seed].coord.x,2, 70,34,WHITE_RED);   //la semilla mas cercana
+  //   print_dec(semillas[min_idx_seed].coord.y,2, 73,34,WHITE_RED);
+  //   breakpoint();
+  // }
+
+
+  return flag == 0 ?  movement_x : movement_y;
 
 }
+
+/*
+
+GDT[15]=32-Bit TSS (Available) at 0x00007ee0, length 0x00067   INICIAL
+GDT[16]=32-Bit TSS (Busy) at 0x00007e60, length 0x00067        IDLE
+GDT[17]=32-Bit TSS (Available) at 0x000079e0, length 0x00067   RICK
+GDT[18]=32-Bit TSS (Available) at 0x00007560, length 0x00067   MORTY
+
+GDT[19]=32-Bit TSS (Available) at 0x00007a48, length 0x00067
+GDT[20]=32-Bit TSS (Available) at 0x000075c8, length 0x00067
+GDT[21]=32-Bit TSS (Available) at 0x00007ab0, length 0x00067
+GDT[22]=32-Bit TSS (Available) at 0x00007630, length 0x00067
+GDT[23]=32-Bit TSS (Available) at 0x00007698, length 0x00067
+GDT[24]=32-Bit TSS (Available) at 0x00007700, length 0x00067
+GDT[25]=32-Bit TSS (Available) at 0x00007768, length 0x00067
+GDT[26]=32-Bit TSS (Available) at 0x000077d0, length 0x00067
+GDT[27]=32-Bit TSS (Available) at 0x00007838, length 0x00067
+GDT[28]=32-Bit TSS (Available) at 0x000078a0, length 0x00067
+GDT[29]=32-Bit TSS (Available) at 0x00007908, length 0x00067
+GDT[30]=32-Bit TSS (Available) at 0x00007970, length 0x00067
+
+
+*/
