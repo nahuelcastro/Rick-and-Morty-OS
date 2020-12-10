@@ -13,8 +13,8 @@
 #include "types.h"
 #include "game.h"
 
-extern int8_t player_idx_gdt[GDT_COUNT];
-extern bool tareasActivas[GDT_COUNT];
+// extern int8_t player_idx_gdt[GDT_COUNT];
+// extern bool tareasActivas[GDT_COUNT];
 
 typedef struct str_tss {
   uint16_t ptl;
@@ -77,7 +77,7 @@ typedef struct meeseek{
 typedef struct info_task{
   bool active;
   uint8_t idx_gdt;
-  uint8_t p_loop_sc;
+  uint8_t p_loop_sched;
   player_t player;
 } info_task_t;
 

@@ -34,8 +34,8 @@ tss_t* TSSs[35];
 meeseek_t meeseeks[PLAYERS][MAX_CANT_MEESEEKS];
 uint8_t cant_meeseeks[PLAYERS];
 
-player_t player_idx_gdt[GDT_COUNT];
-bool tareasActivas[GDT_COUNT];
+// player_t player_idx_gdt[GDT_COUNT];
+// bool tareasActivas[GDT_COUNT];
 
 
 info_task_t info_task[GDT_COUNT];
@@ -45,11 +45,15 @@ void init_tss(void) {
 
 
   for (size_t i = 0; i < 35; i++){
-    player_idx_gdt[i] = -1;
+    //player_idx_gdt[i] = -1;
+    info_task[i].player = NULL_PLAYER;
+
+
   }
   
   for (size_t i = 0; i < GDT_COUNT; i++){
-    tareasActivas[i] = false;
+    // tareasActivas[i] = false;
+    info_task[i].active = false;
   }
   
   uint32_t base = (uint32_t) &tss_initial;
@@ -155,8 +159,15 @@ void tss_creator(int8_t player, int task){
 
   next_free_tss();
   
-  player_idx_gdt[next_free_gdt_idx] = player;
-  tareasActivas[next_free_gdt_idx] = true;
+  // player_idx_gdt[next_free_gdt_idx] = player;
+  // tareasActivas[next_free_gdt_idx] = true;
+
+  info_task[next_free_gdt_idx].player = player;
+  info_task[next_free_gdt_idx].active = true;
+  info_task[next_free_gdt_idx].p_loop_sched = 1;
+
+
+
   tss_gdt_entry_init(next_free_gdt_idx, (uint32_t) tss_new_task, 3);
 
   tss_new_task->ptl = 0; //(uint32_t) tss_new_task;
@@ -256,8 +267,15 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
   info_gdt_meeseeks[next_free_gdt_idx].player = player;
   info_gdt_meeseeks[next_free_gdt_idx].ticks_counter = 0;
 
-  player_idx_gdt[next_free_gdt_idx] = player;
-  tareasActivas[next_free_gdt_idx] = true;
+  // player_idx_gdt[next_free_gdt_idx] = player;
+  // tareasActivas[next_free_gdt_idx] = true;
+
+  info_task[next_free_gdt_idx].player = player;
+  info_task[next_free_gdt_idx].active = true;
+  info_task[next_free_gdt_idx].p_loop_sched = 1;
+
+
+
   tss_gdt_entry_init(next_free_gdt_idx, (uint32_t)tss_new_task, 3);
 
   tss_new_task->ptl = 0; //(uint32_t) tss_new_task;

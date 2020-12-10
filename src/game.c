@@ -46,6 +46,7 @@ void update_meeseek_map(player_t player, coordenadas coord, bool reason) {
     }
     
     print("M", coord.x, coord.y + 1, PLAYER_MEESEEK_COLOR);
+
   } else {  // reason == DELETE
     // breakpoint();
     clean_cell(coord);
@@ -151,7 +152,12 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
   add_update_score(player);
   cant_meeseeks[player]--;
   info_gdt_meeseeks[tareaActual].ticks_counter = 0;
-  tareasActivas[tareaActual] = false; 
+  
+  
+  //tareasActivas[tareaActual] = false; 
+  info_task[tareaActual].active = false;
+  
+
 
   // flag_off  recycling msk memory
   backup_meeseks[player][idx_msk].p = true; /*tenia false, pero tendria que ser true*/
@@ -211,7 +217,7 @@ int abs(int n) {
 
 uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
 
-  player_t player = player_idx_gdt[tareaActual];
+  player_t player = info_task[tareaActual].player;
 
   if (player != RICK && player != MORTY) {
     return 0;
@@ -383,7 +389,7 @@ ret_2 res;
 
 int8_t sys_look (uint8_t flag){
 
-  breakpoint();
+  // breakpoint();
 
   if(tareaActual == 17 || tareaActual == 18 ){ // verificar que funcione
     desactivar_tarea();

@@ -22,10 +22,21 @@ void sched_init();
 uint16_t sched_next_task();
 void desactivar_tarea();
 uint16_t sched_idle();
+void reiniciarCiclo();
+
 
 extern uint16_t tareaActual;
 extern uint16_t tareaActualAnterior;
 extern uint16_t index;
 extern player_t  ultimoJugador;
+
+typedef struct sched{
+  info_task_t info_task;
+  bool p;
+  uint8_t p_loop_sched; // se peude reutilizar de info_Task
+
+} sched_t;
+
+extern sched_t sched[PLAYERS][11];  // 11 hayq ue definir como max cant task for player
 
 #endif //  __SCHED_H__

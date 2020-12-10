@@ -73,6 +73,7 @@
 
 #define MORTY 0
 #define RICK  1
+#define NULL_PLAYER  -1
 
 // #define DELETE 0;
 // #define ADD 1;
