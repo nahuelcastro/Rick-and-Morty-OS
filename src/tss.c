@@ -11,6 +11,7 @@
 #include "kassert.h"
 #include "mmu.h"
 #include "i386.h"
+#include "sched.h"
 
 
 #define IDX_TSS_INIT 15
@@ -30,6 +31,7 @@ tss_t tss_rick[11];   // 10
 tss_t tss_morty[11];  // 10
 
 tss_t* TSSs[35];
+uint8_t init_tasks[PLAYERS];
 
 meeseek_t meeseeks[PLAYERS][MAX_CANT_MEESEEKS];
 uint8_t cant_meeseeks[PLAYERS];
@@ -63,6 +65,9 @@ void init_tss(void) {
 
   cant_meeseeks[MORTY] = 0;
   cant_meeseeks[RICK] = 0;
+
+  init_tasks[MORTY] = 0;
+  init_tasks[RICK] = 0;
   
 }
 
@@ -164,7 +169,14 @@ void tss_creator(int8_t player, int task){
 
   info_task[next_free_gdt_idx].player = player;
   info_task[next_free_gdt_idx].active = true;
-  info_task[next_free_gdt_idx].p_loop_sched = 1;
+  info_task[next_free_gdt_idx].flag_loop = 0;
+  info_task[next_free_gdt_idx].idx_gdt = next_free_gdt_idx;
+
+  sched[player][0].p_loop_sched = 0; 
+  sched[player][0].info_task = info_task[next_free_gdt_idx]; 
+
+  init_tasks[player] ++;
+  
 
 
 
@@ -272,7 +284,13 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
 
   info_task[next_free_gdt_idx].player = player;
   info_task[next_free_gdt_idx].active = true;
-  info_task[next_free_gdt_idx].p_loop_sched = 1;
+  info_task[next_free_gdt_idx].flag_loop = 0;
+  info_task[next_free_gdt_idx].idx_gdt = next_free_gdt_idx;
+  
+  sched[player][idx_msk + 1].p_loop_sched = 0; 
+  sched[player][idx_msk + 1].info_task = info_task[next_free_gdt_idx]; 
+
+  init_tasks[player] ++;
 
 
 

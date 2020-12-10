@@ -28,6 +28,15 @@ void sched_init(void)
   tareaActual = index;
   tareaActualAnterior = tareaActual;
   modoDebug = false;
+
+  for (player_t player = MORTY; player < PLAYERS ; player++){
+    for (int i = 0; i < 11; i++){
+      sched[player][i].p_loop_sched = 0;
+      sched[player][i].info_task.flag_loop = 0;
+    }
+  }
+  
+
 }
 
 
@@ -37,25 +46,25 @@ void sched_init(void)
 
 //   tareaActual = tareaActualAnterior;
 
-//     // //! MAXI NO BORRES COMENTARIOS QUE SON LA PUTA HOSTIA (PRINTEADOR DE TAREAS)
-//     // for (int i = 0; i < 41; i++)
-//     // {
-//     //   print_dec(9 ,8 , 5,i,GREEN_GREEN);
-//     // }
+    // //! MAXI NO BORRES COMENTARIOS QUE SON LA PUTA HOSTIA (PRINTEADOR DE TAREAS)
+    // for (int i = 0; i < 41; i++)
+    // {
+    //   print_dec(9 ,8 , 5,i,GREEN_GREEN);
+    // }
 
-//     // print("i" , 5,0,WHITE_RED);
-//     // print("a" ,8,0,WHITE_RED);
-//     // print("p", 10,0,WHITE_RED);
+    // print("i" , 5,0,WHITE_RED);
+    // print("a" ,8,0,WHITE_RED);
+    // print("p", 10,0,WHITE_RED);
 
-//     // for (int i = 18; i < 40 - 1; i++){
-//     // bool estaPresente = gdt[i + 1].p == 1;
-//     // bool estaActiva = tareasActivas[i + 1];
+    // for (int i = 18; i < 40 - 1; i++){
+    // bool estaPresente = gdt[i + 1].p == 1;
+    // bool estaActiva = tareasActivas[i + 1];
 
-//     // int j = 2*i;
-//     // print_dec(i + 1 ,2 , 5,j - 34,WHITE_RED);
-//     // print_dec(estaActiva,1, 8,j - 34,WHITE_RED);
-//     // print_dec(estaPresente,1, 10,j - 34,WHITE_RED);
-//     // }
+    // int j = 2*i;
+    // print_dec(i + 1 ,2 , 5,j - 34,WHITE_RED);
+    // print_dec(estaActiva,1, 8,j - 34,WHITE_RED);
+    // print_dec(estaPresente,1, 10,j - 34,WHITE_RED);
+    // }
     
 
 //   for (int i = 0; i < GDT_COUNT - 1; i++){ /// TOCAR EL I
@@ -95,76 +104,76 @@ void sched_init(void)
 
 
 
-//! SCHED NAJUANCHO
-uint16_t sched_next_task(void){
+// //! SCHED NAJUANCHO
+// uint16_t sched_next_task(void){
 
-  tareaActual = tareaActualAnterior;
+//   tareaActual = tareaActualAnterior;
 
-  for (int i = 0; i < GDT_COUNT - 1; i++){ 
-    if (index == GDT_COUNT){
-      index = 16;
-    }
-    info_task_t* task = &info_task[index + 1];
-    player_t player = task->player;
-    bool esUnJugador = player == RICK || player == MORTY;
-    bool esOtroJugador = player != ultimoJugador && esUnJugador;
-    bool estaPresente = gdt[index + 1].p == 1;
-    bool NoEntroEnEsteCiclo = task->p_loop_sched; 
-    bool estaActiva = task->active;
+//   for (int i = 0; i < GDT_COUNT - 1; i++){ 
+//     if (index == GDT_COUNT){
+//       index = 16;
+//     }
+//     info_task_t* task = &info_task[index + 1];
+//     player_t player = task->player;
+//     bool esUnJugador = player == RICK || player == MORTY;
+//     bool esOtroJugador = player != ultimoJugador && esUnJugador;
+//     bool estaPresente = gdt[index + 1].p == 1;
+//     bool NoEntroEnEsteCiclo = task->p_loop_sched; 
+//     bool estaActiva = task->active;
 
-    if (estaPresente && esOtroJugador && estaActiva && NoEntroEnEsteCiclo){
-      task->p_loop_sched = 0;
-      index++;
-      tareaActual = index;
-      tareaActualAnterior = index;
-      reiniciarCiclo();
-      return (index << 3);
+//     if (estaPresente && esOtroJugador && estaActiva && NoEntroEnEsteCiclo){
+//       task->p_loop_sched = 0;
+//       index++;
+//       tareaActual = index;
+//       tareaActualAnterior = index;
+//       reiniciarCiclo();
+//       return (index << 3);
       
-    } else{
-      index++;
-    }
-  }
+//     } else{
+//       index++;
+//     }
+//   }
   
-  tssActual = TSSs[tareaActual];
+//   tssActual = TSSs[tareaActual];
   
-  reiniciarCiclo();
+//   reiniciarCiclo();
 
-  return (tareaActual << 3);
-}
+//   return (tareaActual << 3);
+// }
 
-    // bool estaActiva = task->active;
+//     // bool estaActiva = task->active;
 
 
-void reiniciarCiclo(){
+// void reiniciarCiclo(){
 
-  bool reset_rick = 1;
-  bool reset_morty = 1;
-  for (size_t i = 0; i < GDT_COUNT; i++){
-    if(info_task[i].p_loop_sched && info_task[i].player == RICK){
-      reset_rick = 0;
-    }else if(info_task[i].p_loop_sched && info_task[i].player == MORTY){
-      reset_morty = 0;
-    }
-  }
+//   bool reset_rick = 1;
+//   bool reset_morty = 1;
+//   for (size_t i = 0; i < GDT_COUNT; i++){
+//     if(info_task[i].p_loop_sched && info_task[i].player == RICK){
+//       reset_rick = 0;
+//     }else if(info_task[i].p_loop_sched && info_task[i].player == MORTY){
+//       reset_morty = 0;
+//     }
+//   }
   
-  if(reset_rick){ 
-    for (size_t i = 0; i < GDT_COUNT; i++){
-      if(gdt[i].p == 1 && info_task[i].player == RICK){
-        info_task[i].p_loop_sched = 1; 
-      }  
-    }
-  }
+//   if(reset_rick){ 
+//     for (size_t i = 0; i < GDT_COUNT; i++){
+//       if(gdt[i].p == 1 && info_task[i].player == RICK){
+//         info_task[i].p_loop_sched = 1; 
+//       }  
+//     }
+//   }
 
-    if(reset_morty){ 
-    for (size_t i = 0; i < GDT_COUNT; i++){
-      if(gdt[i].p == 1 && info_task[i].player == MORTY){
-        info_task[i].p_loop_sched = 1; 
-      }  
-    }
-  }
+//     if(reset_morty){ 
+//     for (size_t i = 0; i < GDT_COUNT; i++){
+//       if(gdt[i].p == 1 && info_task[i].player == MORTY){
+//         info_task[i].p_loop_sched = 1; 
+//       }  
+//     }
+//   }
   
-  //! JUAN PUTO  
-}
+//   //! JUAN PUTO  
+// }
 
 
 
@@ -173,7 +182,7 @@ void reiniciarCiclo(){
 void reset_p_loop_task(player_t player){
   for (uint8_t i = 0; i < 11; i++){
     if(sched[player][i].info_task.active){
-      sched[player][i].info_task.p_loop_sched = false;
+      sched[player][i].info_task.flag_loop = false;
     }
   }
 }
@@ -181,29 +190,60 @@ void reset_p_loop_task(player_t player){
 
 
 info_task_t next(player_t player){
+
+    breakpoint();
+
+    print("t:",1,41,WHITE_BLACK);
+  print_dec(tareaActual,1 , 3 ,41,WHITE_BLACK);
+
+  print("p:",1, 43,WHITE_BLACK);
+  print_dec(tareaActual,1 , 3 ,43,WHITE_BLACK);
+
   for (uint8_t i = 0; i < 11; i++){
-    bool p_loop_sched = sched[player][i].p;
+    bool p_loop_sched = sched[player][i].p_loop_sched;
     bool active = sched[player][i].info_task.active;
-    bool p_loop_task = sched[player][i].info_task.p_loop_sched;
+    bool p_loop_task = sched[player][i].info_task.flag_loop;
+
+
+    // print_dec(p_loop_sched,1, 72,39,WHITE_RED); 
+    // print_dec(active      ,1, 74,39,WHITE_RED); 
+    // print_dec(p_loop_task ,1, 76,39,WHITE_RED); 
+
+
     if( !p_loop_sched && active && !p_loop_task ){
-        sched[player][i].info_task.p_loop_sched = true;
-        sched[player][i].p = true;
+        sched[player][i].info_task.flag_loop = true;
+        sched[player][i].p_loop_sched = true;
+        
+      print( "VAMO MANAOS", 1,25,WHITE_RED);
+
+        // breakpoint();
+        print_dec(sched[player][i].info_task.idx_gdt,4, 70,30,WHITE_RED); 
+
         return sched[player][i].info_task;
     }
   }
+
+      breakpoint();
 
   reset_p_loop_task(player);
 
   for (uint8_t i = 0; i < 11; i++){
-    bool p_loop_sched = sched[player][i].p;
+    bool p_loop_sched = sched[player][i].p_loop_sched;
     bool active = sched[player][i].info_task.active;
-    bool p_loop_task = sched[player][i].info_task.p_loop_sched;
+    bool p_loop_task = sched[player][i].info_task.flag_loop;
     if( !p_loop_sched && active && !p_loop_task ){
-        sched[player][i].info_task.p_loop_sched = true;
-        sched[player][i].p = true;
+        sched[player][i].info_task.flag_loop = true;
+        sched[player][i].p_loop_sched = true;
         return sched[player][i].info_task;
     }
   }
+
+      breakpoint();
+
+  print( "LLEGO HASTA ACA BRO, ANDA TODO MAL :(", 1,2,WHITE_RED);
+
+  info_task_t task_que_nunca_va_llegar = sched[player][0].info_task; // pero al compilar me jode que ponga un return aca
+  return task_que_nunca_va_llegar;
 }
 
 bool end_loop_sched(){
@@ -211,7 +251,7 @@ bool end_loop_sched(){
   for (player_t player = 0; player < PLAYERS; player++){
     for (uint8_t i = 0; i < 11; i++){
       if(sched[player][i].info_task.active){
-        ret = ret && sched[player][i].p;
+        ret = ret && sched[player][i].p_loop_sched;
       }
     }
   }
@@ -221,7 +261,7 @@ bool end_loop_sched(){
 void reset_sched_p(){
   for (player_t player = 0; player < PLAYERS; player++){
     for (size_t i = 0; i < 11; i++){
-      sched[player][i].p = false;
+      sched[player][i].p_loop_sched = false;
     }
   }
 }
@@ -232,37 +272,50 @@ uint16_t sched_next_task(void){
 
   player_t new_player;
   tareaActual = tareaActualAnterior;
-  if(tareaActualAnterior == 16){ // definir 16 = idle
+
+  // print_dec(tareaActual,1 , 7,15,WHITE_RED);
+
+  if(tareaActualAnterior == IDLE){ 
     tareaActual++;
-    new_player = MORTY; // ver si 
+    new_player = RICK; // ver si 
+  }else{
+    new_player = info_task[tareaActual].player ? MORTY : RICK;
   }
 
-  // info_task[index + 1].p_loop_sched = 0;
-  // index++;
-  // tareaActual = index;
-  // tareaActualAnterior = index;
-  // return (index << 3);
+  // print("py",1,15,WHITE_RED);
+  // print_dec(new_player,1 , 3,15,WHITE_RED);
 
-  // falta el caso de que vengo de la idle
-
-  new_player = info_task[tareaActual].player ? MORTY : RICK;
 
 
   info_task_t task = next(new_player);
+  index = task.idx_gdt;                   // de estos tres algo se debe poder sacar
+
+  // print("ix",6,15,WHITE_RED);
+  // print_dec(index,2 , 9,15,WHITE_RED);
+
+  breakpoint();
 
   bool end_loop= end_loop_sched(); // hacerlo
   if(end_loop){
     reset_sched_p();
   }
 
+  tareaActual = task.idx_gdt;
+  tareaActualAnterior = task.idx_gdt;
+
   return (task.idx_gdt << 3);
+}
+    
+
+
+
+
   
   // tssActual = TSSs[tareaActual];
   // return (tareaActual << 3);
   
   
 
-}
 
  
 
@@ -301,6 +354,33 @@ sched[player].dame  4
 sched[player].dame  1
 sched[player].dame  
 sched[player].dame
+
+
+
+    ! printear info importante 
+    ! MAXI NO BORRES COMENTARIOS QUE SON LA PUTA HOSTIA (PRINTEADOR DE TAREAS)
+
+    for (int i = 0; i < 41; i++){
+      print_dec(9 ,16 , 5,i,GREEN_GREEN);
+    }
+
+    print("i" , 5,0,WHITE_RED);
+    print("a" ,8,0,WHITE_RED);
+    print("Pl", 10,0,WHITE_RED);
+    print("Fl", 12,0,WHITE_RED);
+    print("ig", 14,0,WHITE_RED);
+    print("player :", 17,0,WHITE_RED);
+    print_dec(new_player,1 , 25,0,WHITE_RED);
+
+
+    for (uint8_t i = 0; i < init_tasks[new_player]; i++){
+      int j = 2*i;
+      print_dec(i + 1 ,2 , 5,j - 34,WHITE_RED);
+      print_dec(sched[new_player][i].info_task.active,1, 8,j - 34,WHITE_RED);
+      print_dec(sched[new_player][i].p_loop_sched,1, 10,j - 34,WHITE_RED);
+      print_dec(sched[new_player][i].info_task.flag_loop,1, 12,j - 34,WHITE_RED);
+      print_dec(sched[new_player][i].info_task.idx_gdt,2, 14,j - 34,WHITE_RED);
+    }
 
 
 

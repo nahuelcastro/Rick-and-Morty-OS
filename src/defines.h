@@ -87,4 +87,7 @@
 
 #define PAGE 0x1000
 
+#define IDLE 16
+ 
+
 #endif //  __DEFINES_H__

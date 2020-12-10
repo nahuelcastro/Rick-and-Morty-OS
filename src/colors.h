@@ -41,6 +41,7 @@
 
 // primero color fuente y luego color fondo
 #define WHITE_RED 0x4f
+#define WHITE_BLACK 0x0f
 #define WHITE_BLUE 0x1f
 #define BLACK_RED 0x04
 #define BLACK_BLUE 0x01
