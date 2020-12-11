@@ -70,7 +70,8 @@ typedef struct meeseek{
   uint8_t p;
   uint8_t gdt_index;
   coordenadas coord;
-  tss_t tss;
+  bool used_portal_gun;
+  // tss_t tss;
 } meeseek_t;
 
 
@@ -86,6 +87,7 @@ extern info_task_t info_task[GDT_COUNT];
 extern uint8_t cant_meeseeks[PLAYERS];                 // cant_meeseeks[player]
 extern meeseek_t meeseeks[PLAYERS][MAX_CANT_MEESEEKS]; // meeseeks[player][index_meeseek]
 extern uint8_t init_tasks[PLAYERS];
+extern uint32_t cr3[PLAYERS];
 
 void tss_creator(int8_t player, int task);
 paddr_t tss_meeseeks_creator(player_t player, uint8_t task, uint32_t code_start, coordenadas coord);

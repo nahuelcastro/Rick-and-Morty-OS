@@ -13,6 +13,7 @@
 #include "screen.h"
 #include "stdint.h"
 #include "types.h"
+// #include <time.h>
 extern void pantalla_negra_debug();
 
 seed semillas[MAX_CANT_SEMILLAS];
@@ -70,6 +71,7 @@ void game_init(void) {
   print("00 01 02 03 04 05 06 07 08 09 ", 26, 46, BLACK_BLUE);  // letras azules
 
   // print semillas al azar
+  // srand(time(0)); 
   for (int i = 1; i < MAX_CANT_SEMILLAS; i++) {
     uint8_t x = rand();
     uint8_t y = rand();
@@ -139,6 +141,8 @@ void remove_seed(int idx) {
                             // ACUTALIZAR EL MAPA(SACAR LA SEMILLA)
 }
 
+
+
 void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
 
   // delete msk
@@ -152,7 +156,7 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
   add_update_score(player);
   cant_meeseeks[player]--;
   info_gdt_meeseeks[tareaActual].ticks_counter = 0;
-  
+  meeseeks[idx_msk]->used_portal_gun = false;
   
   //tareasActivas[tareaActual] = false; 
   info_task[tareaActual].active = false;
@@ -166,7 +170,7 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
 
 
   // //! ESTA M***** PARECE SER LA QUE TIRA EL #UD
-  // // clean_stack_level_0 para reciclar
+  // clean_stack_level_0 para reciclar
   // uint32_t stack = backup_meeseks[player][idx_msk].stack_level_0;
   // stack = stack + PAGE_SIZE - 1;
   // char* ptr_virt_page = (char*)stack;
@@ -258,6 +262,7 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
 
   meeseeks[player][index_meeseek].p = 1;
   meeseeks[player][index_meeseek].coord = coord_actual;
+  meeseeks[player][index_meeseek].used_portal_gun = false;
   update_meeseek_map(player, coord_actual, ADD);  // 1 = ADD
 
   cant_meeseeks[player]++;
@@ -270,8 +275,8 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
 
 uint32_t sys_move(uint32_t x, uint32_t y) {
 
-  print("task", 19, 31, WHITE_RED);
-  print_dec(tareaActual, 4, 26, 31, WHITE_RED);
+  // print("task", 19, 31, WHITE_RED);
+  // print_dec(tareaActual, 4, 26, 31, WHITE_RED);
 
   if(tareaActual == 17 || tareaActual == 18 ){ // verificar que funcione
     desactivar_tarea();
@@ -326,15 +331,164 @@ uint32_t sys_move(uint32_t x, uint32_t y) {
     paddr_t virt = backup_meeseks[player][idx_msk].virt;
     mmu_remap_meeseek(new_phy, virt);
   }
-
-
-  
   
   return 1;
 }
 
+//! ESTA TIRANDO PF DESPUES DE VARIOS Y ME PARECE QUE ESTA AGARRANDO SIEMPRE AL MISMO
+void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y){
 
-ret_2 res;
+  breakpoint();
+  
+  player_t player = opponent;
+  coordenadas coord_actual = meeseeks[player][idx_msk].coord;
+
+  clean_cell(coord_actual);
+
+  coordenadas new_coord;
+  new_coord.x = x + coord_actual.x;
+  new_coord.y = y + coord_actual.y;
+  new_coord.x = (new_coord.x % 80 + 80) % 80;
+  new_coord.y = (new_coord.y % 40 + 40) % 40;
+
+  int16_t index_aux = index_in_seed(new_coord);
+  bool in_seed = index_aux != -1;
+  
+  if (in_seed) {
+    msk_found_seed(player, idx_msk, index_aux);
+  }else {
+    update_meeseek_map(player, new_coord, ADD);
+    meeseeks[player][idx_msk].coord = new_coord;
+
+    if (!in_seed) {
+      paddr_t new_phy = mmu_phy_map_decoder(new_coord);
+      paddr_t virt = backup_meeseks[player][idx_msk].virt;
+      mmu_remap_meeseek(new_phy, virt);
+    }
+  }
+
+  breakpoint();
+  
+}
+
+
+
+
+// rick y morty la pueden llamar? no aclara
+void sys_use_portal_gun(){
+  
+  if(tareaActual == 17 || tareaActual == 18 ){ // verificar que funcione
+    desactivar_tarea();
+  }
+
+  player_t player = info_gdt_meeseeks[tareaActual].player;
+  uint8_t idx_msk = info_gdt_meeseeks[tareaActual].idx_msk;
+  bool used_portal_gun = meeseeks[player][idx_msk].used_portal_gun;
+  player_t opponent = player ? MORTY : RICK;
+  uint8_t number_opp_msks = cant_meeseeks[opponent];
+
+  if(!used_portal_gun && number_opp_msks != 0){
+    //magia
+
+    //busco al azar un meeseek del contrincante que este presente
+    uint8_t idxs_msk[number_opp_msks];
+
+    // cargo los idxs de los meeseeks activos del oponente
+    for (uint8_t i = 0; i < MAX_CANT_MEESEEKS; i++){
+      uint8_t j = 0;
+      if(meeseeks[opponent][i].p){
+        idxs_msk[j] = i;
+      }
+    }
+
+    uint32_t rdm = rand() % number_opp_msks + 1;
+
+    uint8_t idx_msk = idxs_msk[rdm];
+
+    
+    //saco una coordenada al azar
+    uint32_t x = rand() % 80;
+    uint32_t y = rand() % 40;
+
+    coordenadas new_coord;
+    new_coord.x = (uint8_t) x;
+    new_coord.y = (uint8_t) y;
+
+    coordenadas coord_actual;
+    coord_actual = meeseeks[opponent][idx_msk].coord;
+
+    //lo muevo a dicha coordenada, de manera similar al move, es mas, podemos hacer que el move dado un falg de si tiene restriccion o no, mueva
+
+      //calculo desplazamiento
+    int8_t movement_x = (new_coord.x  - coord_actual.x);  
+    int8_t movement_y = (new_coord.y  - coord_actual.y);
+
+    lcr3(cr3[opponent]);
+
+    move_portal(opponent, idx_msk, movement_x,movement_y);
+
+    lcr3(cr3[player]);
+
+
+  }
+
+
+}
+
+
+
+
+
+int8_t sys_look (uint8_t flag){
+
+  // breakpoint();
+
+  if(tareaActual == 17 || tareaActual == 18 ){ // verificar que funcione
+    desactivar_tarea();
+  }
+
+  uint8_t idx_msk = info_gdt_meeseeks[tareaActual].idx_msk;
+  player_t player = info_gdt_meeseeks[tareaActual].player;
+
+  coordenadas coord_actual = meeseeks[player][idx_msk].coord;
+
+
+
+  uint8_t min_candidate = 255;
+  uint32_t min_idx_seed  = MAX_CANT_SEMILLAS + 1; 
+  for (uint32_t i = 0; i < MAX_CANT_SEMILLAS; i++){
+    if(semillas[i].p){
+      uint8_t actual_dist = abs(coord_actual.x - semillas[i].coord.x) + abs(coord_actual.y - semillas[i].coord.y); 
+      if(actual_dist < min_candidate){
+        min_candidate = actual_dist;
+        min_idx_seed = i;
+      }
+    }
+  }
+  
+  int16_t movement_x = (int16_t)(semillas[min_idx_seed].coord.x  - coord_actual.x);  
+  int16_t movement_y = (int16_t)(semillas[min_idx_seed].coord.y  - coord_actual.y);
+
+
+  //! NO BORRAR 
+  // if(movement_x == movement_y && movement_x == 0){
+  //   print("id_m:", 64,30,WHITE_RED);
+  //   print("M:x,y:", 64,32,WHITE_RED);
+  //   print("S:x,y:", 64,34,WHITE_RED);
+    
+  //   print_dec(idx_msk,4, 70,30,WHITE_RED);                          // para ver si levantamos la tarea que queremos 
+  //   print_dec(coord_actual.x,2, 70,32,WHITE_RED);                   // coordenadas de la actual
+  //   print_dec(coord_actual.y,2, 73,32,WHITE_RED);
+  //   print_dec(semillas[min_idx_seed].coord.x,2, 70,34,WHITE_RED);   //la semilla mas cercana
+  //   print_dec(semillas[min_idx_seed].coord.y,2, 73,34,WHITE_RED);
+  //   breakpoint();
+  // }
+
+
+  return flag == 0 ?  movement_x : movement_y;
+
+}
+
 
 
 // ret_2* sys_look (){
@@ -388,55 +542,6 @@ ret_2 res;
 // }
 
 
-int8_t sys_look (uint8_t flag){
-
-  // breakpoint();
-
-  if(tareaActual == 17 || tareaActual == 18 ){ // verificar que funcione
-    desactivar_tarea();
-  }
-
-  uint8_t idx_msk = info_gdt_meeseeks[tareaActual].idx_msk;
-  player_t player = info_gdt_meeseeks[tareaActual].player;
-
-  coordenadas coord_actual = meeseeks[player][idx_msk].coord;
-
-
-
-  uint8_t min_candidate = 255;
-  uint32_t min_idx_seed  = MAX_CANT_SEMILLAS + 1; 
-  for (uint32_t i = 0; i < MAX_CANT_SEMILLAS; i++){
-    if(semillas[i].p){
-      uint8_t actual_dist = abs(coord_actual.x - semillas[i].coord.x) + abs(coord_actual.y - semillas[i].coord.y); 
-      if(actual_dist < min_candidate){
-        min_candidate = actual_dist;
-        min_idx_seed = i;
-      }
-    }
-  }
-  
-  int16_t movement_x = (int16_t)(semillas[min_idx_seed].coord.x  - coord_actual.x);  
-  int16_t movement_y = (int16_t)(semillas[min_idx_seed].coord.y  - coord_actual.y);
-
-
-  //! NO BORRAR 
-  // if(movement_x == movement_y && movement_x == 0){
-  //   print("id_m:", 64,30,WHITE_RED);
-  //   print("M:x,y:", 64,32,WHITE_RED);
-  //   print("S:x,y:", 64,34,WHITE_RED);
-    
-  //   print_dec(idx_msk,4, 70,30,WHITE_RED);                          // para ver si levantamos la tarea que queremos 
-  //   print_dec(coord_actual.x,2, 70,32,WHITE_RED);                   // coordenadas de la actual
-  //   print_dec(coord_actual.y,2, 73,32,WHITE_RED);
-  //   print_dec(semillas[min_idx_seed].coord.x,2, 70,34,WHITE_RED);   //la semilla mas cercana
-  //   print_dec(semillas[min_idx_seed].coord.y,2, 73,34,WHITE_RED);
-  //   breakpoint();
-  // }
-
-
-  return flag == 0 ?  movement_x : movement_y;
-
-}
 
 /*
 
@@ -457,6 +562,15 @@ GDT[27]=32-Bit TSS (Available) at 0x00007838, length 0x00067
 GDT[28]=32-Bit TSS (Available) at 0x000078a0, length 0x00067
 GDT[29]=32-Bit TSS (Available) at 0x00007908, length 0x00067
 GDT[30]=32-Bit TSS (Available) at 0x00007970, length 0x00067
+
+
+
+! COSAS QUE HACER (MAS RANCIO ESTO, MARCO NO VEAS ESTO):
+TODO. VER LO DE BORRAR EL STACK DE LEVEL 0
+TODO. VER PORQUE NO PUEDO PONER QUE CREE MEESEEKS SIEMPRE QUE SE PUEDA (calculo que sera por lo del stack o algo de eso)
+TODO. TERMINAR DEBUGGER
+TODO. LO DE LOS RELOJITOS
+
 
 
 */

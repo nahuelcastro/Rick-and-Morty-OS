@@ -36,6 +36,8 @@ uint8_t init_tasks[PLAYERS];
 meeseek_t meeseeks[PLAYERS][MAX_CANT_MEESEEKS];
 uint8_t cant_meeseeks[PLAYERS];
 
+uint32_t cr3[PLAYERS];
+
 // player_t player_idx_gdt[GDT_COUNT];
 // bool tareasActivas[GDT_COUNT];
 
@@ -161,6 +163,8 @@ void tss_creator(int8_t player, int task){
   }
   paddr_t new_cr3 = mmu_init_task_dir(task_phy_address, code_start,4);
   paddr_t stack_level_0 = mmu_next_free_kernel_page();
+
+  cr3[player] = new_cr3;
 
   next_free_tss();
   

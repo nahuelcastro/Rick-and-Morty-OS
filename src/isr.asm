@@ -31,6 +31,7 @@ extern ticks_counter
 extern sys_meeseek
 extern sys_move
 extern sys_look
+extern sys_use_portal_gun
 
 
 temp: dd 0         ; variable temporal
@@ -174,15 +175,17 @@ global _isr89
 _isr89:
      pushad
      mov ebp, esp
-     push eax
-     call next_clock
-     mov ax,0x80 ;idle
+
+     call sys_use_portal_gun
+
+     call sched_idle
      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
-     xchg bx, bx
      jmp far [sched_task_offset]
-     ;pop ebp
+     
      popad
 iret
+
+
 
 global _isr100
 

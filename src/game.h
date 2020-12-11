@@ -40,6 +40,7 @@ typedef struct meeseeks_info{
   uint8_t idx_msk; 
   player_t player;
   uint32_t ticks_counter;
+  // bool used_portal_gun;
 } info_gdt_meeseek;
 
 extern seed semillas[MAX_CANT_SEMILLAS];
@@ -62,9 +63,11 @@ void ticks_counter(void);
 int abs(int n);
 
 void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed);
+void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y);
 
 uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y);
 uint32_t sys_move(uint32_t x, uint32_t y);
+void sys_use_portal_gun();
 
 extern info_gdt_meeseek info_gdt_meeseeks[GDT_COUNT];
 

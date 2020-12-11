@@ -78,6 +78,7 @@ void meeseks1_func(void){
       syscall_move(0, 1);
       deltay--;
     }
+    syscall_use_portal_gun();
 
   } // while
 }

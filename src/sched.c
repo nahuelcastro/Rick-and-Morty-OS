@@ -207,11 +207,8 @@ info_task_t* next(player_t player){
     if( active && !p_loop_task ){
         sched[player][i].info_task->flag_loop = true;
         sched[player][i].p_loop_sched = true;
-        
-      print( "VAMO MANAOS", 1,25,WHITE_RED);
 
-        // breakpoint();
-        print_dec(sched[player][i].info_task->idx_gdt,4, 70,30,WHITE_RED); 
+        // print_dec(sched[player][i].info_task->idx_gdt,4, 70,30,WHITE_RED); 
 
         return sched[player][i].info_task;
     }
@@ -233,8 +230,8 @@ info_task_t* next(player_t player){
 
   breakpoint();
 
-  print( "LLEGO HASTA ACA BRO, ANDA TODO MAL :(", 1,2,WHITE_RED);
-
+  print( "LLEGO HASTA ACA BRO, ANDA TODO MAL :(", 1,2,WHITE_RED); // dejarlo porque sirve de advertencia
+  //! ACA NO TIENE QUE LLEGAR, POR ENDE, SI LLEGA ACA HAY QUE LLAMAR A ENDGAME
   info_task_t* task_que_nunca_va_llegar = sched[player][0].info_task; // pero al compilar me jode que ponga un return aca
   return task_que_nunca_va_llegar;
 }
@@ -289,17 +286,6 @@ uint16_t sched_next_task(void){
 }
     
 
-
-
-
-  
-  // tssActual = TSSs[tareaActual];
-  // return (tareaActual << 3);
-  
-  
-
-
- 
 
 
 /*
