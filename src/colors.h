@@ -55,3 +55,12 @@
 #define MORTY_MEESEEK_COLOR BLUE_GREEN
 
 #endif //  __COLORS_H__
+
+/*
+bochs 
+
+./configure --enable-gdb-stub --enable-disasm --disable-docbook --enable-readline LDFLAGS='-pthread' --prefix=/home/nahuel/bochs-gdb/bochs/
+
+
+
+*/

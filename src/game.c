@@ -156,8 +156,10 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
   
   //tareasActivas[tareaActual] = false; 
   info_task[tareaActual].active = false;
-  
+  info_task[tareaActual].flag_loop = true;
 
+  sched[player][idx_msk + 1].p_loop_sched = true;
+  
 
   // flag_off  recycling msk memory
   backup_meeseks[player][idx_msk].p = true; /*tenia false, pero tendria que ser true*/
@@ -176,7 +178,6 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
   // for (int i = PAGE_SIZE; i < 0; i--) {
   //   ptr_virt_page[i] = 0;
   // }
-
 
 
   // unmap msk

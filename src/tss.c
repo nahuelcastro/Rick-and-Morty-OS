@@ -173,7 +173,7 @@ void tss_creator(int8_t player, int task){
   info_task[next_free_gdt_idx].idx_gdt = next_free_gdt_idx;
 
   sched[player][0].p_loop_sched = 0; 
-  sched[player][0].info_task = info_task[next_free_gdt_idx]; 
+  sched[player][0].info_task = &info_task[next_free_gdt_idx]; 
 
   init_tasks[player] ++;
   
@@ -286,9 +286,9 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
   info_task[next_free_gdt_idx].active = true;
   info_task[next_free_gdt_idx].flag_loop = 0;
   info_task[next_free_gdt_idx].idx_gdt = next_free_gdt_idx;
-  
+
   sched[player][idx_msk + 1].p_loop_sched = 0; 
-  sched[player][idx_msk + 1].info_task = info_task[next_free_gdt_idx]; 
+  sched[player][idx_msk + 1].info_task = &info_task[next_free_gdt_idx]; 
 
   init_tasks[player] ++;
 
