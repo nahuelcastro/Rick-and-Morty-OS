@@ -394,10 +394,11 @@ void sys_use_portal_gun(){
     uint8_t idxs_msk[number_opp_msks];
 
     // cargo los idxs de los meeseeks activos del oponente
+    uint8_t j = 0;
     for (uint8_t i = 0; i < MAX_CANT_MEESEEKS; i++){
-      uint8_t j = 0;
       if(meeseeks[opponent][i].p){
         idxs_msk[j] = i;
+        j++;
       }
     }
 
