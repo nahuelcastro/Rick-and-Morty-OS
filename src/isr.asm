@@ -112,7 +112,7 @@ _isr32:
      je .fin
      call next_clock
      mov word [sched_task_selector], ax
-     ; xchg bx, bx 
+     xchg bx, bx 
      jmp far [sched_task_offset]
      .fin:
      popad

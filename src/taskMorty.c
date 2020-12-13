@@ -18,16 +18,15 @@ void task(void) {
 
   syscall_meeseeks((uint32_t)&meeseks1_func, 79 , 0); // 20
   syscall_meeseeks((uint32_t)&meeseks1_func, 1 , 24); // 22
-  syscall_meeseeks((uint32_t)&meeseks1_func, 11, 25); // 24
-  syscall_meeseeks((uint32_t)&meeseks1_func, 21, 26); // 26
-  syscall_meeseeks((uint32_t)&meeseks1_func, 31, 27); // 28
+  // syscall_meeseeks((uint32_t)&meeseks1_func, 11, 25); // 24
+  // syscall_meeseeks((uint32_t)&meeseks1_func, 21, 26); // 26
+  // syscall_meeseeks((uint32_t)&meeseks1_func, 31, 27); // 28
 
-  syscall_meeseeks((uint32_t)&meeseks1_func, 51, 28); // 30
-  syscall_meeseeks((uint32_t)&meeseks1_func, 61, 29); // 32
-  syscall_meeseeks((uint32_t)&meeseks1_func, 71, 25); // 34
-  syscall_meeseeks((uint32_t)&meeseks1_func, 56, 11); // 36
-  syscall_meeseeks((uint32_t)&meeseks1_func, 23 , 8); // 38
-
+  // syscall_meeseeks((uint32_t)&meeseks1_func, 51, 28); // 30
+  // syscall_meeseeks((uint32_t)&meeseks1_func, 61, 29); // 32
+  // syscall_meeseeks((uint32_t)&meeseks1_func, 71, 25); // 34
+  // syscall_meeseeks((uint32_t)&meeseks1_func, 56, 11); // 36
+  // syscall_meeseeks((uint32_t)&meeseks1_func, 23 , 8); // 38
   
   while (1) {
     __asm volatile("nop");
