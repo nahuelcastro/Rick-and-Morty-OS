@@ -259,9 +259,11 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
   paddr_t stack_level_0;
   task_phy_address = mmu_phy_map_decoder(coord);
   bool reciclar = backup_meeseks[player][idx_msk].p;
+  reciclar = false;
 
 
   if (reciclar){
+    breakpoint();
     task_virt_address = backup_meeseks[player][idx_msk].virt;
     mmu_init_task_meeseeks_dir(task_phy_address, code_start, task_virt_address);
     //stack_level_0 = backup_meeseks[player][idx_msk].stack_level_0;

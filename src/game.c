@@ -49,7 +49,6 @@ void update_meeseek_map(player_t player, coordenadas coord, bool reason) {
     print("M", coord.x, coord.y + 1, PLAYER_MEESEEK_COLOR);
 
   } else {  // reason == DELETE
-    // breakpoint();
     clean_cell(coord);
   }
 }
@@ -93,7 +92,6 @@ void game_init(void) {
 }
 
 void end_game(void) {
-  // breakpoint();
   // pantalla_negra_debug();
   print("FIN DEL JUEGO", 35, 5, C_FG_WHITE);  // ver si quead centrado
 }
@@ -189,6 +187,7 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
 
   paddr_t virt = backup_meeseks[player][idx_msk].virt;
 
+  // breakpoint();
   for (int i = 0; i < 2; i++) {
     mmu_unmap_page(cr3, virt);
     virt += PAGE_SIZE;
@@ -221,7 +220,7 @@ int abs(int n) {
 // espacio de memoria de usuario de la tarea.
 
 uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
-
+  
   player_t player = info_task[tareaActual].player;
 
   if (player != RICK && player != MORTY) {
@@ -234,7 +233,7 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
   }
 
   // filtramos que los meeseeks del jugador no esten en el limite de capacidad
-  if (cant_meeseeks[player] == MAX_CANT_MEESEEKS) {
+  if (cant_meeseeks[player] >= MAX_CANT_MEESEEKS) {
     return 0;
   }
 
@@ -275,6 +274,8 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
 
 uint32_t sys_move(uint32_t x, uint32_t y) {
 
+  // breakpoint()
+
   // print("task", 19, 31, WHITE_RED);
   // print_dec(tareaActual, 4, 26, 31, WHITE_RED);
 
@@ -288,6 +289,7 @@ uint32_t sys_move(uint32_t x, uint32_t y) {
   coordenadas coord_actual = meeseeks[player][idx_msk].coord;
 
   if (x % 80 == 0 && y % 40 == 0) {
+    // breakpoint();
     return 0;
   }
 
@@ -317,9 +319,8 @@ uint32_t sys_move(uint32_t x, uint32_t y) {
   bool in_seed = index_aux != -1;
   
   if (in_seed) {
-    // breakpoint();
     msk_found_seed(player, idx_msk, index_aux);
-    // breakpoint();
+    
     return 1;
   }
 
@@ -332,16 +333,20 @@ uint32_t sys_move(uint32_t x, uint32_t y) {
     mmu_remap_meeseek(new_phy, virt);
   }
   
+  
   return 1;
 }
 
 //! ESTA TIRANDO PF DESPUES DE VARIOS Y ME PARECE QUE ESTA AGARRANDO SIEMPRE AL MISMO
 void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y){
 
-  breakpoint();
   
   player_t player = opponent;
   coordenadas coord_actual = meeseeks[player][idx_msk].coord;
+
+
+  // player_t other_player = player ? MORTY : RICK;
+
 
   clean_cell(coord_actual);
 
@@ -353,21 +358,26 @@ void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y){
 
   int16_t index_aux = index_in_seed(new_coord);
   bool in_seed = index_aux != -1;
-  
+
+
+
+// lcr3(cr3[player]);
+
   if (in_seed) {
     msk_found_seed(player, idx_msk, index_aux);
   }else {
     update_meeseek_map(player, new_coord, ADD);
     meeseeks[player][idx_msk].coord = new_coord;
 
+  
     if (!in_seed) {
       paddr_t new_phy = mmu_phy_map_decoder(new_coord);
       paddr_t virt = backup_meeseks[player][idx_msk].virt;
       mmu_remap_meeseek(new_phy, virt);
     }
   }
-
-  breakpoint();
+    
+// lcr3(cr3[other_player]);
   
 }
 
@@ -377,6 +387,8 @@ void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y){
 // rick y morty la pueden llamar? no aclara
 void sys_use_portal_gun(){
   
+  // breakpoint();
+
   if(tareaActual == 17 || tareaActual == 18 ){ // verificar que funcione
     desactivar_tarea();
   }
@@ -392,6 +404,7 @@ void sys_use_portal_gun(){
 
     //busco al azar un meeseek del contrincante que este presente
     uint8_t idxs_msk[number_opp_msks];
+    meeseeks[player][idx_msk].used_portal_gun = true;
 
     // cargo los idxs de los meeseeks activos del oponente
     uint8_t j = 0;
@@ -412,7 +425,7 @@ void sys_use_portal_gun(){
     uint32_t y = rand() % 40;
 
     coordenadas new_coord;
-    new_coord.x = (uint8_t) x;
+    new_coord.x = (uint8_t) x;  
     new_coord.y = (uint8_t) y;
 
     coordenadas coord_actual;
@@ -424,12 +437,17 @@ void sys_use_portal_gun(){
     int8_t movement_x = (new_coord.x  - coord_actual.x);  
     int8_t movement_y = (new_coord.y  - coord_actual.y);
 
+    uint8_t backup_tareaActual = tareaActual;
+
+    tareaActual = meeseeks[opponent][idx_msk].gdt_index;
+  
     lcr3(cr3[opponent]);
 
     move_portal(opponent, idx_msk, movement_x,movement_y);
 
     lcr3(cr3[player]);
 
+    tareaActual = backup_tareaActual; 
 
   }
 
@@ -485,7 +503,7 @@ int8_t sys_look (uint8_t flag){
   //   breakpoint();
   // }
 
-
+  // breakpoint();
   return flag == 0 ?  movement_x : movement_y;
 
 }

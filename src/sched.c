@@ -32,7 +32,6 @@ void sched_init(void)
   for (player_t player = MORTY; player < PLAYERS ; player++){
     for (int i = 0; i < 11; i++){
       sched[player][i].p_loop_sched = 0;
-
       sched[player][i].info_task->flag_loop = 0;
       sched[player][i].info_task->active = false;
     }
@@ -181,6 +180,18 @@ void sched_init(void)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 void reset_p_loop_task(player_t player){
   for (uint8_t i = 0; i < 11; i++){
     if(sched[player][i].info_task->active){
@@ -193,11 +204,11 @@ void reset_p_loop_task(player_t player){
 
 info_task_t* next(player_t player){
 
-    print("t:",1,41,WHITE_BLACK);
-  print_dec(tareaActual,1 , 3 ,41,WHITE_BLACK);  //! ver porque me queda como 8 y 7 cuando no hay nada. tipo creo que queda bien en rick y morty pero no se 
+  //   print("t:",1,41,WHITE_BLACK);
+  // print_dec(tareaActual,1 , 3 ,41,WHITE_BLACK);  //! ver porque me queda como 8 y 7 cuando no hay nada. tipo creo que queda bien en rick y morty pero no se 
 
-  print("p:",1, 43,WHITE_BLACK);
-  print_dec(player,1 , 3 ,43,WHITE_BLACK);
+  // print("p:",1, 43,WHITE_BLACK);
+  // print_dec(player,1 , 3 ,43,WHITE_BLACK);
 
   for (uint8_t i = 0; i < 11; i++){
     // bool p_loop_sched = /*sched[player][i].p_loop_sched*/ false;
@@ -207,9 +218,7 @@ info_task_t* next(player_t player){
     if( active && !p_loop_task ){
         sched[player][i].info_task->flag_loop = true;
         sched[player][i].p_loop_sched = true;
-
         // print_dec(sched[player][i].info_task->idx_gdt,4, 70,30,WHITE_RED); 
-
         return sched[player][i].info_task;
     }
   }
@@ -227,10 +236,8 @@ info_task_t* next(player_t player){
     }
   }
 
-
-  breakpoint();
-
   print( "LLEGO HASTA ACA BRO, ANDA TODO MAL :(", 1,2,WHITE_RED); // dejarlo porque sirve de advertencia
+  breakpoint();
   //! ACA NO TIENE QUE LLEGAR, POR ENDE, SI LLEGA ACA HAY QUE LLAMAR A ENDGAME
   info_task_t* task_que_nunca_va_llegar = sched[player][0].info_task; // pero al compilar me jode que ponga un return aca
   return task_que_nunca_va_llegar;
@@ -240,8 +247,8 @@ bool end_loop_sched(){
   bool ret = true;
   for (player_t player = 0; player < PLAYERS; player++){
     for (uint8_t i = 0; i < 11; i++){
-      if(sched[player][i].info_task->active){
-        ret = ret && sched[player][i].p_loop_sched;
+      if(sched[player][i].info_task->active){        
+        ret = ret && sched[player][i].p_loop_sched; 
       }
     }
   }
@@ -271,24 +278,38 @@ uint16_t sched_next_task(void){
   }
 
   info_task_t* task = next(new_player);
-  index = task->idx_gdt;                   // de estos tres algo se debe poder sacar
+  index = task->idx_gdt;                   
 
-
-  bool end_loop= end_loop_sched(); // hacerlo
+  bool end_loop= end_loop_sched(); 
   if(end_loop){
     reset_sched_p();
   }
 
-  tareaActual = task->idx_gdt;
-  tareaActualAnterior = task->idx_gdt;
+  tareaActual = index;
+  tareaActualAnterior = index;
+
+  if(task->idx_gdt == 0x23){
+    breakpoint();
+  }
 
   return (task->idx_gdt << 3);
+
 }
     
 
 
 
 /*
+
+  0x0800e05b     ROMPE
+
+  0x0800e000
+
+  0x0800e000-0x0800ffff
+
+
+
+
   ! Rompe esquemas, ver que onda en casos extremos como este :)
   1) Rick
   2) Morty
@@ -358,6 +379,8 @@ sched[player].dame
 
 
 */
+
+
 
 
 

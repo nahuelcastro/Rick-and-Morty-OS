@@ -32,7 +32,7 @@ extern player_t  ultimoJugador;
 
 typedef struct sched{
   info_task_t* info_task;
-  uint8_t p_loop_sched; // se peude reutilizar de info_Task
+  uint8_t p_loop_sched;
   // bool p;
 
 } sched_t;

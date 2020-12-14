@@ -151,7 +151,13 @@ void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs) {
     tlbflush();
 }
 
-paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt) {
+paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt) { 
+
+    if (virt == 0x0800e000){
+        breakpoint();
+    }
+    
+
     int off_pd = (virt >> 22);
     int off_pt = ((virt << 10) >> 22);
     // int off_dir = ((virt << 22) >> 22);
@@ -163,6 +169,11 @@ paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt) {
 
     pte_map[off_pt].present = 0;  // Al tener presente en 0 lo va a desmapear
     paddr_t phyAddr = (pte_map[off_pt].physical_adress_base >> 12);  // off_dir;
+    
+    if (virt == 0x0800e000){
+        breakpoint();
+    }
+
     return phyAddr;
 }
 
@@ -240,9 +251,10 @@ void mmu_init_task_meeseeks_dir(
     }
 }
 
+
+
+
 void mmu_remap_meeseek(paddr_t new_phy, paddr_t virt) {
-
-
 
   paddr_t backup_phy = new_phy;
   paddr_t cr3 = rcr3();
@@ -259,20 +271,16 @@ void mmu_remap_meeseek(paddr_t new_phy, paddr_t virt) {
   phy  0x00680005
   */
 
-
   for (int i = 0; i < 2; i++) {
     mmu_map_page(cr3, new_phy, new_phy, 2);
     new_phy += PAGE_SIZE;
   }
-
 
   // Copiamos codigo
   for (int i = 0; i < PAGE_SIZE * 2; i++) {
     ptr_temp[i] = ptr_virt[i];
   }
   
-  
-
   // Desmapeamos temporaria 
   new_phy = backup_phy;
   for (int i = 0; i < 2; i++) {
