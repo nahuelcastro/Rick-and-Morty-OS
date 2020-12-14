@@ -143,6 +143,13 @@ void remove_seed(int idx) {
 
 void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
 
+  if(tareaActual == 0){
+    print("RECIBE_MFS", 25,4,WHITE_RED);
+    print_hex(tareaActual,2, 38,4,WHITE_RED);
+    breakpoint();
+  }
+
+
   // delete msk
   meeseeks[player][idx_msk].p = false;
 
@@ -262,6 +269,7 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
   meeseeks[player][index_meeseek].p = 1;
   meeseeks[player][index_meeseek].coord = coord_actual;
   meeseeks[player][index_meeseek].used_portal_gun = false;
+  // meeseeks[player][index_meeseek].gdt_index = tareaActual;
   update_meeseek_map(player, coord_actual, ADD);  // 1 = ADD
 
   cant_meeseeks[player]++;
@@ -387,7 +395,9 @@ void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y){
 // rick y morty la pueden llamar? no aclara
 void sys_use_portal_gun(){
   
-  // breakpoint();
+  // if(tareaActual == 0x22){
+  //   breakpoint();
+  // }
 
   if(tareaActual == 17 || tareaActual == 18 ){ // verificar que funcione
     desactivar_tarea();
@@ -440,7 +450,17 @@ void sys_use_portal_gun(){
     uint8_t backup_tareaActual = tareaActual;
 
     tareaActual = meeseeks[opponent][idx_msk].gdt_index;
-  
+
+      
+    // print("DISPARA", 10,2,WHITE_RED);
+    // print_hex(backup_tareaActual,2, 20, 2,WHITE_RED);
+
+    // print("RECIBE", 25,2,WHITE_RED);
+    // print_hex(tareaActual,2, 35,2,WHITE_RED);
+    // if (tareaActual == 0){
+    //   breakpoint();
+    // }
+
     lcr3(cr3[opponent]);
 
     move_portal(opponent, idx_msk, movement_x,movement_y);
@@ -589,6 +609,9 @@ TODO. VER LO DE BORRAR EL STACK DE LEVEL 0
 TODO. VER PORQUE NO PUEDO PONER QUE CREE MEESEEKS SIEMPRE QUE SE PUEDA (calculo que sera por lo del stack o algo de eso)
 TODO. TERMINAR DEBUGGER
 TODO. LO DE LOS RELOJITOS
+TODO. TERMINAR EL FIN DE JUEGO
+
+TODO. CUANDO PONEMOS UN BREAKPOINT DIBUJA UNO MAS
 
 
 

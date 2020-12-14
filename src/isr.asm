@@ -179,11 +179,23 @@ _isr89:
      call sys_use_portal_gun
 
      call sched_idle
-     mov word [sched_task_selector], ax  ; (cambiamos con nahu)
+     mov word [sched_task_selector], ax
      jmp far [sched_task_offset]
      
      popad
 iret
+
+; _isr33:
+;      pushad 
+;      in al, 0x60
+;      cmp al, k_debug
+;      jne .fin
+;      call modo_debug
+;      .fin:
+;      ;avisar al pic que se recibio la interrupcion
+;      call pic_finish1
+;      popad
+;      iret
 
 
 

@@ -153,9 +153,9 @@ void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs) {
 
 paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt) { 
 
-    if (virt == 0x0800e000){
-        breakpoint();
-    }
+    // if (virt == 0x0800e000){
+    //     breakpoint();
+    // }
     
 
     int off_pd = (virt >> 22);
@@ -170,9 +170,9 @@ paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt) {
     pte_map[off_pt].present = 0;  // Al tener presente en 0 lo va a desmapear
     paddr_t phyAddr = (pte_map[off_pt].physical_adress_base >> 12);  // off_dir;
     
-    if (virt == 0x0800e000){
-        breakpoint();
-    }
+    // if (virt == 0x0800e000){
+    //     breakpoint();
+    // }
 
     return phyAddr;
 }

@@ -76,6 +76,10 @@ void meeseks1_func(void){
       deltay--;
     }
 
+    // if(tareaActual == 0x22){
+     // breakpoint();
+    // }
+
     syscall_use_portal_gun();
 
   }

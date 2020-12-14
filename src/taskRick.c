@@ -18,8 +18,8 @@ void task(void) {
   syscall_meeseeks((uint32_t)&meeseks1_func, 5, 23); // 31
   syscall_meeseeks((uint32_t)&meeseks1_func, 55, 5); // 33
   syscall_meeseeks((uint32_t)&meeseks1_func, 65, 5); // 35  puta
-  // syscall_meeseeks((uint32_t)&meeseks1_func, 66, 5); // 35  puta
   syscall_meeseeks((uint32_t)&meeseks1_func, 72, 12);// 37
+//   // syscall_meeseeks((uint32_t)&meeseks1_func, 66, 5); // 35  puta
 
   // breakpoint();
 

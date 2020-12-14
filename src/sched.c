@@ -288,10 +288,6 @@ uint16_t sched_next_task(void){
   tareaActual = index;
   tareaActualAnterior = index;
 
-  if(task->idx_gdt == 0x23){
-    breakpoint();
-  }
-
   return (task->idx_gdt << 3);
 
 }
