@@ -94,6 +94,16 @@ void game_init(void) {
 void end_game(void) {
   // pantalla_negra_debug();
   print("FIN DEL JUEGO", 35, 5, C_FG_WHITE);  // ver si quead centrado
+  player_t winner;
+  if(score[RICK] > score[MORTY]){
+    winner = RICK;
+  } else if(score[RICK] < score[MORTY]){
+    winner = MORTY;
+  } else{
+    // EMPATE
+  }
+
+  // SI NO HAY EMPATE, PRINT WINNER 
 }
 
 void add_update_score(player_t player) {
@@ -160,6 +170,7 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
   update_meeseek_map(player, meeseeks[player][idx_msk].coord, DELETE);
   add_update_score(player);
   cant_meeseeks[player]--;
+  cant_semillas --;
   info_gdt_meeseeks[tareaActual].ticks_counter = 0;
   meeseeks[idx_msk]->used_portal_gun = false;
   
@@ -199,6 +210,10 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
     mmu_unmap_page(cr3, virt);
     virt += PAGE_SIZE;
   }
+
+  if(cant_semillas == 0){
+      end_game();
+  }
   
   
 }
@@ -216,6 +231,10 @@ int abs(int n) {
   }
   return n;
 }
+
+
+
+
 
 // ;
 // in EAX = code Código de la tarea Mr Meeseeks a ser ejecutada.;
@@ -256,6 +275,10 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
   if (in_seed) {
     remove_seed(index_aux);
     add_update_score(player);
+    cant_semillas--;
+    if(cant_semillas == 0){
+      end_game();
+    }
     return 0;
   }
 
@@ -609,7 +632,7 @@ TODO. VER LO DE BORRAR EL STACK DE LEVEL 0
 TODO. VER PORQUE NO PUEDO PONER QUE CREE MEESEEKS SIEMPRE QUE SE PUEDA (calculo que sera por lo del stack o algo de eso)
 TODO. TERMINAR DEBUGGER
 TODO. LO DE LOS RELOJITOS
-TODO. TERMINAR EL FIN DE JUEGO
+TODO. TERMINAR EL FIN DE JUEGO (y que diga quien gano)
 
 TODO. CUANDO PONEMOS UN BREAKPOINT DIBUJA UNO MAS
 

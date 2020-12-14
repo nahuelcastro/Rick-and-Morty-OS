@@ -61,6 +61,7 @@ int16_t index_in_seed(coordenadas coord);
 void remove_seed(int idx);
 void ticks_counter(void);
 int abs(int n);
+bool check_end_game();
 
 void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed);
 void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y);
@@ -68,6 +69,7 @@ void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y);
 uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y);
 uint32_t sys_move(uint32_t x, uint32_t y);
 void sys_use_portal_gun();
+
 
 extern info_gdt_meeseek info_gdt_meeseeks[GDT_COUNT];
 
