@@ -23,7 +23,9 @@ uint32_t score[PLAYERS];
 const bool ADD = true;
 const bool DELETE = false;
 info_gdt_meeseek info_gdt_meeseeks[GDT_COUNT];
-
+const char* clock[4];
+char inactive;
+  
 // void update_map(void){
 //     update_seed();
 // }
@@ -58,6 +60,7 @@ void game_init(void) {
   tss_creator(RICK, 0);
   tss_creator(MORTY, 0);
   indexSemilla = 0;
+  cant_semillas = MAX_CANT_SEMILLAS - 1;
   score[MORTY] = 0;
   score[RICK] = 0;
   print_dec(score[RICK], 8, 10, 44, WHITE_RED);
@@ -89,19 +92,39 @@ void game_init(void) {
       meeseeks[player][i].p = 0;
     }
   }
+  
+  char a = '|' ; 
+  char b = '/' ; 
+  char c = '-' ; 
+  char d = '\\'; 
+
+  clock[0] = &a; 
+  clock[1] = &b;
+  clock[2] = &c;
+  clock[3] = &d;
+
+  inactive = 'X';
+
 }
 
 void end_game(void) {
-  // pantalla_negra_debug();
+  breakpoint(); 
+  pantalla_negra_debug();
   print("FIN DEL JUEGO", 35, 5, C_FG_WHITE);  // ver si quead centrado
-  player_t winner;
+  // player_t winner;
+  // bool tie = false; 
   if(score[RICK] > score[MORTY]){
-    winner = RICK;
+    // winner = RICK;
+    print("GANADOR: RICK", 35, 20, BLACK_RED);
   } else if(score[RICK] < score[MORTY]){
-    winner = MORTY;
+    // winner = MORTY;
+    print("GANADOR: MORTY", 35, 20, BLACK_RED);
   } else{
-    // EMPATE
+    // tie = true;
+    print("EMPATE", 35, 20, BLACK_RED);
   }
+
+
 
   // SI NO HAY EMPATE, PRINT WINNER 
 }
@@ -177,8 +200,14 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
   //tareasActivas[tareaActual] = false; 
   info_task[tareaActual].active = false;
   info_task[tareaActual].flag_loop = true;
-
   sched[player][idx_msk + 1].p_loop_sched = true;
+
+  info_task[tareaActual].clock = 0;
+  coordenadas coord; 
+  coord.x = 26 + 3 * info_task[tareaActual].idx_msk;
+  coord.y = 48 - 4 * info_task[tareaActual].player;
+  print("C ", coord.x, coord.y, BLACK_BLACK);
+  print("X ", coord.x, coord.y, WHITE_BLACK);
   
 
   // flag_off  recycling msk memory
@@ -210,7 +239,7 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
     mmu_unmap_page(cr3, virt);
     virt += PAGE_SIZE;
   }
-
+  print_dec(cant_semillas, 2, 2, 15, WHITE_RED);
   if(cant_semillas == 0){
       end_game();
   }
@@ -230,6 +259,11 @@ int abs(int n) {
     n = n * (-1);
   }
   return n;
+}
+
+void clock_task(){
+
+
 }
 
 
@@ -629,12 +663,14 @@ GDT[30]=32-Bit TSS (Available) at 0x00007970, length 0x00067
 
 ! COSAS QUE HACER (MAS RANCIO ESTO, MARCO NO VEAS ESTO):
 TODO. VER LO DE BORRAR EL STACK DE LEVEL 0
-TODO. VER PORQUE NO PUEDO PONER QUE CREE MEESEEKS SIEMPRE QUE SE PUEDA (calculo que sera por lo del stack o algo de eso)
+TODO. TERMINAR LA IMPLEMENTACION PARA QUE PUEDA REUTILIZAR MEESEEKS
 TODO. TERMINAR DEBUGGER
-TODO. LO DE LOS RELOJITOS
-TODO. TERMINAR EL FIN DE JUEGO (y que diga quien gano)
+X TODO. LO DE LOS RELOJITOS // HECHO 
+x TODO. TERMINAR EL FIN DE JUEGO (y que diga quien gano) // HECHO
 
-TODO. CUANDO PONEMOS UN BREAKPOINT DIBUJA UNO MAS
+TODO. VER QUE CUANDO LE DIGO QUE SE CREEN 20 SEMILLAS (MAX CANT = 21) TIRA PAGE FAULT EN EL ULTIMO CASO :(
+
+
 
 
 

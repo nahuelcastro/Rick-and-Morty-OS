@@ -78,8 +78,10 @@ typedef struct meeseek{
 typedef struct info_task{
   bool active;
   uint8_t idx_gdt;
+  uint8_t idx_msk;
   uint8_t flag_loop;
   player_t player;
+  uint8_t clock;
 } info_task_t;
 
 

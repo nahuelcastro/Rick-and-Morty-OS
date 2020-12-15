@@ -27,6 +27,9 @@ extern modo_debug
 
 extern ticks_counter
 
+;game 
+extern clock_task
+
 ;; Syscalls
 extern sys_meeseek
 extern sys_move
@@ -110,6 +113,7 @@ _isr32:
      str cx
      cmp ax, cx           ; Me fijo si la proxima tarea no es la actual
      je .fin
+     call clock_task
      call next_clock
      mov word [sched_task_selector], ax
      ;xchg bx, bx 

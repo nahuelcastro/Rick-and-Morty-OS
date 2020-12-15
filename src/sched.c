@@ -14,6 +14,8 @@ uint16_t index;
 uint16_t tareaActual;
 tss_t* tssActual;
 uint16_t tareaActualAnterior;
+uint8_t clocks[PLAYERS][MAX_CANT_MEESEEKS];
+const char* CLOCK[4] = {"| ", "/ ", "- ", "\\ "};
 
 extern void pantalla_negra_debug();
 extern void init_pantalla();
@@ -34,6 +36,9 @@ void sched_init(void)
       sched[player][i].p_loop_sched = 0;
       sched[player][i].info_task->flag_loop = 0;
       sched[player][i].info_task->active = false;
+    }
+    for (int i = 0; i < MAX_CANT_MEESEEKS; i++){
+      clocks[player][i] = 0;
     }
   }
   
@@ -263,6 +268,16 @@ void reset_sched_p(){
   }
 }
 
+void update_msk_clocks(info_task_t* task){
+  task->clock = (task->clock + 1) %4;
+  uint8_t i = task->clock;
+  coordenadas coord; 
+  coord.x = 26 + 3 * task->idx_msk;
+  coord.y = 48 - 4 * task->player;
+  print("C", coord.x, coord.y, BLACK_BLACK);
+  print(CLOCK[i], coord.x, coord.y, WHITE_BLACK);
+}
+
 
 // //! SCHED NAJU
 uint16_t sched_next_task(void){
@@ -278,7 +293,12 @@ uint16_t sched_next_task(void){
   }
 
   info_task_t* task = next(new_player);
-  index = task->idx_gdt;                   
+  index = task->idx_gdt;
+
+  bool msk_task = index > 18 ;
+  if (msk_task){
+    update_msk_clocks(task);                   
+  }
 
   bool end_loop= end_loop_sched(); 
   if(end_loop){
@@ -404,6 +424,15 @@ void desactivar_tarea(){
   }
   //tareasActivas[tareaActual] = false;
   info_task[tareaActual].active = false;
+
+  info_task[tareaActual].clock = 0;
+  coordenadas coord; 
+  coord.x = 26 + 3 * info_task[tareaActual].idx_msk;
+  coord.y = 48 - 4 * info_task[tareaActual].player;
+  print("C ", coord.x, coord.y, BLACK_BLACK);
+  print("X ", coord.x, coord.y, WHITE_BLACK);
+
+
 }
 
 uint16_t sched_idle(){

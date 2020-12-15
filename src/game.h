@@ -48,6 +48,9 @@ extern uint8_t indexSemilla;
 extern uint16_t cant_semillas;
 extern uint32_t score[PLAYERS]; // score[player]
 
+extern const char* clock[4];
+extern char inactive;
+
 void game_init(void);
 void end_game(void);
 
@@ -62,6 +65,7 @@ void remove_seed(int idx);
 void ticks_counter(void);
 int abs(int n);
 bool check_end_game();
+void clock_task();
 
 void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed);
 void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y);
