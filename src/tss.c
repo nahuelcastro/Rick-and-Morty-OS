@@ -142,7 +142,7 @@ void tss_gdt_entry_init(uint32_t index, uint32_t tss, int dpl) {
 
 uint32_t next_free_gdt_idx = 16;
 
-void next_free_tss() {
+void next_free_tss() {    //! ver si estamos de acuerdo con que cada tarea tengo un indice nuevo en la gdt o reutilizar los que no estemos usando
   next_free_gdt_idx++;  
 }
 
@@ -260,11 +260,10 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
   paddr_t stack_level_0;
   task_phy_address = mmu_phy_map_decoder(coord);
   bool reciclar = backup_meeseks[player][idx_msk].p;
-  reciclar = false;
 
 
   if (reciclar){
-    breakpoint();
+    //breakpoint();
     task_virt_address = backup_meeseks[player][idx_msk].virt;
     mmu_init_task_meeseeks_dir(task_phy_address, code_start, task_virt_address);
     //stack_level_0 = backup_meeseks[player][idx_msk].stack_level_0;

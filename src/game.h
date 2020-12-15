@@ -48,6 +48,9 @@ extern uint8_t indexSemilla;
 extern uint16_t cant_semillas;
 extern uint32_t score[PLAYERS]; // score[player]
 
+extern bool create_msk_morty;
+extern bool create_msk_rick;
+
 
 void game_init(void);
 void end_game(void);

@@ -155,6 +155,21 @@ uint16_t sched_next_task(void){
   tareaActual = index;
   tareaActualAnterior = index;
 
+
+
+  //   print("i" , 5 ,4,WHITE_RED);          // i
+  //   print("a" , 8 ,4,WHITE_RED);          // task_active
+  //   print("Pl", 10,4,WHITE_RED);          // p_loop_sched
+  //   print("Fl", 13,4,WHITE_RED);          // flag_loop
+  //   print("ig", 16,4,WHITE_RED);          // idx_gdt
+  //   print("ma", 19,4,WHITE_RED);          // meeseek activo
+  //   print("player :", 17,0,WHITE_RED);
+  //   print_dec(new_player,1 , 25,0,WHITE_RED);
+
+  // print("t",3,42,WHITE_BLACK);
+  // print_hex(task->idx_gdt,2,5,42, WHITE_BLACK);          // i
+
+
   return (task->idx_gdt << 3);
 
 }

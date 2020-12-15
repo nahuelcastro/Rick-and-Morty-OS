@@ -1,6 +1,7 @@
 #include "stddef.h"
 #include "syscall.h"
 #include "i386.h"
+#include "game.h"
 
 void meeseks1_func(void);
 void meeseks2_func(void);
@@ -17,10 +18,45 @@ void task(void) {
   syscall_meeseeks((uint32_t)&meeseks1_func, 75, 5); // 29
   syscall_meeseeks((uint32_t)&meeseks1_func, 5, 23); // 31
   syscall_meeseeks((uint32_t)&meeseks1_func, 55, 5); // 33
-  syscall_meeseeks((uint32_t)&meeseks1_func, 65, 5); // 35  puta
+  syscall_meeseeks((uint32_t)&meeseks1_func, 65, 5); // 35
   syscall_meeseeks((uint32_t)&meeseks1_func, 72, 12);// 37
-//   // syscall_meeseeks((uint32_t)&meeseks1_func, 66, 5); // 35  puta
 
+  syscall_meeseeks((uint32_t)&meeseks1_func, 71, 17); // 29
+  syscall_meeseeks((uint32_t)&meeseks1_func, 3, 2); // 31
+  syscall_meeseeks((uint32_t)&meeseks1_func, 34, 28); // 33
+  syscall_meeseeks((uint32_t)&meeseks1_func, 61, 12); // 35
+  syscall_meeseeks((uint32_t)&meeseks1_func, 23, 31);// 37
+
+
+  // while(1){
+  //   if(create_msk_rick){
+  //     syscall_meeseeks((uint32_t)&meeseks1_func, 48, 26); // 19
+  //     create_msk_rick = false;
+  //   }
+
+  // }
+
+  // while(1){
+  //   for (size_t i = 0; i < 80; i = i + 8){
+  //     for (size_t j = 0; i < 40; j = j + 5){
+  //       syscall_meeseeks((uint32_t)&meeseks1_func, i , j);// 37
+  //       if(i > 70){
+  //         i = 2;
+  //       }
+  //       if(j > 34){
+  //         j = 1;
+  //       }
+  //     }
+
+  //   }
+
+
+  // }
+
+
+  // syscall_meeseeks((uint32_t)&meeseks1_func, 32, 5); // 19
+  // syscall_meeseeks((uint32_t)&meeseks1_func, 45, 23); // 19
+  // syscall_meeseeks((uint32_t)&meeseks1_func, 72, 3); // 19
   // breakpoint();
 
 
