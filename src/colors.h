@@ -45,6 +45,7 @@
 #define WHITE_BLUE 0x1f
 #define BLACK_RED 0x04
 #define BLACK_BLUE 0x01
+#define BLACK_WHITE 0x0f
 #define GREEN_YELLOW 0x2E
 
 #define BLUE_GREEN 0x21
