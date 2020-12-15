@@ -23,12 +23,6 @@ uint32_t score[PLAYERS];
 const bool ADD = true;
 const bool DELETE = false;
 info_gdt_meeseek info_gdt_meeseeks[GDT_COUNT];
-const char* clock[4];
-char inactive;
-  
-// void update_map(void){
-//     update_seed();
-// }
 
 void clean_cell(coordenadas coord) {
   print("X", coord.x, coord.y + 1, GREEN_GREEN);
@@ -65,8 +59,6 @@ void game_init(void) {
   score[RICK] = 0;
   print_dec(score[RICK], 8, 10, 44, WHITE_RED);
   print_dec(score[MORTY], 8, 62, 44, WHITE_BLUE);
-  // print("00000000",10, 43, WHITE_RED);  // puntajes rojos en 0
-  // print("00000000",62, 43, WHITE_BLUE); // puntajes azules en 0
   print("R  00 01 02 03 04 05 06 07 08 09 ", 23, 42,
         BLACK_RED);                                             // letras rojas
   print("M", 57, 42, BLACK_BLUE);                               // M azul
@@ -92,18 +84,6 @@ void game_init(void) {
       meeseeks[player][i].p = 0;
     }
   }
-  
-  char a = '|' ; 
-  char b = '/' ; 
-  char c = '-' ; 
-  char d = '\\'; 
-
-  clock[0] = &a; 
-  clock[1] = &b;
-  clock[2] = &c;
-  clock[3] = &d;
-
-  inactive = 'X';
 
 }
 
@@ -665,6 +645,7 @@ GDT[30]=32-Bit TSS (Available) at 0x00007970, length 0x00067
 TODO. VER LO DE BORRAR EL STACK DE LEVEL 0
 TODO. TERMINAR LA IMPLEMENTACION PARA QUE PUEDA REUTILIZAR MEESEEKS
 TODO. TERMINAR DEBUGGER
+TODO. VER EL LOOK QUE PARECE ANDAR MEDIO FALOPA ;)
 X TODO. LO DE LOS RELOJITOS // HECHO 
 x TODO. TERMINAR EL FIN DE JUEGO (y que diga quien gano) // HECHO
 

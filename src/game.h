@@ -48,8 +48,6 @@ extern uint8_t indexSemilla;
 extern uint16_t cant_semillas;
 extern uint32_t score[PLAYERS]; // score[player]
 
-extern const char* clock[4];
-extern char inactive;
 
 void game_init(void);
 void end_game(void);
