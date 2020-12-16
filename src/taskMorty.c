@@ -80,7 +80,7 @@ void meeseks1_func(void){
      // breakpoint();
     // }
 
-    syscall_use_portal_gun();
+    // syscall_use_portal_gun();
 
   }
 
