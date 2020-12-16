@@ -163,17 +163,6 @@ void remove_seed(int idx) {
 
 void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
 
-  if(tareaActual == 0x23){
-    breakpoint();
-  }
-
-
-  if(tareaActual == 0){
-    print("RECIBE_MFS", 25,4,WHITE_RED);
-    print_hex(tareaActual,2, 38,4,WHITE_RED);
-    breakpoint();
-  }
-
 
   // delete msk
   meeseeks[player][idx_msk].p = false;
@@ -187,7 +176,7 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
   cant_meeseeks[player]--;
   cant_semillas --;
   info_gdt_meeseeks[tareaActual].ticks_counter = 0;
-  meeseeks[idx_msk]->used_portal_gun = false;
+  meeseeks[player][idx_msk].used_portal_gun = false;
   
   //tareasActivas[tareaActual] = false; 
   info_task[tareaActual].active = false;
@@ -231,7 +220,6 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
     mmu_unmap_page(cr3, virt);
     virt += PAGE_SIZE;
   }
-  print_dec(cant_semillas, 2, 2, 15, WHITE_RED);
   if(cant_semillas == 0){
       end_game();
   }
@@ -299,7 +287,6 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
   int index_aux = index_in_seed(coord_actual);
   bool in_seed = index_aux != -1;
 
-  // print_dec(in_seed, 8, 10, 7, WHITE_RED);
   if (in_seed) {
     remove_seed(index_aux);
     add_update_score(player);
@@ -333,7 +320,6 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
 
 uint32_t sys_move(uint32_t x, uint32_t y) {
 
-  // breakpoint()
 
   // print("task", 19, 31, WHITE_RED);
   // print_dec(tareaActual, 4, 26, 31, WHITE_RED);
@@ -355,11 +341,8 @@ uint32_t sys_move(uint32_t x, uint32_t y) {
   // info_gdt_meeseeks[tareaActual].ticks_counter ++; 
 
   uint8_t ticks = info_gdt_meeseeks[tareaActual].ticks_counter;
-  // print_hex(tareaActual, 4, 8, 31, WHITE_RED);
-  // print_hex(info_gdt_meeseeks[tareaActual].ticks_counter, 4, 8, 30, WHITE_RED);
-
+  
    
-
   uint8_t moveConTicks = (abs(x) + abs(y) + (ticks/2));
   
   if (7 < moveConTicks) {
@@ -398,13 +381,10 @@ uint32_t sys_move(uint32_t x, uint32_t y) {
 //! ESTA TIRANDO PF DESPUES DE VARIOS Y ME PARECE QUE ESTA AGARRANDO SIEMPRE AL MISMO
 void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y){
 
-  
   player_t player = opponent;
   coordenadas coord_actual = meeseeks[player][idx_msk].coord;
 
-
   // player_t other_player = player ? MORTY : RICK;
-
 
   clean_cell(coord_actual);
 
@@ -425,12 +405,6 @@ void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y){
   if (in_seed) {
     msk_found_seed(player, idx_msk, index_aux);
   }else {
-    //if(tareaActual == 0x23){
-      print_dec(coord_actual.x,2,3,47,WHITE_BLACK);
-      print_dec(coord_actual.y,2,6,47,WHITE_BLACK);
-      print_dec(player, 1, 1,47,WHITE_BLACK);
-      breakpoint();
-     //}
     update_meeseek_map(player, new_coord, ADD);
     meeseeks[player][idx_msk].coord = new_coord;
 
@@ -441,8 +415,7 @@ void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y){
       mmu_remap_meeseek(new_phy, virt);
     }
   }
-    
-// lcr3(cr3[other_player]);
+  
   
 }
 
@@ -452,9 +425,6 @@ void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y){
 // rick y morty la pueden llamar? no aclara
 void sys_use_portal_gun(){
   
-  // if(tareaActual == 0x22){
-  //   breakpoint();
-  // }
 
   if(tareaActual == 17 || tareaActual == 18 ){ // verificar que funcione
     desactivar_tarea();
@@ -467,12 +437,6 @@ void sys_use_portal_gun(){
   uint8_t number_opp_msks = cant_meeseeks[opponent];
 
   if(!used_portal_gun && number_opp_msks != 0){
-    //magia
-    //print_dec(cant_meeseeks[opponent],2, 35,2,WHITE_RED);
-    if(tareaActual == 0x23){
-      breakpoint();
-    }
-      
 
     //busco al azar un meeseek del contrincante que este presente
     uint8_t idxs_msk[number_opp_msks];
@@ -541,8 +505,6 @@ void sys_use_portal_gun(){
 
 
 int8_t sys_look (uint8_t flag){
-
-  // breakpoint();
 
   if(tareaActual == 17 || tareaActual == 18 ){ // verificar que funcione
     desactivar_tarea();
