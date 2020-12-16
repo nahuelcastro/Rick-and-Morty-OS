@@ -24,6 +24,8 @@ const bool ADD = true;
 const bool DELETE = false;
 info_gdt_meeseek info_gdt_meeseeks[GDT_COUNT];
 
+int cont_aux;
+
 
 bool create_msk_morty = false;
 bool create_msk_rick = false;
@@ -45,10 +47,6 @@ void update_meeseek_map(player_t player, coordenadas coord, bool reason) {
     } else {
       PLAYER_MEESEEK_COLOR = MORTY_MEESEEK_COLOR;
     }
-    
-    print_dec(coord.x,2,3,45,WHITE_BLACK);
-    print_dec(coord.y,2,6,45,WHITE_BLACK);
-
     print("M", coord.x, coord.y + 1, PLAYER_MEESEEK_COLOR);
 
   } else {  // reason == DELETE
@@ -57,6 +55,7 @@ void update_meeseek_map(player_t player, coordenadas coord, bool reason) {
 }
 
 void game_init(void) {
+  cont_aux = 0;
   ultimoJugador = MORTY;
   tss_creator(RICK, 0);
   tss_creator(MORTY, 0);
@@ -261,7 +260,10 @@ void clock_task(){
 // code 4KB  Tener en cuenta que este código debe estar declarado dentro del
 // espacio de memoria de usuario de la tarea.
 
+
+
 uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
+
 
   player_t player = info_task[tareaActual].player;
 
@@ -274,10 +276,23 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
     return 0;
   }
 
+  //print_dec(cant_meeseeks[player],2,3,45,WHITE_BLACK);
+
   // filtramos que los meeseeks del jugador no esten en el limite de capacidad
   if (cant_meeseeks[player] >= MAX_CANT_MEESEEKS) {
+    print("DEFENSA DE ALL BOYS", 8 , 26, RED_GREEN);
+    //breakpoint();
+    print("DEFENSA DE ALL BOYS", 8 , 26, GREEN_GREEN);
     return 0;
   }
+
+  cont_aux ++;
+  // breakpoint();
+  print_dec(cont_aux, 2, 3,45,WHITE_BLACK);
+  if (cont_aux >= 20){
+   // breakpoint();
+  }
+  
 
   coordenadas coord_actual;
   coord_actual.x = x;
