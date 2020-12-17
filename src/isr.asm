@@ -119,6 +119,7 @@ _isr32:
      ;xchg bx, bx 
      jmp far [sched_task_offset]
      .fin:
+     ;xchg bx, bx 
      popad
 iret
 
@@ -162,10 +163,11 @@ _isr88:
      mov [temp], eax ; mov eax a variable temporal
      add esp,12     ; tenemos 3 parametros de entrada
 
+     
      call sched_idle
+xchg bx, bx
      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
      jmp far [sched_task_offset]
-
 
      popad          ; recupero registros
      mov eax, [temp] ; returneo en ceax   

@@ -222,8 +222,6 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
   if(cant_semillas == 0){
       end_game();
   }
-
-
   
   
 }
@@ -264,8 +262,16 @@ void clock_task(){
 
 uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
 
+  
+  
 
   player_t player = info_task[tareaActual].player;
+
+  // if (!player){
+  //   breakpoint();
+  // }
+    
+    
 
   if (player != RICK && player != MORTY) {
     return 0;
@@ -280,9 +286,12 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
 
   // filtramos que los meeseeks del jugador no esten en el limite de capacidad
   if (cant_meeseeks[player] >= MAX_CANT_MEESEEKS) {
-    print("DEFENSA DE ALL BOYS", 8 , 26, RED_GREEN);
-    //breakpoint();
-    print("DEFENSA DE ALL BOYS", 8 , 26, GREEN_GREEN);
+  //   print("DEFENSA DE ALL BOYS", 8 , 26, RED_GREEN); 
+  // if (!player){
+  //   breakpoint();
+  // }
+  // print("DEFENSA DE ALL BOYS", 8 , 26, GREEN_GREEN);
+  
     return 0;
   }
 
@@ -309,6 +318,12 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
     if(cant_semillas == 0){
       end_game();
     }
+
+    // if (!player){
+    //   print("CAYO EN SEMILLA", 8 , 26, RED_GREEN);
+    //   breakpoint();
+    //   print("CAYO EN SEMILLA", 8 , 26, GREEN_GREEN);
+    // }
     return 0;
   }
 
@@ -326,6 +341,12 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
   update_meeseek_map(player, coord_actual, ADD);  // 1 = ADD
 
   cant_meeseeks[player]++;
+
+  // if (!player){ 
+  //   print("FIN POSTA", 8 , 26, RED_GREEN);
+  //   breakpoint();
+  //   print("FIN POSTA", 8 , 26, GREEN_GREEN);
+  // }
 
   return virt_res;
 }

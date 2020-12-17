@@ -302,7 +302,10 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
 
   init_tasks[player] ++;
 
-
+  if(cr3 == 0){
+    print("DESAPROBAMOSSSSS SI PASA ESTO", 7, 6, BLACK_RED);
+    breakpoint();
+  }
 
   tss_gdt_entry_init(next_free_gdt_idx, (uint32_t)tss_new_task, 3);
 
@@ -353,7 +356,58 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
     TSSs[next_free_gdt_idx] = tss_new_task;
   }
 
-  lcr3(cr3); //! PARTE DE LA FALOPEADA, creo que al final no es falopeada. Revisar :)
+  // lcr3(cr3); //! PARTE DE LA FALOPEADA, creo que al final no es falopeada. Revisar :)
 
   return task_virt_address;
 }
+
+
+
+
+
+/*
+
+<bochs:313> info tss
+tr:s=0x90, base=0x00008e20, valid=1
+ss:esp(0): 0x0058:0x00008e88
+ss:esp(1): 0x0000:0x00000000
+ss:esp(2): 0x0000:0x00000011
+cr3: 0x00000000
+eip: 0x00008e54
+eflags: 0x0000208c
+cs: 0x0000 ds: 0x0013 ss: 0x003b
+es: 0x0000 fs: 0x0063 gs: 0x0246
+eax: 0x01d0003b  ebx: 0x00000000  ecx: 0x00000011  edx: 0x00002099
+esi: 0x00008e74  edi: 0x00000011  ebp: 0x00000000  esp: 0x00000000
+ldt: 0x3ffc
+i/o map: 0x0000
+<bochs:314> 
+
+
+<bochs:217> info tss
+tr:s=0x90, base=0x00008e20, valid=1
+ss:esp(0): 0x0058:0x00108000
+ss:esp(1): 0x0000:0x00000000
+ss:esp(2): 0x0000:0x00000000
+cr3: 0x00104000
+eip: 0x000020a5
+eflags: 0x00000006
+cs: 0x0050 ds: 0x006b ss: 0x0058
+es: 0x006b fs: 0x006b gs: 0x006b
+eax: 0x00000080  ebx: 0x0000000c  ecx: 0x00000000  edx: 0x00000000
+esi: 0x00000000  edi: 0x00000000  ebp: 0x00107fcc  esp: 0x00107fcc
+ldt: 0x0000
+i/o map: 0xffff
+<bochs:218> 
+
+
+
+
+
+
+
+
+
+
+
+*/

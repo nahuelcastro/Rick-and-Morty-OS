@@ -73,6 +73,7 @@ typedef struct info_meeseek
   bool p;
   paddr_t virt;
   paddr_t stack_level_0;
+  uint8_t idx_TSS
 } backup_meesek;
 
 extern backup_meesek backup_meeseks[PLAYERS][MAX_CANT_MEESEEKS];

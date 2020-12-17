@@ -14,54 +14,71 @@
 void meeseks1_func(void);
 
 
+// void task(void) {
+
+//   syscall_meeseeks((uint32_t)&meeseks1_func, 79 , 0); // 20
+//   syscall_meeseeks((uint32_t)&meeseks1_func, 1 , 24); // 22
+//   syscall_meeseeks((uint32_t)&meeseks1_func, 11, 25); // 24
+//   syscall_meeseeks((uint32_t)&meeseks1_func, 21, 26); // 26
+//   syscall_meeseeks((uint32_t)&meeseks1_func, 31, 27); // 28
+
+//   syscall_meeseeks((uint32_t)&meeseks1_func, 51, 28); // 30
+//   syscall_meeseeks((uint32_t)&meeseks1_func, 61, 29); // 32
+//   syscall_meeseeks((uint32_t)&meeseks1_func, 71, 25); // 34
+//   syscall_meeseeks((uint32_t)&meeseks1_func, 56, 11); // 36
+//   syscall_meeseeks((uint32_t)&meeseks1_func, 23 , 8); // 38
+  
+
+//   syscall_meeseeks((uint32_t)&meeseks1_func, 79 , 0); // 20
+//   syscall_meeseeks((uint32_t)&meeseks1_func, 1 , 24); // 22
+//   // syscall_meeseeks((uint32_t)&meeseks1_func, 11, 25); // 24
+//   // syscall_meeseeks((uint32_t)&meeseks1_func, 21, 26); // 26
+//   // syscall_meeseeks((uint32_t)&meeseks1_func, 31, 27); // 28
+
+//   // syscall_meeseeks((uint32_t)&meeseks1_func, 51, 28); // 30
+//   // syscall_meeseeks((uint32_t)&meeseks1_func, 61, 29); // 32
+//   // syscall_meeseeks((uint32_t)&meeseks1_func, 71, 25); // 34
+//   // syscall_meeseeks((uint32_t)&meeseks1_func, 56, 11); // 36
+//   // syscall_meeseeks((uint32_t)&meeseks1_func, 23 , 8); // 38
+  
+
+//   // syscall_meeseeks((uint32_t)&meeseks1_func, 79 , 0); // 20
+//   // syscall_meeseeks((uint32_t)&meeseks1_func, 1 , 24); // 22
+//   // syscall_meeseeks((uint32_t)&meeseks1_func, 11, 25); // 24
+//   // syscall_meeseeks((uint32_t)&meeseks1_func, 21, 26); // 26
+//   // syscall_meeseeks((uint32_t)&meeseks1_func, 31, 27); // 28
+
+//   // syscall_meeseeks((uint32_t)&meeseks1_func, 51, 28); // 30
+//   // syscall_meeseeks((uint32_t)&meeseks1_func, 61, 29); // 32
+//   // syscall_meeseeks((uint32_t)&meeseks1_func, 71, 25); // 34
+//   // syscall_meeseeks((uint32_t)&meeseks1_func, 56, 11); // 36
+//   // syscall_meeseeks((uint32_t)&meeseks1_func, 23 , 8); // 38
+  
+
+//   while (1) {
+//     __asm volatile("nop");
+//     // syscall_meeseeks((uint32_t)&meeseks1_func,79,0);
+//       // syscall_meeseeks((uint32_t)&meeseks1_func, 23 , 8); // 38
+
+//   }
+// }
+
 void task(void) {
-
-  syscall_meeseeks((uint32_t)&meeseks1_func, 79 , 0); // 20
-  syscall_meeseeks((uint32_t)&meeseks1_func, 1 , 24); // 22
-  syscall_meeseeks((uint32_t)&meeseks1_func, 11, 25); // 24
-  syscall_meeseeks((uint32_t)&meeseks1_func, 21, 26); // 26
-  syscall_meeseeks((uint32_t)&meeseks1_func, 31, 27); // 28
-
-  syscall_meeseeks((uint32_t)&meeseks1_func, 51, 28); // 30
-  syscall_meeseeks((uint32_t)&meeseks1_func, 61, 29); // 32
-  syscall_meeseeks((uint32_t)&meeseks1_func, 71, 25); // 34
-  syscall_meeseeks((uint32_t)&meeseks1_func, 56, 11); // 36
-  syscall_meeseeks((uint32_t)&meeseks1_func, 23 , 8); // 38
-  
-
-  syscall_meeseeks((uint32_t)&meeseks1_func, 79 , 0); // 20
-  syscall_meeseeks((uint32_t)&meeseks1_func, 1 , 24); // 22
-  // syscall_meeseeks((uint32_t)&meeseks1_func, 11, 25); // 24
-  // syscall_meeseeks((uint32_t)&meeseks1_func, 21, 26); // 26
-  // syscall_meeseeks((uint32_t)&meeseks1_func, 31, 27); // 28
-
-  // syscall_meeseeks((uint32_t)&meeseks1_func, 51, 28); // 30
-  // syscall_meeseeks((uint32_t)&meeseks1_func, 61, 29); // 32
-  // syscall_meeseeks((uint32_t)&meeseks1_func, 71, 25); // 34
-  // syscall_meeseeks((uint32_t)&meeseks1_func, 56, 11); // 36
-  // syscall_meeseeks((uint32_t)&meeseks1_func, 23 , 8); // 38
-  
-
-  // syscall_meeseeks((uint32_t)&meeseks1_func, 79 , 0); // 20
-  // syscall_meeseeks((uint32_t)&meeseks1_func, 1 , 24); // 22
-  // syscall_meeseeks((uint32_t)&meeseks1_func, 11, 25); // 24
-  // syscall_meeseeks((uint32_t)&meeseks1_func, 21, 26); // 26
-  // syscall_meeseeks((uint32_t)&meeseks1_func, 31, 27); // 28
-
-  // syscall_meeseeks((uint32_t)&meeseks1_func, 51, 28); // 30
-  // syscall_meeseeks((uint32_t)&meeseks1_func, 61, 29); // 32
-  // syscall_meeseeks((uint32_t)&meeseks1_func, 71, 25); // 34
-  // syscall_meeseeks((uint32_t)&meeseks1_func, 56, 11); // 36
-  // syscall_meeseeks((uint32_t)&meeseks1_func, 23 , 8); // 38
-  
+  for (int row = 0; row < 40; row++) {
+    for (int col = 0; col < 80; col++) {
+      uint32_t res = 0;
+      while (res == 0) {
+        res = syscall_meeseeks((uint32_t)&meeseks1_func, col, row);
+        // breakpoint();
+      }
+    }
+  }
 
   while (1) {
     __asm volatile("nop");
-    // syscall_meeseeks((uint32_t)&meeseks1_func,79,0);
-      // syscall_meeseeks((uint32_t)&meeseks1_func, 23 , 8); // 38
-
   }
 }
+
 
 
 void meeseks1_func(void){

@@ -174,6 +174,7 @@ paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt) {
     //     breakpoint();
     // }
 
+    tlbflush();
     return phyAddr;
 }
 
@@ -216,6 +217,7 @@ void mmu_map_kernel(paddr_t cr3) {
         mmu_map_page(cr3, memory_kernel, memory_kernel, 2);
         memory_kernel += PAGE_SIZE;
     }
+    tlbflush();
 }
 
 void mmu_unmap_kernel(paddr_t cr3) {
@@ -224,6 +226,7 @@ void mmu_unmap_kernel(paddr_t cr3) {
         mmu_unmap_page(cr3, memory_kernel);
         memory_kernel += PAGE_SIZE;
     }
+    tlbflush();
 }
 
 void mmu_init_task_meeseeks_dir(
@@ -249,6 +252,7 @@ void mmu_init_task_meeseeks_dir(
     for (int i = 0; i < PAGE_SIZE * 2; i++) {
         ptr_virt_page[i] = ptr_code_page[i];
     }
+    tlbflush();
 }
 
 
@@ -295,6 +299,7 @@ void mmu_remap_meeseek(paddr_t new_phy, paddr_t virt) {
     new_phy += PAGE_SIZE;
     virt += PAGE_SIZE;
   }
+  tlbflush();
 }
 
 
