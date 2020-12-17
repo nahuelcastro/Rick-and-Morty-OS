@@ -65,6 +65,7 @@ void init_idle();
 void tss_gdt_entry_init(uint32_t index, uint32_t base, int dpl);
 
 extern tss_t* TSSs[35];
+extern uint32_t gdt_index;
 
 typedef struct meeseek{
   uint8_t p;

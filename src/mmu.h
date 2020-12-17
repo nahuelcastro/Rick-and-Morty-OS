@@ -11,6 +11,7 @@
 
 #include "types.h"
 #include "game.h"
+#include "tss.h"
 
 #include "defines.h"
 // #include "tss.h"
@@ -73,7 +74,8 @@ typedef struct info_meeseek
   bool p;
   paddr_t virt;
   paddr_t stack_level_0;
-  uint8_t idx_TSS
+  uint32_t gdt_index;
+  tss_t *tss;
 } backup_meesek;
 
 extern backup_meesek backup_meeseks[PLAYERS][MAX_CANT_MEESEEKS];
