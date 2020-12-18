@@ -242,7 +242,7 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
 
   // print_hex(task_phy_address, 8, 49, 5, C_FG_LIGHT_GREEN);
   
-  breakpoint();
+  // breakpoint();
 
   uint32_t cr3 = rcr3();    //! NO SE SI ESTO ESTA BIEN O ES FALOPEADA, ME SUENA RARO DEVOLVER LA TAREA CON EL CR3 DEL KERNEL
 
@@ -308,11 +308,6 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
   sched[player][idx_msk + 1].info_task = &info_task[gdt_index]; 
 
   init_tasks[player] ++;
-
-  if(cr3 == 0){
-    print("DESAPROBAMOSSSSS SI PASA ESTO", 7, 6, BLACK_RED);
-    breakpoint();
-  }
 
   if(reciclar){
     // poner los valores en la TSS vieja
@@ -416,7 +411,7 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
 
   // lcr3(cr3); //! PARTE DE LA FALOPEADA, creo que al final no es falopeada. Revisar :)
 
-  breakpoint();
+  // breakpoint();
 
   return task_virt_address;
 }

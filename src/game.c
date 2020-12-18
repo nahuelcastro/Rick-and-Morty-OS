@@ -13,7 +13,8 @@
 #include "screen.h"
 #include "stdint.h"
 #include "types.h"
-// #include <time.h>
+
+// #include <math.h>
 extern void pantalla_negra_debug();
 
 seed semillas[MAX_CANT_SEMILLAS];
@@ -24,14 +25,15 @@ const bool ADD = true;
 const bool DELETE = false;
 info_gdt_meeseek info_gdt_meeseeks[GDT_COUNT];
 
-int cont_aux;
+
+uint8_t color_map_msk[PLAYERS];
 
 
 bool create_msk_morty = false;
 bool create_msk_rick = false;
 
 void clean_cell(coordenadas coord) {
-  print("X", coord.x, coord.y + 1, GREEN_GREEN);
+  print("X", coord.x, coord.y, GREEN_GREEN);
 }
 
 void update_map_seed(coordenadas coord) {
@@ -47,7 +49,7 @@ void update_meeseek_map(player_t player, coordenadas coord, bool reason) {
     } else {
       PLAYER_MEESEEK_COLOR = MORTY_MEESEEK_COLOR;
     }
-    print("M", coord.x, coord.y + 1, PLAYER_MEESEEK_COLOR);
+    print("M", coord.x, coord.y, PLAYER_MEESEEK_COLOR);
 
   } else {  // reason == DELETE
     clean_cell(coord);
@@ -55,7 +57,8 @@ void update_meeseek_map(player_t player, coordenadas coord, bool reason) {
 }
 
 void game_init(void) {
-  cont_aux = 0;
+  color_map_msk[MORTY] = MORTY_MEESEEK_COLOR;
+  color_map_msk[RICK] = RICK_MEESEEK_COLOR;
   ultimoJugador = MORTY;
   tss_creator(RICK, 0);
   tss_creator(MORTY, 0);
@@ -63,22 +66,22 @@ void game_init(void) {
   cant_semillas = MAX_CANT_SEMILLAS - 1;
   score[MORTY] = 0;
   score[RICK] = 0;
-  print_dec(score[RICK], 8, 10, 44, WHITE_RED);
-  print_dec(score[MORTY], 8, 62, 44, WHITE_BLUE);
-  print("R  00 01 02 03 04 05 06 07 08 09 ", 23, 42,
+  print_dec(score[RICK], 8, 10, 45, WHITE_RED);
+  print_dec(score[MORTY], 8, 62, 45, WHITE_BLUE);
+  print("R  00 01 02 03 04 05 06 07 08 09 ", 23, 43,
         BLACK_RED);                                             // letras rojas
-  print("M", 57, 42, BLACK_BLUE);                               // M azul
-  print("00 01 02 03 04 05 06 07 08 09 ", 26, 46, BLACK_BLUE);  // letras azules
+  print("M", 57, 43, BLACK_BLUE);                               // M azul
+  print("00 01 02 03 04 05 06 07 08 09 ", 26, 47, BLACK_BLUE);  // letras azules
 
   // print semillas al azar
   // srand(time(0)); 
   for (int i = 1; i < MAX_CANT_SEMILLAS; i++) {
     uint8_t x = rand();
     uint8_t y = rand();
-    print("s", x % 80, (y % 40) + 1, GREEN_YELLOW);
+    print("s", x % 80, (y % 41) + 1, GREEN_YELLOW);
     coordenadas coord;
     coord.x = x % 80;
-    coord.y = y % 40;
+    coord.y = y % 41 + 1;
     indexSemilla++;
     semillas[indexSemilla].p = true;
     semillas[indexSemilla].coord = coord;
@@ -117,15 +120,11 @@ void end_game(void) {
 
 void add_update_score(player_t player) {
   score[player] += 425;
-  print_dec(score[RICK], 8, 10, 44, WHITE_RED);
-  print_dec(score[MORTY], 8, 62, 44, WHITE_BLUE);
+  print_dec(score[RICK], 8, 10, 45, WHITE_RED);
+  print_dec(score[MORTY], 8, 62, 45, WHITE_BLUE);
 }
 
 bool same(coordenadas a, coordenadas b) {
-  // print_dec(a.x, 2 ,2,  i - 1, WHITE_RED);
-  // print_dec(a.y, 2 ,6,  i - 1, WHITE_RED);
-  // print_dec(b.x, 2 ,12, i - 1, WHITE_RED);
-  // print_dec(b.y, 2 ,18, i - 1, WHITE_RED);
   return (a.x == b.x && a.y == b.y);
 }
 
@@ -185,7 +184,7 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
   info_task[tareaActual].clock = 0;
   coordenadas coord; 
   coord.x = 26 + 3 * info_task[tareaActual].idx_msk;
-  coord.y = 48 - 4 * info_task[tareaActual].player;
+  coord.y = 49 - 4 * info_task[tareaActual].player;
   print("C ", coord.x, coord.y, BLACK_BLACK);
   print("X ", coord.x, coord.y, WHITE_BLACK);
   
@@ -261,16 +260,8 @@ void clock_task(){
 
 
 uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
-
   
-  
-
   player_t player = info_task[tareaActual].player;
-
-  // if (!player){
-  //   breakpoint();
-  // }
-    
     
 
   if (player != RICK && player != MORTY) {
@@ -282,30 +273,14 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
     return 0;
   }
 
-  //print_dec(cant_meeseeks[player],2,3,45,WHITE_BLACK);
-
   // filtramos que los meeseeks del jugador no esten en el limite de capacidad
   if (cant_meeseeks[player] >= MAX_CANT_MEESEEKS) {
-  //   print("DEFENSA DE ALL BOYS", 8 , 26, RED_GREEN); 
-  // if (!player){
-  //   breakpoint();
-  // }
-  // print("DEFENSA DE ALL BOYS", 8 , 26, GREEN_GREEN);
-  
     return 0;
   }
 
-  cont_aux ++;
-  // breakpoint();
-  print_dec(cont_aux, 2, 3,45,WHITE_BLACK);
-  if (cont_aux >= 20){
-   // breakpoint();
-  }
-  
-
   coordenadas coord_actual;
-  coord_actual.x = x;
-  coord_actual.y = y;
+  coord_actual.x = x; 
+  coord_actual.y = y + 1; //ver si esta bien
 
   // si meeseek justo cae en semilla, suma puntos y chau semilla
   int index_aux = index_in_seed(coord_actual);
@@ -319,11 +294,6 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
       end_game();
     }
 
-    // if (!player){
-    //   print("CAYO EN SEMILLA", 8 , 26, RED_GREEN);
-    //   breakpoint();
-    //   print("CAYO EN SEMILLA", 8 , 26, GREEN_GREEN);
-    // }
     return 0;
   }
 
@@ -337,16 +307,10 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
   meeseeks[player][index_meeseek].p = 1;
   meeseeks[player][index_meeseek].coord = coord_actual;
   meeseeks[player][index_meeseek].used_portal_gun = false;
-  // meeseeks[player][index_meeseek].gdt_index = tareaActual;
   update_meeseek_map(player, coord_actual, ADD);  // 1 = ADD
 
   cant_meeseeks[player]++;
 
-  // if (!player){ 
-  //   print("FIN POSTA", 8 , 26, RED_GREEN);
-  //   breakpoint();
-  //   print("FIN POSTA", 8 , 26, GREEN_GREEN);
-  // }
 
   return virt_res;
 }
@@ -391,7 +355,7 @@ uint32_t sys_move(uint32_t x, uint32_t y) {
   new_coord.x = x + coord_actual.x;
   new_coord.y = y + coord_actual.y;
   new_coord.x = (new_coord.x % 80 + 80) % 80;
-  new_coord.y = (new_coord.y % 40 + 40) % 40;
+  new_coord.y = ((new_coord.y % 40 + 40) % 41) + 1;
   int16_t index_aux = index_in_seed(new_coord);
   bool in_seed = index_aux != -1;
   
@@ -428,7 +392,7 @@ void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y){
   new_coord.x = x + coord_actual.x;
   new_coord.y = y + coord_actual.y;
   new_coord.x = (new_coord.x % 80 + 80) % 80;
-  new_coord.y = (new_coord.y % 40 + 40) % 40;
+  new_coord.y = ((new_coord.y % 40 + 40) % 41 )+ 1;
   
 
   int16_t index_aux = index_in_seed(new_coord);
@@ -460,7 +424,6 @@ void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y){
 
 // rick y morty la pueden llamar? no aclara
 void sys_use_portal_gun(){
-  
 
   if(tareaActual == 17 || tareaActual == 18 ){ // verificar que funcione
     desactivar_tarea();
@@ -487,14 +450,14 @@ void sys_use_portal_gun(){
       }
     }
 
-    uint32_t rdm = rand() % number_opp_msks + 1;
+    uint32_t rdm = rand() % number_opp_msks;
 
     uint8_t idx_msk = idxs_msk[rdm];
 
     
     //saco una coordenada al azar
     uint32_t x = rand() % 80;
-    uint32_t y = rand() % 40;
+    uint32_t y = (rand() % 41) + 1;
 
     coordenadas new_coord;
     new_coord.x = (uint8_t) x;  
@@ -504,24 +467,20 @@ void sys_use_portal_gun(){
     coord_actual = meeseeks[opponent][idx_msk].coord;
 
     //lo muevo a dicha coordenada, de manera similar al move, es mas, podemos hacer que el move dado un falg de si tiene restriccion o no, mueva
-
-      //calculo desplazamiento
-    int8_t movement_x = (new_coord.x  - coord_actual.x);  
-    int8_t movement_y = (new_coord.y  - coord_actual.y);
-
     uint8_t backup_tareaActual = tareaActual;
 
     tareaActual = meeseeks[opponent][idx_msk].gdt_index;
-
       
     // print("DISPARA", 10,2,WHITE_RED);
     // print_hex(backup_tareaActual,2, 20, 2,WHITE_RED);
 
     // print("RECIBE", 25,2,WHITE_RED);
     // print_hex(tareaActual,2, 35,2,WHITE_RED);
-    // if (tareaActual == 0){
-    //   breakpoint();
-    // }
+
+      //calculo desplazamiento
+    int8_t movement_x = (new_coord.x  - coord_actual.x);  
+    int8_t movement_y = (new_coord.y  - coord_actual.y);
+
 
     lcr3(cr3[opponent]);
 
@@ -530,17 +489,17 @@ void sys_use_portal_gun(){
     lcr3(cr3[player]);
 
     tareaActual = backup_tareaActual; 
-    
+   
   }
-
-
 }
 
 
-
-
-
 int8_t sys_look (uint8_t flag){
+
+    print("id_m:", 64,30,WHITE_RED);
+    print("M:x,y:", 64,32,WHITE_RED);
+    print("S:x,y:", 64,34,WHITE_RED);
+    print("Mov:", 64,36,WHITE_RED);
 
   if(tareaActual == 17 || tareaActual == 18 ){ // verificar que funcione
     desactivar_tarea();
@@ -551,37 +510,74 @@ int8_t sys_look (uint8_t flag){
 
   coordenadas coord_actual = meeseeks[player][idx_msk].coord;
 
+  uint8_t actual_dist;
 
 
   uint8_t min_candidate = 255;
   uint32_t min_idx_seed  = MAX_CANT_SEMILLAS + 1; 
   for (uint32_t i = 0; i < MAX_CANT_SEMILLAS; i++){
     if(semillas[i].p){
-      uint8_t actual_dist = abs(coord_actual.x - semillas[i].coord.x) + abs(coord_actual.y - semillas[i].coord.y); 
+      actual_dist = abs(coord_actual.x - semillas[i].coord.x) + abs(coord_actual.y - semillas[i].coord.y); 
+
+      // print("S", semillas[i].coord.x, semillas[i].coord.y, WHITE_BLACK);
+      // print_dec(semillas[i].coord.x,2, 71,34,WHITE_RED);   //la semilla mas cercana
+      // print_dec(semillas[i].coord.y  ,2, 75,34,WHITE_RED);
+      // print_dec(actual_dist, 2 ,54, i + 1, RED_GREEN);
+      // print_dec(min_candidate, 3 ,76 ,45, WHITE_BLACK);
+
+      // breakpoint();
+
+      // print("s", semillas[i].coord.x, semillas[i].coord.y, GREEN_YELLOW);
+
+
       if(actual_dist < min_candidate){
         min_candidate = actual_dist;
         min_idx_seed = i;
       }
     }
   }
+
+  // print_dec(min_candidate, 2 ,76 ,45, WHITE_BLACK);
+
+
   
   int16_t movement_x = (int16_t)(semillas[min_idx_seed].coord.x  - coord_actual.x);  
   int16_t movement_y = (int16_t)(semillas[min_idx_seed].coord.y  - coord_actual.y);
 
 
+
+
   //! NO BORRAR 
-  // if(movement_x == movement_y && movement_x == 0){
-  //   print("id_m:", 64,30,WHITE_RED);
-  //   print("M:x,y:", 64,32,WHITE_RED);
-  //   print("S:x,y:", 64,34,WHITE_RED);
+  
     
-  //   print_dec(idx_msk,4, 70,30,WHITE_RED);                          // para ver si levantamos la tarea que queremos 
-  //   print_dec(coord_actual.x,2, 70,32,WHITE_RED);                   // coordenadas de la actual
-  //   print_dec(coord_actual.y,2, 73,32,WHITE_RED);
-  //   print_dec(semillas[min_idx_seed].coord.x,2, 70,34,WHITE_RED);   //la semilla mas cercana
-  //   print_dec(semillas[min_idx_seed].coord.y,2, 73,34,WHITE_RED);
+  //   print_dec(idx_msk,2, 71,30,WHITE_RED);                          // para ver si levantamos la tarea que queremos 
+
+
+  //   print_dec(semillas[min_idx_seed].coord.x,2, 71,34,WHITE_RED);   //la semilla mas cercana
+  //   print_dec(semillas[min_idx_seed].coord.y  ,2, 75,34,WHITE_RED);
+  //   print("S", semillas[min_idx_seed].coord.x, semillas[min_idx_seed].coord.y, WHITE_BLACK);
+
+  //   if(movement_x < 0){print("-", 70,36,WHITE_RED);}   //la semilla mas cercana
+  //   print_dec(abs(movement_x),2, 71,36,WHITE_RED);
+
+  //   if(movement_y < 0){print("-", 74,36,WHITE_RED);}   //la semilla mas cercana
+  //   print_dec(abs(movement_y),2, 75,36,WHITE_RED);
+
   //   breakpoint();
-  // }
+
+  //   print("-", 70, 36, GREEN_GREEN);
+  //   print("-", 74, 36,  GREEN_GREEN);
+  //   print("M", coord_actual.x, coord_actual.y, color_map_msk[player]);
+  //   print("S", semillas[min_idx_seed].coord.x, semillas[min_idx_seed].coord.y, GREEN_YELLOW);
+
+  // // breakpoint();
+
+  //clean falopa
+  for (size_t i = 1; i < 41; i++){
+    print_dec(00, 2 ,54, i + 1, GREEN_GREEN);
+  }
+  
+    // breakpoint();
 
   // breakpoint();
   return flag == 0 ?  movement_x : movement_y;

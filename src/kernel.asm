@@ -264,7 +264,7 @@ primer_fila_negra:
 filas_verdes:
     mov word [fs:2*ecx], GREEN
     inc ecx
-    cmp ecx, 3280
+    cmp ecx, 3360
     jne filas_verdes
 
 xor ebx, ebx

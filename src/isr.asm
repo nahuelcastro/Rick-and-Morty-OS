@@ -116,7 +116,7 @@ _isr32:
      call clock_task
      call next_clock
      mov word [sched_task_selector], ax
-     ;xchg bx, bx 
+     ; xchg bx, bx 
      jmp far [sched_task_offset]
      .fin:
      ;xchg bx, bx 
@@ -165,7 +165,6 @@ _isr88:
 
      
      call sched_idle
-xchg bx, bx
      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
      jmp far [sched_task_offset]
 
