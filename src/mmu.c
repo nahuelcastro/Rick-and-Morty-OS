@@ -44,9 +44,9 @@ void mmu_init(void) {
 paddr_t mmu_next_free_kernel_page(void) {
     paddr_t free_page = next_free_kernel_page;
     next_free_kernel_page += 0x1000;
-    print_hex(free_page, 6 , 5, 5, RED_GREEN);
+
     if(free_page > 0x3FFFFF){
-        print("EXPLOTA TODO BRO", 5, 5, RED_GREEN);
+        print("TE PASASTE DEL LIMITE EN EL KERNEL :(", 5, 5, RED_GREEN);
         breakpoint();
     }
     return free_page;

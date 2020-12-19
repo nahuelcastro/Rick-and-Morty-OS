@@ -144,9 +144,7 @@ _isr33:
 
 global _isr88 
 
-; in EAX=code       Código de la tarea Mr Meeseeks a ser ejecutada.
-; in EBX=x          Columna en el mapa donde crear el Mr Meeseeks.
-; in ECX=y          Fila en el mapa donde crear el Mr Meeseeks
+
 
 _isr88:    
      ; xchg bx,bx
@@ -190,51 +188,11 @@ _isr89:
      popad
 iret
 
-; _isr33:
-;      pushad 
-;      in al, 0x60
-;      cmp al, k_debug
-;      jne .fin
-;      call modo_debug
-;      .fin:
-;      ;avisar al pic que se recibio la interrupcion
-;      call pic_finish1
-;      popad
-;      iret
 
 
 
 global _isr100
 
-; _isr100:
-;      pushad
-;      mov ebp, esp
-
-;      call sys_look
-;      ; xchg bx, bx 
-;      ; mov byte  [tempw1], al
-;      ; ;shr ax, 8
-;      ; mov byte [tempw2],ah
-
-;      mov byte bl, [eax]
-;      mov byte  [tempb1], bl
-;      add eax, 8;
-;      mov byte bl, [eax] 
-;      mov byte [tempb2],bl
-
-
-;      call sched_idle
-;      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
-;      jmp far [sched_task_offset]
-
-;      popad
-;      mov byte eax, [tempb1]
-;      mov byte ebx, [tempb2]
-
-;      xchg bx, bx 
-;      ;COMPLETAR BIEN DEL TODO VER COMO DEVOLVER LOS 2 VALORES
-
-; iret
 
 _isr100:
      pushad
@@ -265,11 +223,6 @@ iret
 
 global _isr123
 
-; in EAX=x Desplazamiento en x
-; in EBX=y Desplazamiento en y
-; out EAX=worked 0: No se desplazo, 1: Se desplazo
-
-
 
 _isr123:
      pushad
@@ -289,19 +242,6 @@ _isr123:
      popad          ; recupero registros
      mov eax, [temp] ; returneo en ceax   
 iret
-
-
-; _isr123:
-;      pushad
-;      mov ebp, esp
-;      push eax
-;      call next_clock
-;      mov ax,0x80 ;idle
-;      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
-;      jmp far [sched_task_offset]
-;      ;pop ebp
-;      popad
-; iret
 
 
 ;; Rutinas de atención de las SYSCALLS

@@ -40,10 +40,6 @@ uint32_t cr3[PLAYERS];
 
 uint32_t gdt_index = 0;
 
-// player_t player_idx_gdt[GDT_COUNT];
-// bool tareasActivas[GDT_COUNT];
-
-
 info_task_t info_task[GDT_COUNT];
 
 
@@ -58,7 +54,6 @@ void init_tss(void) {
   }
   
   for (size_t i = 0; i < GDT_COUNT; i++){
-    // tareasActivas[i] = false;
     info_task[i].active = false;
   }
   
@@ -146,7 +141,7 @@ void tss_gdt_entry_init(uint32_t index, uint32_t tss, int dpl) {
 
 uint32_t next_free_gdt_idx = 16;
 
-void next_free_tss() {    //! ver si estamos de acuerdo con que cada tarea tengo un indice nuevo en la gdt o reutilizar los que no estemos usando
+void next_free_tss() {    
   next_free_gdt_idx++;  
 }
 
@@ -172,9 +167,6 @@ void tss_creator(int8_t player, int task){
 
   next_free_tss();
   
-  // player_idx_gdt[next_free_gdt_idx] = player;
-  // tareasActivas[next_free_gdt_idx] = true;
-
   info_task[next_free_gdt_idx].player = player;
   info_task[next_free_gdt_idx].active = true;
   info_task[next_free_gdt_idx].flag_loop = 0;
@@ -208,7 +200,7 @@ void tss_creator(int8_t player, int task){
   tss_new_task->edx = 0;
   tss_new_task->ebx = 0;
   tss_new_task->esp = TASK_VIRTUAL_DIR + 4 * PAGE_SIZE;
-  tss_new_task->ebp = 0; //TASK_VIRTUAL_DIR + 4 * PAGE_SIZE;
+  tss_new_task->ebp = 0; 
   tss_new_task->esi = 0;
   tss_new_task->edi = 0;
   tss_new_task->es  = IDX_DATO_LVL_3;
@@ -240,11 +232,8 @@ void tss_creator(int8_t player, int task){
 
 paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, coordenadas coord){
 
-  // print_hex(task_phy_address, 8, 49, 5, C_FG_LIGHT_GREEN);
   
-  // breakpoint();
-
-  uint32_t cr3 = rcr3();    //! NO SE SI ESTO ESTA BIEN O ES FALOPEADA, ME SUENA RARO DEVOLVER LA TAREA CON EL CR3 DEL KERNEL
+  uint32_t cr3 = rcr3();    
 
   // paddr_t code_start;
   paddr_t task_phy_address;
@@ -265,7 +254,7 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
   bool reciclar = backup_meeseks[player][idx_msk].p;
 
   if (reciclar){
-    // breakpoint();
+
     task_virt_address = backup_meeseks[player][idx_msk].virt;
     mmu_init_task_meeseeks_dir(task_phy_address, code_start, task_virt_address);
     gdt_index = backup_meeseks[player][idx_msk].gdt_index;
@@ -292,8 +281,6 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
   info_gdt_meeseeks[gdt_index].player = player;
   info_gdt_meeseeks[gdt_index].ticks_counter = 0;
 
-  // player_idx_gdt[gdt_index] = player;
-  // tareasActivas[gdt_index] = true;
 
   info_task[gdt_index].player = player;
   info_task[gdt_index].active = true;
@@ -408,10 +395,6 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
   else{
     TSSs[gdt_index] = tss_new_task;
   }
-
-  // lcr3(cr3); //! PARTE DE LA FALOPEADA, creo que al final no es falopeada. Revisar :)
-
-  // breakpoint();
 
   return task_virt_address;
 }

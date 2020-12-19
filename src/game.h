@@ -12,7 +12,6 @@
 #include "defines.h"
 #include "types.h"
 
-//#include <stdbool.h>
 
 typedef enum e_task_type {
   Rick = 1,
@@ -32,21 +31,21 @@ typedef struct ret_2{
 
 typedef struct seed{
   coordenadas coord;
-  bool p;   //_Bool
+  bool p;
 } seed;
 
 typedef struct meeseeks_info{
-  /* bool p;   //_Bool */
+
   uint8_t idx_msk; 
   player_t player;
   uint32_t ticks_counter;
-  // bool used_portal_gun;
+
 } info_gdt_meeseek;
 
 extern seed semillas[MAX_CANT_SEMILLAS];
 extern uint8_t indexSemilla;
 extern uint16_t cant_semillas;
-extern uint32_t score[PLAYERS]; // score[player]
+extern uint32_t score[PLAYERS];
 
 extern bool create_msk_morty;
 extern bool create_msk_rick;
@@ -78,7 +77,6 @@ void sys_use_portal_gun();
 
 extern info_gdt_meeseek info_gdt_meeseeks[GDT_COUNT];
 
-// extern uint32_t move(uint32_t x, uint32_t y)
 
 #endif //  __GAME_H__
 
