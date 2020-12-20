@@ -23,6 +23,10 @@ extern void init_pantalla();
 sched_t sched[PLAYERS][11];
 
 bool modoDebug;
+bool returning_debug_mode;
+
+uint32_t backup_map[80*41];
+
 
 void sched_init(void)
 {
@@ -30,6 +34,8 @@ void sched_init(void)
   tareaActual = index;
   tareaActualAnterior = tareaActual;
   modoDebug = false;
+  returning_debug_mode = false;
+
 
   for (player_t player = MORTY; player < PLAYERS ; player++){
     for (int i = 0; i < 11; i++){
@@ -57,21 +63,15 @@ void reset_p_loop_task(player_t player){
 
 info_task_t* next(player_t player){
 
-  //   print("t:",1,41,WHITE_BLACK);
-  // print_dec(tareaActual,1 , 3 ,41,WHITE_BLACK);
-
-  // print("p:",1, 43,WHITE_BLACK);
-  // print_dec(player,1 , 3 ,43,WHITE_BLACK);
 
   for (uint8_t i = 0; i < 11; i++){
-    // bool p_loop_sched = /*sched[player][i].p_loop_sched*/ false;
     bool active = sched[player][i].info_task->active;
     bool p_loop_task = sched[player][i].info_task->flag_loop;
 
     if( active && !p_loop_task ){
         sched[player][i].info_task->flag_loop = true;
         sched[player][i].p_loop_sched = true;
-        // print_dec(sched[player][i].info_task->idx_gdt,4, 70,30,WHITE_RED); 
+
         return sched[player][i].info_task;
     }
   }
@@ -120,7 +120,7 @@ void update_msk_clocks(info_task_t* task){
   uint8_t i = task->clock;
   coordenadas coord; 
   coord.x = 26 + 3 * task->idx_msk;
-  coord.y = 48 - 4 * task->player;
+  coord.y = 49 - 4 * task->player;
   print("C", coord.x, coord.y, BLACK_BLACK);
   print(CLOCK[i], coord.x, coord.y, WHITE_BLACK);
 }
@@ -128,6 +128,22 @@ void update_msk_clocks(info_task_t* task){
 
 // //! SCHED NAJU
 uint16_t sched_next_task(void){
+
+  if (modoDebug){
+    return (IDLE << 3);
+  }
+  
+  if (returning_debug_mode){
+    // restaurar pantalla
+    uint32_t* video = (uint32_t*) VIDEO;
+	  for(uint32_t i = 0; i< 80*41; i++) {
+   		video[i] = backup_map[i];
+	  }
+
+    //cambiar a la tarea que le toca  //! ME PARECE QUE POR COMO FUNCA EL SCHED, NO HACE FALTA ESTO
+
+    returning_debug_mode = false;
+  }
 
   player_t new_player;
   tareaActual = tareaActualAnterior;
@@ -155,21 +171,6 @@ uint16_t sched_next_task(void){
   tareaActual = index;
   tareaActualAnterior = index;
 
-
-
-  //   print("i" , 5 ,4,WHITE_RED);          // i
-  //   print("a" , 8 ,4,WHITE_RED);          // task_active
-  //   print("Pl", 10,4,WHITE_RED);          // p_loop_sched
-  //   print("Fl", 13,4,WHITE_RED);          // flag_loop
-  //   print("ig", 16,4,WHITE_RED);          // idx_gdt
-  //   print("ma", 19,4,WHITE_RED);          // meeseek activo
-  //   print("player :", 17,0,WHITE_RED);
-  //   print_dec(new_player,1 , 25,0,WHITE_RED);
-
-  // print("t",3,42,WHITE_BLACK);
-  // print_hex(task->idx_gdt,2,5,42, WHITE_BLACK);          // i
-
-
   return (task->idx_gdt << 3);
 
 }
@@ -186,7 +187,7 @@ void desactivar_tarea(){
   info_task[tareaActual].clock = 0;
   coordenadas coord; 
   coord.x = 26 + 3 * info_task[tareaActual].idx_msk;
-  coord.y = 48 - 4 * info_task[tareaActual].player;
+  coord.y = 49 - 4 * info_task[tareaActual].player;
   print("C ", coord.x, coord.y, BLACK_BLACK);
   print("X ", coord.x, coord.y, WHITE_BLACK);
 
@@ -220,11 +221,19 @@ void modo_debug(void){
   if(modoDebug){
 
     modoDebug=false;
-    init_pantalla();
+    returning_debug_mode = true;
+    //init_pantalla();  // recuperar pantalla
 
   } else{
 
     modoDebug=true;
+    // hacer backup_pantalla
+
+    uint32_t* video = (uint32_t*) VIDEO;
+	  for(uint32_t i = 0; i< 80*41; i++) {
+   		backup_map[i] = video[i];
+	  }
+
     pantalla_negra_debug();
     registros[0]  = tssActual->eax;
     registros[1]  = tssActual->ebx;
@@ -282,75 +291,3 @@ void modo_debug(void){
   
 }
 
-
-/*
-
-  ! Rompe esquemas, ver que onda en casos extremos como este :)
-  1) Rick
-  2) Morty
-
-  3)Rick_m
-  4)Morty_m 
-  5)Morty_m
-  6)Morty_m
-  7)Morty_m
-  8)Morty_m
-  9)Morty_m
-  10)Morty_m
-  11)Morty_m
-  12)Morty_m
-
-1 2 3 4 1 5 2 6
-
-r m r m r m r m r m
-1 2 3 4 1 5 3 6 1 4
-
-ciclo entero
-rick[1,3]
-morty[2,4,6,7,8...]
-14
-contador_de_una_vez = 15 entonces reinicia todo
-
-sched[player].dame  1 
-sched[player].dame  2
-sched[player].dame  3
-sched[player].dame  4
-sched[player].dame  1
-sched[player].dame  
-sched[player].dame
-
-
-
-    ! printear info importante 
-   
-    //! MAXI NO BORRES COMENTARIOS QUE SON LA PUTA HOSTIA (PRINTEADOR DE TAREAS)
-    for (int i = 0; i < 41; i++){
-      print_dec(9 ,16 , 5,i,GREEN_GREEN);
-    }
-
-    print("i" , 5 ,4,WHITE_RED);          // i
-    print("a" , 8 ,4,WHITE_RED);          // task_active
-    print("Pl", 10,4,WHITE_RED);          // p_loop_sched
-    print("Fl", 13,4,WHITE_RED);          // flag_loop
-    print("ig", 16,4,WHITE_RED);          // idx_gdt
-    print("ma", 19,4,WHITE_RED);          // meeseek activo
-    print("player :", 17,0,WHITE_RED);
-    print_dec(player,1 , 25,0,WHITE_RED);
-
-
-    for (uint8_t i = 0; i < 11 ; i++){
-      int j = 6 + 2*i;
-      print_dec(i + 1 ,2 , 5,j,WHITE_RED);
-      print_dec(sched[player][i].info_task->active,1, 8, j,WHITE_RED);
-      print_dec(sched[player][i].p_loop_sched,1, 10, j,WHITE_RED);
-      print_dec(sched[player][i].info_task->flag_loop,1, 13,j,WHITE_RED);
-      print_dec(sched[player][i].info_task->idx_gdt,2, 16,j,WHITE_RED);
-      if( i > 0 ){
-        print_dec(meeseeks[player][i-1].p,1, 19,j,WHITE_RED);
-      }
-    }
-
-
-
-
-*/

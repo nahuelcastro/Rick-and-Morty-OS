@@ -44,6 +44,11 @@ void mmu_init(void) {
 paddr_t mmu_next_free_kernel_page(void) {
     paddr_t free_page = next_free_kernel_page;
     next_free_kernel_page += 0x1000;
+
+    if(free_page > 0x3FFFFF){
+        print("TE PASASTE DEL LIMITE EN EL KERNEL :(", 5, 5, RED_GREEN);
+        breakpoint();
+    }
     return free_page;
 }
 
@@ -153,11 +158,6 @@ void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs) {
 
 paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt) { 
 
-    // if (virt == 0x0800e000){
-    //     breakpoint();
-    // }
-    
-
     int off_pd = (virt >> 22);
     int off_pt = ((virt << 10) >> 22);
     // int off_dir = ((virt << 22) >> 22);
@@ -169,11 +169,8 @@ paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt) {
 
     pte_map[off_pt].present = 0;  // Al tener presente en 0 lo va a desmapear
     paddr_t phyAddr = (pte_map[off_pt].physical_adress_base >> 12);  // off_dir;
-    
-    // if (virt == 0x0800e000){
-    //     breakpoint();
-    // }
 
+    tlbflush();
     return phyAddr;
 }
 
@@ -187,9 +184,7 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages) {
 
     // mapea espacio de tarea en el cr3 de la tarea
     for (size_t i = 0; i < pages; i++) {
-        mmu_map_page(new_cr3, tasks_memory, phy_start,
-                     6);  // era 2 pero necesitamos privilegios de usuario sino
-                          // rompe cuando entramos en tarea
+        mmu_map_page(new_cr3, tasks_memory, phy_start, 6); 
         tasks_memory += PAGE_SIZE;  // 4096 = 4kb = tamaño pagina
         phy_start += PAGE_SIZE;
     }
@@ -216,6 +211,7 @@ void mmu_map_kernel(paddr_t cr3) {
         mmu_map_page(cr3, memory_kernel, memory_kernel, 2);
         memory_kernel += PAGE_SIZE;
     }
+    tlbflush();
 }
 
 void mmu_unmap_kernel(paddr_t cr3) {
@@ -224,6 +220,7 @@ void mmu_unmap_kernel(paddr_t cr3) {
         mmu_unmap_page(cr3, memory_kernel);
         memory_kernel += PAGE_SIZE;
     }
+    tlbflush();
 }
 
 void mmu_init_task_meeseeks_dir(
@@ -249,6 +246,7 @@ void mmu_init_task_meeseeks_dir(
     for (int i = 0; i < PAGE_SIZE * 2; i++) {
         ptr_virt_page[i] = ptr_code_page[i];
     }
+    tlbflush();
 }
 
 
@@ -262,14 +260,6 @@ void mmu_remap_meeseek(paddr_t new_phy, paddr_t virt) {
   // Creamos punteros para luego copiar el codigo
   char *ptr_virt = (char *)virt;
   char *ptr_temp = (char *)new_phy/*new_phy*/;
-
-
-  // print_hex(virt, 8 ,2,  20, WHITE_RED);
-  // print_hex(new_phy, 8 ,6,  30, WHITE_RED);
-  /*
-  virt 0x08000000
-  phy  0x00680005
-  */
 
   for (int i = 0; i < 2; i++) {
     mmu_map_page(cr3, new_phy, new_phy, 2);
@@ -295,47 +285,13 @@ void mmu_remap_meeseek(paddr_t new_phy, paddr_t virt) {
     new_phy += PAGE_SIZE;
     virt += PAGE_SIZE;
   }
+  tlbflush();
 }
 
 
 
 
 /*
-
-<bochs:4> x/30wx 0x08000000
-[bochs]:
-0x08000000 <bogus+       0>:	0xfb1e0ff3	0xb820eb53	0xffffffff	0x000000bb
-0x08000010 <bogus+      16>:	0x837bcd00	0xfa8301c2	0xb8ec7e4f	0x00000000
-0x08000020 <bogus+      32>:	0xffffffbb	0xba7bcdff	0x00000000	0x0ff3e8eb
-0x08000030 <bogus+      48>:	0xeb53fb1e	0x0001b820	0x00bb0000	0xcd000000
-0x08000040 <bogus+      64>:	0x01c2837b	0x7e4ffa83	0x0000b8ec	0x01bb0000
-0x08000050 <bogus+      80>:	0xcd000000	0x0000ba7b	0xe8eb0000	0x00000000
-0x08000060 <bogus+      96>:	0x00000000	0x00000000	0x00000000	0x00000000
-0x08000070 <bogus+     112>:	0x00000000	0x00000000
-
-
-
-<bochs:7> x/30wx 0x00680005
-[bochs]:
-0x00680005 <bogus+       0>:	0xfb1e0ff3	0xb820eb53	0xffffffff	0x000000bb
-0x00680015 <bogus+      16>:	0x837bcd00	0xfa8301c2	0xb8ec7e4f	0x00000000
-0x00680025 <bogus+      32>:	0xffffffbb	0xba7bcdff	0x00000000	0x0ff3e8eb
-0x00680035 <bogus+      48>:	0xeb53fb1e	0x0001b820	0x00bb0000	0xcd000000
-0x00680045 <bogus+      64>:	0x01c2837b	0x7e4ffa83	0x0000b8ec	0x01bb0000
-0x00680055 <bogus+      80>:	0xcd000000	0x0000ba7b	0xe8eb0000	0x00000000
-0x00680065 <bogus+      96>:	0x00000000	0x00000000	0x00000000	0x00000000
-0x00680075 <bogus+     112>:	0x00000000	0x00000000
-<bochs:8> 
-
-
-
-
-
-
-
-
-
-
 
 
 
