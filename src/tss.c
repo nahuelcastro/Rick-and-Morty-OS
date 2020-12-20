@@ -258,24 +258,32 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
     task_virt_address = backup_meeseks[player][idx_msk].virt;
     mmu_init_task_meeseeks_dir(task_phy_address, code_start, task_virt_address);
     gdt_index = backup_meeseks[player][idx_msk].gdt_index;
-    //stack_level_0 = backup_meeseks[player][idx_msk].stack_level_0;
+    stack_level_0 = backup_meeseks[player][idx_msk].stack_level_0;
   } else{
     task_virt_address = mmu_next_free_virt_meeseek_page(player);
     mmu_init_task_meeseeks_dir(task_phy_address, code_start, task_virt_address);
     next_free_tss();
+
+    char* stack0 = (char*) backup_meeseks[player][idx_msk].stack_level_0;
+    for (size_t i = 0; i < 4096; i++){
+      stack0 = 0;
+      stack0++;
+    }
+    backup_meeseks[player][idx_msk].stack_level_0 = (paddr_t) stack0;
+
     gdt_index = next_free_gdt_idx;
-    // stack_level_0 = mmu_next_free_kernel_page();    //! VER QUE CUANDO LO QUIERO LIMPIAR ROMPE
+    stack_level_0 = mmu_next_free_kernel_page();    //! VER QUE CUANDO LO QUIERO LIMPIAR ROMPE
      
     // guardo la info importante para luego poder reciclar la memoria de meeseeks muertos
     backup_meeseks[player][idx_msk].p    = true;
     backup_meeseks[player][idx_msk].virt = task_virt_address;
     backup_meeseks[player][idx_msk].gdt_index = gdt_index;
-    //backup_meeseks[player][idx_msk].stack_level_0 = stack_level_0;   //! VER QUE CUANDO LO QUIERO LIMPIAR ROMPE
+    backup_meeseks[player][idx_msk].stack_level_0 = stack_level_0;   //! VER QUE CUANDO LO QUIERO LIMPIAR ROMPE
   }
 
-  // gdt_index = next_free_gdt_idx;
+  
 
-  stack_level_0 = mmu_next_free_kernel_page();    /* //! DESPUES HAY QUE SACARLO*/ 
+  //stack_level_0 = mmu_next_free_kernel_page();    /* //! DESPUES HAY QUE SACARLO*/ 
 
   info_gdt_meeseeks[gdt_index].idx_msk = idx_msk;
   info_gdt_meeseeks[gdt_index].player = player;
