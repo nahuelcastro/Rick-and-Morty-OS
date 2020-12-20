@@ -19,11 +19,11 @@ const char* CLOCK[4] = {"| ", "/ ", "- ", "\\ "};
 
 extern void pantalla_negra_debug();
 extern void init_pantalla();
+extern void registrosActuales();
 
 sched_t sched[PLAYERS][11];
 
 bool modoDebug;
-bool returning_debug_mode;
 
 uint32_t backup_map[80*41];
 
@@ -31,11 +31,10 @@ uint32_t backup_map[80*41];
 void sched_init(void)
 {
   index = 16;
+  tssActual = TSSs[16];
   tareaActual = index;
   tareaActualAnterior = tareaActual;
   modoDebug = false;
-  returning_debug_mode = false;
-
 
   for (player_t player = MORTY; player < PLAYERS ; player++){
     for (int i = 0; i < 11; i++){
@@ -62,7 +61,6 @@ void reset_p_loop_task(player_t player){
 
 
 info_task_t* next(player_t player){
-
 
   for (uint8_t i = 0; i < 11; i++){
     bool active = sched[player][i].info_task->active;
@@ -130,19 +128,8 @@ void update_msk_clocks(info_task_t* task){
 uint16_t sched_next_task(void){
 
   if (modoDebug){
+    tssActual = TSSs[IDLE];
     return (IDLE << 3);
-  }
-  
-  if (returning_debug_mode){
-    // restaurar pantalla
-    uint32_t* video = (uint32_t*) VIDEO;
-	  for(uint32_t i = 0; i< 80*41; i++) {
-   		video[i] = backup_map[i];
-	  }
-
-    //cambiar a la tarea que le toca  //! ME PARECE QUE POR COMO FUNCA EL SCHED, NO HACE FALTA ESTO
-
-    returning_debug_mode = false;
   }
 
   player_t new_player;
@@ -171,6 +158,7 @@ uint16_t sched_next_task(void){
   tareaActual = index;
   tareaActualAnterior = index;
 
+  tssActual = TSSs[task->idx_gdt];
   return (task->idx_gdt << 3);
 
 }
@@ -201,9 +189,10 @@ uint16_t sched_idle(){
 }
 
 
-int proximoStack(int i){
+uint32_t proximoStack(int i){
   // Agarrar el esp del tssActual y devolver la proxima instrucción
-  return i;
+  char* stack = (char*) tssActual->esp + (i-1);
+  return (uint32_t) stack;
 }
 
 int codigoError(void){
@@ -211,17 +200,31 @@ int codigoError(void){
   return 0;
 }
 
-uint32_t registros[15];
-char registrosNombre[15][10] = {"eax", "ebx","ecx","edx","esi","edi","ebp","esp","eip","cs","ds","es","fs","gs","ss"};
+//uint32_t registros[15];
 
 //register uint8_t valor_scancode asm("al");
 
-void modo_debug(void){
+void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi, uint32_t ebp, uint32_t esp, /*uint32_t eip,*/ uint32_t cs, uint32_t ds, uint32_t es, uint32_t fs, uint32_t gs,uint32_t ss){
+  char registrosNombre[15][10] = {"eax", "ebx","ecx","edx","esi","edi","ebp","esp","eip","cs","ds","es","fs","gs","ss"};
+  uint32_t registros[15] = {eax,ebx,ecx,edx,esi,edi,ebp,esp,0,cs,ds,es,fs,gs,ss};
+  for (size_t i = 0; i < 30; i+=2){
+    print((char*)(registrosNombre + (i/2)), 21, i+4, C_FG_WHITE);
+    print_hex(registros[i/2],8, 25, i+4, C_FG_LIGHT_GREEN);
+  }
+}
 
+void modo_debug(void){
+  breakpoint();
   if(modoDebug){
 
     modoDebug=false;
-    returning_debug_mode = true;
+    uint32_t* video = (uint32_t*) VIDEO;
+	  for(uint32_t i = 0; i< 80*41; i++) {
+   		video[i] = backup_map[i];
+	  }
+
+    //cambiar a la tarea que le toca  //! ME PARECE QUE POR COMO FUNCA EL SCHED, NO HACE FALTA ESTO
+
     //init_pantalla();  // recuperar pantalla
 
   } else{
@@ -235,35 +238,36 @@ void modo_debug(void){
 	  }
 
     pantalla_negra_debug();
-    registros[0]  = tssActual->eax;
-    registros[1]  = tssActual->ebx;
-    registros[2]  = tssActual->ecx;
-    registros[3]  = tssActual->edx;
-    registros[4]  = tssActual->esi;
-    registros[5]  = tssActual->edi;
-    registros[6]  = tssActual->ebp;
-    registros[7]  = tssActual->esp;
-    registros[8]  = tssActual->eip;
-    registros[9]  = tssActual->cs;
-    registros[10] = tssActual->ds;
-    registros[11] = tssActual->es;
-    registros[12] = tssActual->fs;
-    registros[13] = tssActual->gs;
-    registros[14] = tssActual->ss;
+    // registros[0]  = tssActual->eax;
+    // registros[1]  = tssActual->ebx;
+    // registros[2]  = tssActual->ecx;
+    // registros[3]  = tssActual->edx;
+    // registros[4]  = tssActual->esi;
+    // registros[5]  = tssActual->edi;
+    // registros[6]  = tssActual->ebp;
+    // registros[7]  = tssActual->esp;
+    // registros[8]  = tssActual->eip;
+    // registros[9]  = tssActual->cs;
+    // registros[10] = tssActual->ds;
+    // registros[11] = tssActual->es;
+    // registros[12] = tssActual->fs;
+    // registros[13] = tssActual->gs;
+    // registros[14] = tssActual->ss;
 
     if(ultExcepcion!=260){
       imprimir_excepcion(ultExcepcion);
     }
-    for(int i=0; i<30; i = i + 2){
-      print((char*)(registrosNombre + (i/2)), 21, i+4, C_FG_WHITE);
-      print_hex(registros[i/2],8, 25, i+4, C_FG_LIGHT_GREEN);
-    }
+    registrosActuales();
+    // for(int i=0; i<30; i = i + 2){
+    //   print((char*)(registrosNombre + (i/2)), 21, i+4, C_FG_WHITE);
+    //   print_hex(registros[i/2],8, 25, i+4, C_FG_LIGHT_GREEN);
+    // }
     print("eflags",21,37,C_FG_WHITE);
     print_hex(tssActual->eflags,8, 28, 37, C_FG_LIGHT_GREEN);
 
     print("stack", 36, 17, C_FG_WHITE);
     for(int i=0; i<6; i = i + 2){
-      print_hex(proximoStack(i/2), 8, 36, i+19, C_FG_LIGHT_GREEN);
+      print_hex(/*proximoStack(i/2)*/ tssActual->esp, 8, 36, i+19, C_FG_LIGHT_GREEN);
     }
     
     print("backtrace", 36, 25, C_FG_WHITE);
@@ -283,11 +287,13 @@ void modo_debug(void){
 
     print("cr4", 45, 11, C_FG_WHITE);
     print_hex(rcr4(),8 , 49, 11, C_FG_LIGHT_GREEN);
+    
+    print_hex(tareaQueRompio, 2, 56,2, C_FG_LIGHT_GREEN);
 
 
     print("err", 45, 13, C_FG_WHITE);
     print_hex(codigoError(),8 , 49, 13, C_FG_LIGHT_GREEN);
   }
-  
+  breakpoint();
 }
 

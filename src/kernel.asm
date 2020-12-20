@@ -293,7 +293,28 @@ popad
 ret
 
 
-
+extern imprimirRegistros
+global registrosActuales
+registrosActuales:
+    pushad
+    push eax
+    push ebx
+    push ecx
+    push edx
+    push esi
+    ;push eip
+    push esp
+    push ebp
+    push cs 
+    push ds
+    push es
+    push fs
+    push gs
+    push ss
+    call imprimirRegistros
+    add esp, 56
+    popad
+    ret
 
 ;; -------------------------------------------------------------------------- ;;
 

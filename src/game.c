@@ -377,14 +377,9 @@ void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y){
       paddr_t virt = backup_meeseks[player][idx_msk].virt;
       mmu_remap_meeseek(new_phy, virt);
     }
-  }
-  
+  } 
   
 }
-
-
-
-
 
 void sys_use_portal_gun(){
 

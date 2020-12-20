@@ -16,6 +16,7 @@
 #include "screen.h"
 #include "idt.h"
 #include "colors.h"
+#include "idt.h"
 
 
 void sched_init();

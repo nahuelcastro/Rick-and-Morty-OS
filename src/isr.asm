@@ -16,7 +16,7 @@ sched_task_selector:   dw 0
 extern pic_finish1
 extern imprimir_excepcion
 extern print_scan_code
-
+extern capturar_excepcion
 
 ;; Sched
 extern sched_next_task
@@ -57,7 +57,7 @@ _isr%1:
      xchg bx, bx
 
      push eax
-     call imprimir_excepcion
+     call capturar_excepcion
      add esp, 4
 
 
