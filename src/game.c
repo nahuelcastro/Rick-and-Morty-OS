@@ -196,6 +196,7 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
     mmu_unmap_page(cr3, virt);
     virt += PAGE_SIZE;
   }
+
   if(cant_semillas == 0){
       end_game();
   }
