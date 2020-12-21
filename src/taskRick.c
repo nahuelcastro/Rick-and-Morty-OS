@@ -37,6 +37,7 @@ void meeseks1_func(void){
 
   while (1) {   
     syscall_look(&deltax, &deltay);
+    // print_aux(deltax,deltay);
 
     if(deltax == 0 && deltay == 0){
     }

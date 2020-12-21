@@ -348,7 +348,7 @@ uint32_t sys_move(uint32_t x, uint32_t y) {
   return 1;
 }
 
-//! ESTA TIRANDO PF DESPUES DE VARIOS Y ME PARECE QUE ESTA AGARRANDO SIEMPRE AL MISMO
+
 void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y){
 
   player_t player = opponent;
@@ -387,6 +387,8 @@ void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y){
   } 
   
 }
+
+
 
 void sys_use_portal_gun(){
 
@@ -453,9 +455,58 @@ void sys_use_portal_gun(){
 }
 
 
+
+
+// int8_t sys_look (uint8_t flag){
+
+//   if(tareaActual == 17 || tareaActual == 18 ){ 
+//     desactivar_tarea();
+//   }
+
+//   uint8_t idx_msk = info_gdt_meeseeks[tareaActual].idx_msk;
+//   player_t player = info_gdt_meeseeks[tareaActual].player;
+
+//   coordenadas coord_actual = meeseeks[player][idx_msk].coord;
+
+//   uint8_t actual_dist;
+
+
+//   uint8_t min_candidate = 255;
+//   uint32_t min_idx_seed  = MAX_CANT_SEMILLAS + 1; 
+//   for (uint32_t i = 0; i < MAX_CANT_SEMILLAS; i++){
+//     if(semillas[i].p){
+//       actual_dist = abs(coord_actual.x - semillas[i].coord.x) + abs(coord_actual.y - semillas[i].coord.y); 
+//       if(actual_dist < min_candidate){
+//         min_candidate = actual_dist;
+//         min_idx_seed = i;
+//       }
+//     }
+//   }
+
+  
+//   int16_t movement_x = (int16_t)(semillas[min_idx_seed].coord.x  - coord_actual.x);  
+//   int16_t movement_y = (int16_t)(semillas[min_idx_seed].coord.y  - coord_actual.y);
+
+//   for (size_t i = 1; i < 41; i++){
+//     print_dec(00, 2 ,54, i + 1, GREEN_GREEN);
+//   }
+
+//   return flag == 0 ?  movement_x : movement_y;
+
+// }
+
+
+
+
+// falopa
 int8_t sys_look (uint8_t flag){
 
-  if(tareaActual == 17 || tareaActual == 18 ){ 
+    print("id_m:", 64,30,WHITE_RED);
+    print("M:x,y:", 64,32,WHITE_RED);
+    print("S:x,y:", 64,34,WHITE_RED);
+    print("Mov:", 64,36,WHITE_RED);
+
+  if(tareaActual == 17 || tareaActual == 18 ){ // verificar que funcione
     desactivar_tarea();
   }
 
@@ -472,6 +523,19 @@ int8_t sys_look (uint8_t flag){
   for (uint32_t i = 0; i < MAX_CANT_SEMILLAS; i++){
     if(semillas[i].p){
       actual_dist = abs(coord_actual.x - semillas[i].coord.x) + abs(coord_actual.y - semillas[i].coord.y); 
+
+      // //
+      // print("S", semillas[i].coord.x, semillas[i].coord.y, WHITE_BLACK);
+      // print_dec(semillas[i].coord.x,2, 71,34,WHITE_RED);   //la semilla mas cercana
+      // print_dec(semillas[i].coord.y  ,2, 75,34,WHITE_RED);
+      // print_dec(actual_dist, 2 ,54, i + 1, RED_GREEN);
+      // print_dec(min_candidate, 3 ,76 ,45, WHITE_BLACK);
+
+      // breakpoint();
+
+      // print("s", semillas[i].coord.x, semillas[i].coord.y, GREEN_YELLOW);
+      // //
+
       if(actual_dist < min_candidate){
         min_candidate = actual_dist;
         min_idx_seed = i;
@@ -479,18 +543,70 @@ int8_t sys_look (uint8_t flag){
     }
   }
 
-  
+  // print_dec(min_candidate, 2 ,76 ,45, WHITE_BLACK);
 
 
   
-  int16_t movement_x = (int16_t)(semillas[min_idx_seed].coord.x  - coord_actual.x);  
-  int16_t movement_y = (int16_t)(semillas[min_idx_seed].coord.y  - coord_actual.y);
+  int8_t movement_x = (int8_t)(semillas[min_idx_seed].coord.x  - coord_actual.x);  
+  int8_t movement_y = (int8_t)(semillas[min_idx_seed].coord.y  - coord_actual.y);
 
-  for (size_t i = 1; i < 41; i++){
-    print_dec(00, 2 ,54, i + 1, GREEN_GREEN);
-  }
 
+
+
+  // //! NO BORRAR 
+      
+  //   print_dec(idx_msk,2, 71,30,WHITE_RED);                          // para ver si levantamos la tarea que queremos 
+
+  //   print("A", coord_actual.x, coord_actual.y, WHITE_BLACK);
+
+
+  //   print_dec(semillas[min_idx_seed].coord.x,2, 71,34,WHITE_RED);   //la semilla mas cercana
+  //   print_dec(semillas[min_idx_seed].coord.y  ,2, 75,34,WHITE_RED);
+  //   print("S", semillas[min_idx_seed].coord.x, semillas[min_idx_seed].coord.y, WHITE_BLACK);
+
+  //   if(movement_x < 0){print("-", 70,36,WHITE_RED);}   //la semilla mas cercana
+  //   print_dec(abs(movement_x),2, 71,36,WHITE_RED);
+
+  //   if(movement_y < 0){print("-", 74,36,WHITE_RED);}   //la semilla mas cercana
+  //   print_dec(abs(movement_y),2, 75,36,WHITE_RED);
+
+  //   breakpoint();
+
+  //   print("-", 70, 36, GREEN_GREEN);
+  //   print("-", 74, 36,  GREEN_GREEN);
+  //   print("M", coord_actual.x, coord_actual.y, color_map_msk[player]);
+  //   print("S", semillas[min_idx_seed].coord.x, semillas[min_idx_seed].coord.y, GREEN_YELLOW);
+
+  // // breakpoint();
+
+  // //clean falopa
+  // for (size_t i = 1; i < 41; i++){
+  //   print_dec(00, 2 ,54, i + 1, GREEN_GREEN);
+  // }
+  
+    // breakpoint();
+
+  // breakpoint();
   return flag == 0 ?  movement_x : movement_y;
 
 }
 
+
+void print_aux(int8_t deltax, int8_t deltay){
+    
+    print("-", 2,43,GREEN_GREEN);
+    print("-", 5,43,GREEN_GREEN);
+
+    if(deltax < 0){print("-", 2,43,WHITE_RED);}
+    print_dec(abs(deltax),2, 3,43,WHITE_RED);
+
+    if(deltay < 0){print("-", 5,43,WHITE_RED);} 
+    print_dec(abs(deltay),2, 3, 43,WHITE_RED);
+
+
+
+    // print("-", 70, 36, GREEN_GREEN);
+    // print("-", 74, 36,  GREEN_GREEN);
+    // print("M", coord_actual.x, coord_actual.y, color_map_msk[player]);
+    // print("S", semillas[min_idx_seed].coord.x, semillas[min_idx_seed].coord.y, GREEN_YELLOW);
+}

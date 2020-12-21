@@ -246,7 +246,7 @@ _isr89:
 
      call sys_use_portal_gun
 
-     call _isr15
+     ; call _isr15
 
      call sched_idle
      mov word [sched_task_selector], ax
@@ -267,12 +267,12 @@ _isr100:
      
      push 0
      call sys_look
-     mov byte  [tempw1], al
+     mov byte  [tempb1], al
      add esp, 4
 
      push 1
      call sys_look
-     mov byte  [tempw2], al
+     mov byte  [tempb2], al
      add esp, 4
 
 
@@ -281,8 +281,8 @@ _isr100:
      jmp far [sched_task_offset]
 
      popad
-     mov byte eax, [tempw1]
-     mov byte ebx, [tempw2]
+     mov byte al, [tempb1]
+     mov byte bl, [tempb2]
 
 iret
 

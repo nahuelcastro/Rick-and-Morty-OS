@@ -74,6 +74,7 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y);
 uint32_t sys_move(uint32_t x, uint32_t y);
 void sys_use_portal_gun();
 
+void print_aux(int8_t deltax, int8_t deltay);
 
 extern info_gdt_meeseek info_gdt_meeseeks[GDT_COUNT];
 
