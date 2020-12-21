@@ -9,9 +9,9 @@
 #include "defines.h"
 #include "isr.h"
 #include "screen.h"
+#include "sched.h"
 
 int ultExcepcion=260;
-uint16_t tareaActual;
 uint16_t tareaQueRompio;
 idt_entry_t idt[255] = {0};
 
@@ -83,6 +83,7 @@ void idt_init() {
 void capturar_excepcion(int codigo){
   ultExcepcion = codigo;
   tareaQueRompio = tareaActual;
+  exception = 1;
 }
 
 void imprimir_excepcion(int codigo){

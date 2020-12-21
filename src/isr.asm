@@ -36,6 +36,11 @@ extern sys_move
 extern sys_look
 extern sys_use_portal_gun
 
+extern modoDebug
+extern imprimirRegistros
+extern debug_mode_on_off
+
+
 
 temp: dd 0         ; variable temporal
 
@@ -44,6 +49,9 @@ tempw2: db 0         ; variable temporal
 
 tempb1: db 0         ; variable temporal
 tempb2: db 0         ; variable temporal
+
+reg_backup: dd 0
+eipActual:  dd 0
 
 
 ;;
@@ -54,12 +62,50 @@ global _isr%1
 
 _isr%1:
      mov eax, %1
-     xchg bx, bx
 
      push eax
      call capturar_excepcion
      add esp, 4
 
+     push eax
+     mov eax, [modoDebug]
+     cmp eax, 1
+     pop eax
+     jne .fin
+
+     ;Guardo el EIP
+     push eax
+     mov eax, [esp + 4]
+     mov [eipActual], eax
+     pop eax
+
+     pushf   ; eflags
+
+     push ss
+     push gs
+     push fs
+     push es
+     push ds
+     push cs
+     mov [reg_backup], eax
+     mov eax, [eipActual]
+     push eax
+     mov eax, [reg_backup]
+     push esp ;TODO: Ver si es confiable o es el de nivel 0
+     push ebp ;TODO: Ver si es confiable o es el de nivel 0
+     push edi
+     push esi
+     push edx
+     push ecx
+     push ebx
+     push eax
+     call imprimirRegistros
+     add esp,64
+
+     xchg bx, bx
+
+
+     .fin:
 
      call desactivar_tarea  
      call sched_next_task            ; obtener indice de la proxima tarea a ejecutar
@@ -68,7 +114,7 @@ _isr%1:
      jmp far [sched_task_offset]     ; intercambio de tareas
 
     
-     ;jmp $
+     jmp $
 
 %endmacro
 
@@ -135,7 +181,8 @@ _isr33:
      in al, 0x60
      cmp al, k_debug
      jne .fin
-     call modo_debug
+     call debug_mode_on_off
+     ; call modo_debug
      .fin:
      ;avisar al pic que se recibio la interrupcion
      call pic_finish1
@@ -147,7 +194,6 @@ global _isr88
 
 
 _isr88:    
-     ; xchg bx,bx
      pushad
      mov ebp, esp
      

@@ -12,6 +12,7 @@ player_t ultimoJugador;  // 0001 0011
 uint16_t jugadorActual = 1;
 uint16_t index;
 uint16_t tareaActual;
+bool exception =0;
 tss_t* tssActual;
 uint16_t tareaActualAnterior;
 uint8_t clocks[PLAYERS][MAX_CANT_MEESEEKS];
@@ -24,6 +25,7 @@ extern void registrosActuales();
 sched_t sched[PLAYERS][11];
 
 bool modoDebug;
+bool exception;
 
 uint32_t backup_map[80*41];
 
@@ -124,10 +126,9 @@ void update_msk_clocks(info_task_t* task){
 }
 
 
-// //! SCHED NAJU
 uint16_t sched_next_task(void){
 
-  if (modoDebug){
+  if (modoDebug && exception){
     tssActual = TSSs[IDLE];
     return (IDLE << 3);
   }
@@ -204,66 +205,125 @@ int codigoError(void){
 
 //register uint8_t valor_scancode asm("al");
 
-void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi, uint32_t ebp, uint32_t esp, /*uint32_t eip,*/ uint32_t cs, uint32_t ds, uint32_t es, uint32_t fs, uint32_t gs,uint32_t ss){
-  char registrosNombre[15][10] = {"eax", "ebx","ecx","edx","esi","edi","ebp","esp","eip","cs","ds","es","fs","gs","ss"};
-  uint32_t registros[15] = {eax,ebx,ecx,edx,esi,edi,ebp,esp,0,cs,ds,es,fs,gs,ss};
-  for (size_t i = 0; i < 30; i+=2){
-    print((char*)(registrosNombre + (i/2)), 21, i+4, C_FG_WHITE);
-    print_hex(registros[i/2],8, 25, i+4, C_FG_LIGHT_GREEN);
+void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi, uint32_t ebp, uint32_t esp, uint32_t eip, uint32_t cs, uint32_t ds, uint32_t es, uint32_t fs, uint32_t gs, uint32_t ss, uint32_t eflags){
+  // char registrosNombre[16][10] = {"eax", "ebx","ecx","edx","esi","edi","ebp","esp","eip","cs","ds","es","fs","gs","ss","eflags"};
+  // uint32_t registros[16] = {eax,ebx,ecx,edx,esi,edi,ebp,esp,eip,cs,ds,es,fs,gs,ss,eflags};
+  // for (size_t i = 0; i < 30; i+=2){
+  //   print((char*)(registrosNombre + (i/2)), 21, i+4, C_FG_WHITE);
+  //   print_hex(registros[i/2],8, 25, i+4, C_FG_LIGHT_GREEN);
+  // }
+
+  
+  int y = 4;
+
+  print("EAX:",21,y,C_FG_WHITE);
+  print_hex(eax,8,25,y,C_FG_LIGHT_GREEN);
+  y += 2;
+
+  print("EBX:",21,y,C_FG_WHITE);
+  print_hex(ebx,8,25,y,C_FG_LIGHT_GREEN);
+  y += 2;
+
+  print("ECX:",21,y,C_FG_WHITE);
+  print_hex(ecx,8,25,y,C_FG_LIGHT_GREEN);
+  y += 2;
+
+  print("EDX:",21,y,C_FG_WHITE);
+  print_hex(edx,8,25,y,C_FG_LIGHT_GREEN);
+  y += 2;
+
+  print("ESI:",21,y,C_FG_WHITE);
+  print_hex(esi,8,25,y,C_FG_LIGHT_GREEN);
+  y += 2;
+
+  print("EDI:",21,y,C_FG_WHITE);
+  print_hex(edi,8,25,y,C_FG_LIGHT_GREEN);
+  y += 2;
+
+  print("EBP:",21,y,C_FG_WHITE);
+  print_hex(ebp,8,25,y,C_FG_LIGHT_GREEN);
+  y += 2;
+
+  print("ESP:",21,y,C_FG_WHITE);
+  print_hex(esp,8,25,y,C_FG_LIGHT_GREEN);
+  y += 2;
+
+  print("EIP:",21,y,C_FG_WHITE);
+  print_hex(eip,8,25,y,C_FG_LIGHT_GREEN);
+  y += 2;
+
+  print("CS:",21,y,C_FG_WHITE);
+  print_hex(cs,8,25,y,C_FG_LIGHT_GREEN);
+  y += 2;
+
+  print("DS:",21,y,C_FG_WHITE);
+  print_hex(ds,8,25,y,C_FG_LIGHT_GREEN);
+  y += 2;
+
+  print("ES:",21,y,C_FG_WHITE);
+  print_hex(es,8,25,y,C_FG_LIGHT_GREEN);
+  y += 2;
+
+  print("FS:",21,y,C_FG_WHITE);
+  print_hex(fs,8,25,y,C_FG_LIGHT_GREEN);
+  y += 2;
+
+  print("GS:",21,y,C_FG_WHITE);
+  print_hex(gs,8,25,y,C_FG_LIGHT_GREEN);
+  y += 2;
+
+  print("SS:",21,y,C_FG_WHITE);
+  print_hex(ss,8,25,y,C_FG_LIGHT_GREEN);
+  y += 2;
+
+  print("EFLAGS:",21,y,C_FG_WHITE);
+  print_hex(eflags,8,28,y,C_FG_LIGHT_GREEN);
+  y += 2;
+
+
+
+  // poner_string("EAX:", x_base+1, y_base+6, 7, 0);
+  // poner_hex(eax, x_base+6, y_base+6, 7, 0x1);
+  // poner_string("EBX:", x_base+2+(ancho/2), y_base+6, 7, 0);
+  // poner_hex(ebx, x_base+2+(ancho/2)+5, y_base+6, 7, 0x1);
+
+}
+
+
+
+void debug_mode_on_off(){
+  modoDebug = !modoDebug;
+
+  if(!modoDebug){
+    exception = false;
   }
 }
 
-void modo_debug(void){
-  breakpoint();
-  if(modoDebug){
 
-    modoDebug=false;
+void modo_debug(void){
+  
+  if(modoDebug){
     uint32_t* video = (uint32_t*) VIDEO;
 	  for(uint32_t i = 0; i< 80*41; i++) {
    		video[i] = backup_map[i];
 	  }
 
-    //cambiar a la tarea que le toca  //! ME PARECE QUE POR COMO FUNCA EL SCHED, NO HACE FALTA ESTO
-
-    //init_pantalla();  // recuperar pantalla
-
   } else{
 
-    modoDebug=true;
     // hacer backup_pantalla
-
     uint32_t* video = (uint32_t*) VIDEO;
 	  for(uint32_t i = 0; i< 80*41; i++) {
    		backup_map[i] = video[i];
 	  }
 
     pantalla_negra_debug();
-    // registros[0]  = tssActual->eax;
-    // registros[1]  = tssActual->ebx;
-    // registros[2]  = tssActual->ecx;
-    // registros[3]  = tssActual->edx;
-    // registros[4]  = tssActual->esi;
-    // registros[5]  = tssActual->edi;
-    // registros[6]  = tssActual->ebp;
-    // registros[7]  = tssActual->esp;
-    // registros[8]  = tssActual->eip;
-    // registros[9]  = tssActual->cs;
-    // registros[10] = tssActual->ds;
-    // registros[11] = tssActual->es;
-    // registros[12] = tssActual->fs;
-    // registros[13] = tssActual->gs;
-    // registros[14] = tssActual->ss;
+
 
     if(ultExcepcion!=260){
       imprimir_excepcion(ultExcepcion);
     }
+
     registrosActuales();
-    // for(int i=0; i<30; i = i + 2){
-    //   print((char*)(registrosNombre + (i/2)), 21, i+4, C_FG_WHITE);
-    //   print_hex(registros[i/2],8, 25, i+4, C_FG_LIGHT_GREEN);
-    // }
-    print("eflags",21,37,C_FG_WHITE);
-    print_hex(tssActual->eflags,8, 28, 37, C_FG_LIGHT_GREEN);
 
     print("stack", 36, 17, C_FG_WHITE);
     for(int i=0; i<6; i = i + 2){
@@ -294,6 +354,4 @@ void modo_debug(void){
     print("err", 45, 13, C_FG_WHITE);
     print_hex(codigoError(),8 , 49, 13, C_FG_LIGHT_GREEN);
   }
-  breakpoint();
 }
-

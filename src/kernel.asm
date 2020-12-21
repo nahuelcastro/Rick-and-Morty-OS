@@ -294,27 +294,65 @@ ret
 
 
 extern imprimirRegistros
+
+
 global registrosActuales
+
+reg_backup: dd 0
+eipActual:  dd 0
+
 registrosActuales:
-    pushad
+
+    ;Guardo el EIP
     push eax
-    push ebx
-    push ecx
-    push edx
-    push esi
-    ;push eip
-    push esp
-    push ebp
-    push cs 
-    push ds
-    push es
-    push fs
-    push gs
+    mov eax, [esp + 4]
+    mov [eipActual], eax
+    pop eax
+
+    pushf   ; eflags
+    
     push ss
+    push gs
+    push fs
+    push es
+    push ds
+    push cs
+    mov [reg_backup], eax
+    mov eax, [eipActual]
+    push eax
+    mov eax, [reg_backup]
+    push esp ;TODO: Ver si es confiable o es el de nivel 0
+    push ebp ;TODO: Ver si es confiable o es el de nivel 0
+    push edi
+    push esi
+    push edx
+    push ecx
+    push ebx
+    push eax
     call imprimirRegistros
-    add esp, 56
-    popad
+    add esp,64
+
+    ; pop eax    
+    ; pop eax
+    ; pop eax
+    ; pop eax
+    ; pop eax
+    
+    ; pop eax
+    ; pop eax
+    ; pop eax
+    ; pop eax    
+    ; pop eax
+
+    ; pop eax
+    ; pop eax
+    ; pop eax
+    ; pop eax
+    ; pop eax
+
+    ; pop eax
     ret
+     
 
 ;; -------------------------------------------------------------------------- ;;
 
