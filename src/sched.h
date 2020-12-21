@@ -24,6 +24,7 @@ uint16_t sched_next_task();
 void desactivar_tarea();
 uint16_t sched_idle();
 void reiniciarCiclo();
+void modo_debug(void);
 
 
 extern uint16_t tareaActual;

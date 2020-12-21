@@ -12,7 +12,7 @@
 #include "sched.h"
 
 int ultExcepcion=260;
-uint16_t tareaQueRompio;
+// uint16_t tareaQueRompio;
 idt_entry_t idt[255] = {0};
 
 idt_descriptor_t IDT_DESC = {sizeof(idt) - 1, (uint32_t)&idt};
@@ -80,11 +80,11 @@ void idt_init() {
 }
 
 
-void capturar_excepcion(int codigo){
-  ultExcepcion = codigo;
-  tareaQueRompio = tareaActual;
-  exception = 1;
-}
+// void capturar_excepcion(int codigo){
+//   ultExcepcion = codigo;
+//   tareaQueRompio = tareaActual;
+//   exception = 1;
+// }
 
 void imprimir_excepcion(int codigo){
   

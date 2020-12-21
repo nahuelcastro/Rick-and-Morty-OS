@@ -30,7 +30,7 @@ extern idt_entry_t idt[];
 extern idt_descriptor_t IDT_DESC;
 extern int ultExcepcion;
 void imprimir_excepcion(int);
-extern uint16_t tareaQueRompio;
+// extern uint16_t tareaQueRompio;
 void idt_init(void);
 
 #endif //  __IDT_H__

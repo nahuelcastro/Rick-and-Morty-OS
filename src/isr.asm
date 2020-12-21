@@ -53,6 +53,10 @@ tempb2: db 0         ; variable temporal
 reg_backup: dd 0
 eipActual:  dd 0
 
+stack0: dd 0
+stack2: dd 0
+
+
 
 ;;
 ;; Definición de MACROS
@@ -61,23 +65,37 @@ eipActual:  dd 0
 global _isr%1
 
 _isr%1:
-     mov eax, %1
+
+     xchg bx, bx
+     mov [reg_backup], eax
+     ;Guardo el EIP
+     push eax
+     mov eax, [esp]
+     mov [stack0], eax
+     mov eax, [esp + 4]
+     mov [eipActual], eax
+     mov eax, [esp + 8]
+     mov [stack2], eax
+     pop eax
+
+
+     ; push eax
+     ; call capturar_excepcion
+     ; add esp, 4
 
      push eax
-     call capturar_excepcion
-     add esp, 4
-
-     push eax
-     mov eax, [modoDebug]
+     mov eax, [modoDebug] 
      cmp eax, 1
      pop eax
      jne .fin
 
-     ;Guardo el EIP
+     mov eax,[stack2]
      push eax
-     mov eax, [esp + 4]
-     mov [eipActual], eax
-     pop eax
+     mov eax,[stack0]
+     push eax
+
+     mov eax, %1
+     push eax
 
      pushf   ; eflags
 
@@ -87,7 +105,7 @@ _isr%1:
      push es
      push ds
      push cs
-     mov [reg_backup], eax
+     ; mov [reg_backup], eax
      mov eax, [eipActual]
      push eax
      mov eax, [reg_backup]
@@ -102,6 +120,8 @@ _isr%1:
      call imprimirRegistros
      add esp,64
 
+    
+     
      xchg bx, bx
 
 
@@ -114,7 +134,7 @@ _isr%1:
      jmp far [sched_task_offset]     ; intercambio de tareas
 
     
-     jmp $
+     ;jmp $
 
 %endmacro
 
@@ -151,7 +171,6 @@ _isr32:
      pushad
      ;avisar al pic que se recibio la interrupcion
      call pic_finish1
-
      ;contador de ticks de para move
      call ticks_counter 
      ;imprimir el reloj de sistema
@@ -226,6 +245,8 @@ _isr89:
      mov ebp, esp
 
      call sys_use_portal_gun
+
+     call _isr15
 
      call sched_idle
      mov word [sched_task_selector], ax

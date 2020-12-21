@@ -115,6 +115,11 @@ void add_update_score(player_t player) {
   score[player] += 425;
   print_dec(score[RICK], 8, 10, 45, WHITE_RED);
   print_dec(score[MORTY], 8, 62, 45, WHITE_BLUE);
+
+  // if(score[RICK] > 5000){
+  //   uint32_t romper = 0;
+  //   lcr3(romper);
+  // }
 }
 
 bool same(coordenadas a, coordenadas b) {
@@ -154,6 +159,8 @@ void remove_seed(int idx) {
 
 void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
 
+  // uint32_t romper = 0;
+  // lcr3(romper);
 
   // delete msk
   meeseeks[player][idx_msk].p = false;
@@ -198,7 +205,7 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
   }
 
   if(cant_semillas == 0){
-      end_game();
+    end_game();
   }
   
   

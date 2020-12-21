@@ -12,7 +12,7 @@ player_t ultimoJugador;  // 0001 0011
 uint16_t jugadorActual = 1;
 uint16_t index;
 uint16_t tareaActual;
-bool exception =0;
+// bool exception =0;
 tss_t* tssActual;
 uint16_t tareaActualAnterior;
 uint8_t clocks[PLAYERS][MAX_CANT_MEESEEKS];
@@ -26,17 +26,18 @@ sched_t sched[PLAYERS][11];
 
 bool modoDebug;
 bool exception;
+bool returning_debug_mode;
+bool debug_executing;
 
 uint32_t backup_map[80*41];
 
 
-void sched_init(void)
-{
+void sched_init(void){
   index = 16;
   tssActual = TSSs[16];
   tareaActual = index;
   tareaActualAnterior = tareaActual;
-  modoDebug = false;
+  modoDebug = true;
 
   for (player_t player = MORTY; player < PLAYERS ; player++){
     for (int i = 0; i < 11; i++){
@@ -48,6 +49,7 @@ void sched_init(void)
       clocks[player][i] = 0;
     }
   }
+  returning_debug_mode = false;
 }
 
 
@@ -162,8 +164,8 @@ uint16_t sched_next_task(void){
   tssActual = TSSs[task->idx_gdt];
   return (task->idx_gdt << 3);
 
-}
-    
+  }
+  
 
 
 void desactivar_tarea(){
@@ -205,7 +207,7 @@ int codigoError(void){
 
 //register uint8_t valor_scancode asm("al");
 
-void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi, uint32_t ebp, uint32_t esp, uint32_t eip, uint32_t cs, uint32_t ds, uint32_t es, uint32_t fs, uint32_t gs, uint32_t ss, uint32_t eflags){
+void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi, uint32_t ebp, uint32_t esp, uint32_t eip, uint32_t cs, uint32_t ds, uint32_t es, uint32_t fs, uint32_t gs, uint32_t ss, uint32_t eflags ,uint32_t except_code, uint32_t stack_p0, uint32_t stack_p8){
   // char registrosNombre[16][10] = {"eax", "ebx","ecx","edx","esi","edi","ebp","esp","eip","cs","ds","es","fs","gs","ss","eflags"};
   // uint32_t registros[16] = {eax,ebx,ecx,edx,esi,edi,ebp,esp,eip,cs,ds,es,fs,gs,ss,eflags};
   // for (size_t i = 0; i < 30; i+=2){
@@ -214,9 +216,15 @@ void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, u
   // }
 
   
-  int y = 4;
+  modo_debug();
+  imprimir_excepcion(except_code);
+  
 
-  print("EAX:",21,y,C_FG_WHITE);
+  print_hex(tareaActual, 2, 56,2, C_FG_LIGHT_GREEN);
+
+  int y = 6;
+
+  print("EAX:",21,y,C_FG_WHITE);  
   print_hex(eax,8,25,y,C_FG_LIGHT_GREEN);
   y += 2;
 
@@ -281,6 +289,14 @@ void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, u
   y += 2;
 
 
+  y = 19;
+  print_hex(stack_p0,8,36,y,C_FG_LIGHT_GREEN);
+  y += 2;
+  
+  print_hex(eip,8,36,y,C_FG_LIGHT_GREEN);
+  y += 2;
+  
+  print_hex(stack_p8,8,36,y,C_FG_LIGHT_GREEN);
 
   // poner_string("EAX:", x_base+1, y_base+6, 7, 0);
   // poner_hex(eax, x_base+6, y_base+6, 7, 0x1);
@@ -294,27 +310,36 @@ void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, u
 void debug_mode_on_off(){
   modoDebug = !modoDebug;
 
-  if(!modoDebug){
-    exception = false;
+  if (debug_executing && !modoDebug ){
+      debug_executing = false;
+    
+      //restaurar pantalla
+      uint32_t* video = (uint32_t*) VIDEO;
+      for(uint32_t i = 0; i< 80*41; i++) {
+        video[i] = backup_map[i];
+    }
   }
+    
+    if(!modoDebug){
+      exception = false;
+    }
+
 }
 
-
-void modo_debug(void){
+void modo_debug(){
   
   if(modoDebug){
-    uint32_t* video = (uint32_t*) VIDEO;
-	  for(uint32_t i = 0; i< 80*41; i++) {
-   		video[i] = backup_map[i];
-	  }
 
-  } else{
-
+    debug_executing = true;
+    exception = true;
+    
     // hacer backup_pantalla
     uint32_t* video = (uint32_t*) VIDEO;
-	  for(uint32_t i = 0; i< 80*41; i++) {
-   		backup_map[i] = video[i];
-	  }
+    for(uint32_t i = 0; i< 80*41; i++) {
+      backup_map[i] = video[i];
+    }
+
+
 
     pantalla_negra_debug();
 
@@ -323,35 +348,35 @@ void modo_debug(void){
       imprimir_excepcion(ultExcepcion);
     }
 
-    registrosActuales();
+    // registrosActuales();
 
     print("stack", 36, 17, C_FG_WHITE);
-    for(int i=0; i<6; i = i + 2){
-      print_hex(/*proximoStack(i/2)*/ tssActual->esp, 8, 36, i+19, C_FG_LIGHT_GREEN);
-    }
-    
+    // for(int i=0; i<6; i = i + 2){
+    //   print_hex(/*proximoStack(i/2)*/ tssActual->esp, 8, 36, i+19, C_FG_LIGHT_GREEN);
+    // }
+
     print("backtrace", 36, 25, C_FG_WHITE);
     print("00000000" , 36, 27, C_FG_LIGHT_GREEN);
     print("00000000" , 36, 29, C_FG_LIGHT_GREEN);
     print("00000000" , 36, 31, C_FG_LIGHT_GREEN);
     print("00000000" , 36, 33, C_FG_LIGHT_GREEN);
 
-    print("cr0", 45, 5, C_FG_WHITE);
-    print_hex(rcr0(), 8, 49, 5, C_FG_LIGHT_GREEN);
+    print("cr0", 45, 6, C_FG_WHITE);
+    print_hex(rcr0(), 8, 49, 6, C_FG_LIGHT_GREEN);
 
-    print("cr2", 45, 7, C_FG_WHITE);
-    print_hex(rcr2(), 8, 49, 7, C_FG_LIGHT_GREEN);
+    print("cr2", 45, 8, C_FG_WHITE);
+    print_hex(rcr2(), 8, 49, 8, C_FG_LIGHT_GREEN);
 
-    print("cr3", 45, 9, C_FG_WHITE);
-    print_hex(rcr3(),8 , 49, 9, C_FG_LIGHT_GREEN);
+    print("cr3", 45, 10, C_FG_WHITE);
+    print_hex(rcr3(),8 , 49, 10, C_FG_LIGHT_GREEN);
 
-    print("cr4", 45, 11, C_FG_WHITE);
-    print_hex(rcr4(),8 , 49, 11, C_FG_LIGHT_GREEN);
-    
-    print_hex(tareaQueRompio, 2, 56,2, C_FG_LIGHT_GREEN);
+    print("cr4", 45, 12, C_FG_WHITE);
+    print_hex(rcr4(),8 , 49, 12, C_FG_LIGHT_GREEN);
 
 
-    print("err", 45, 13, C_FG_WHITE);
-    print_hex(codigoError(),8 , 49, 13, C_FG_LIGHT_GREEN);
+    print("err", 45, 14, C_FG_WHITE);
+    print_hex(codigoError(),8 , 49, 14, C_FG_LIGHT_GREEN);
+
   }
+
 }

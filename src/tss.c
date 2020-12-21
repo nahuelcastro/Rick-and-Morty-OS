@@ -266,7 +266,7 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
     gdt_index = next_free_gdt_idx;
     stack_level_0 = mmu_next_free_kernel_page();    //! VER QUE CUANDO LO QUIERO LIMPIAR ROMPE
 
-    //stack_level_0+=1000;
+    // stack_level_0+=1000;  // ESTO ES PARA ROMPER APROPOSITO
 
     // guardo la info importante para luego poder reciclar la memoria de meeseeks muertos
     backup_meeseks[player][idx_msk].p    = true;

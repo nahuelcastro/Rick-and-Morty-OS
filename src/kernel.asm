@@ -276,7 +276,7 @@ pushad
     xor ecx, ecx
     add ecx, 60
     xor eax, eax 
-    _39_veces:
+    _41_veces:
     inc eax
     add ecx, 40
     mov edx, ecx
@@ -286,8 +286,8 @@ pushad
         inc ecx
         cmp ecx, edx
         jne pintar_negro
-    cmp dword eax, 39
-    jne _39_veces   
+    cmp dword eax, 41
+    jne _41_veces   
  
 popad
 ret
