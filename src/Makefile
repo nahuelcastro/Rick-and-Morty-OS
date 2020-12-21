@@ -17,10 +17,11 @@ DEP=$(OBJ:%.o=%.d)
 DISK_IMG=diskette.img
 DISK_IMG_BZ=diskette.img.bz2
 
-CFLAGS=-Wall -Wextra -pedantic -std=c99 -Werror -Og -ggdb \
+CFLAGS=-Wall -Wextra -pedantic -std=c99 -Werror -O0 -ggdb \
   -m32 -ffreestanding -fno-pie -fno-zero-initialized-in-bss -fno-stack-protector
 
-TASKSCFLAGS=$(CFLAGS) -fno-toplevel-reorder
+#TASKSCFLAGS=$(CFLAGS) -fno-toplevel-reorder  								# ORIGINAAL
+TASKSCFLAGS=$(CFLAGS) -fno-toplevel-reorder -fno-omit-frame-pointer
 
 TASKIDLE=idle.tsk
 TASKRICK=taskRick.tsk

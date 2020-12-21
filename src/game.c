@@ -159,6 +159,8 @@ void remove_seed(int idx) {
 
 void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
 
+  
+
   // uint32_t romper = 0;
   // lcr3(romper);
 
@@ -392,6 +394,7 @@ void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y){
 
 void sys_use_portal_gun(){
 
+
   if(tareaActual == 17 || tareaActual == 18 ){ 
     desactivar_tarea();
   }
@@ -450,7 +453,7 @@ void sys_use_portal_gun(){
     lcr3(cr3[player]);
 
     tareaActual = backup_tareaActual; 
-   
+
   }
 }
 

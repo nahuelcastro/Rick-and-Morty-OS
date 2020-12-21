@@ -130,6 +130,10 @@ void update_msk_clocks(info_task_t* task){
 
 uint16_t sched_next_task(void){
 
+  if (modoDebug){
+    print("D",1,48, WHITE_BLACK);
+  }
+
   if (modoDebug && exception){
     tssActual = TSSs[IDLE];
     return (IDLE << 3);
@@ -138,12 +142,47 @@ uint16_t sched_next_task(void){
   player_t new_player;
   tareaActual = tareaActualAnterior;
 
+
+
   if(tareaActualAnterior == IDLE){ 
     tareaActual++;
     new_player = RICK; // ver si 
   }else{
     new_player = info_task[tareaActual].player ? MORTY : RICK;
   }
+
+
+
+    //   //! MAXI NO BORRES COMENTARIOS QUE SON LA PUTA HOSTIA (PRINTEADOR DE TAREAS)
+    // for (int i = 0; i < 41; i++){
+    //   print_dec(9 ,16 , 5,i,GREEN_GREEN);
+    // }
+    // print("i" , 5 ,4,WHITE_RED);          // i
+    // print("a" , 8 ,4,WHITE_RED);          // task_active
+    // print("Pl", 10,4,WHITE_RED);          // p_loop_sched
+    // print("Fl", 13,4,WHITE_RED);          // flag_loop
+    // print("ig", 16,4,WHITE_RED);          // idx_gdt
+    // print("ma", 19,4,WHITE_RED);          // meeseek activo
+    // print("player :", 17,0,WHITE_RED);
+    // print_dec(new_player,1 , 25,0,WHITE_RED);
+    // for (uint8_t i = 0; i < 11 ; i++){
+    //   int j = 6 + 2*i;
+    //   print_dec(i + 1 ,2 , 5,j,WHITE_RED);
+    //   print_dec(sched[new_player][i].info_task->active,1, 8, j,WHITE_RED);
+    //   print_dec(sched[new_player][i].p_loop_sched,1, 10, j,WHITE_RED);
+    //   print_dec(sched[new_player][i].info_task->flag_loop,1, 13,j,WHITE_RED);
+    //   print_dec(sched[new_player][i].info_task->idx_gdt,2, 16,j,WHITE_RED);
+    //   if( i > 0 ){
+    //     print_dec(meeseeks[new_player][i-1].p,1, 19,j,WHITE_RED);
+    //   }
+    // }
+
+    // // breakpoint();
+
+
+
+
+
 
   info_task_t* task = next(new_player);
   index = task->idx_gdt;
@@ -207,7 +246,8 @@ int codigoError(void){
 
 //register uint8_t valor_scancode asm("al");
 
-void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi, uint32_t ebp, uint32_t esp, uint32_t eip, uint32_t cs, uint32_t ds, uint32_t es, uint32_t fs, uint32_t gs, uint32_t ss, uint32_t eflags ,uint32_t except_code, uint32_t stack_p0, uint32_t stack_p8){
+//16 parametros
+void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi, uint32_t ebp, uint32_t esp, uint32_t eip, uint32_t cs, uint32_t ds, uint32_t es, uint32_t fs, uint32_t gs, uint32_t ss, uint32_t eflags ,uint32_t except_code){
   // char registrosNombre[16][10] = {"eax", "ebx","ecx","edx","esi","edi","ebp","esp","eip","cs","ds","es","fs","gs","ss","eflags"};
   // uint32_t registros[16] = {eax,ebx,ecx,edx,esi,edi,ebp,esp,eip,cs,ds,es,fs,gs,ss,eflags};
   // for (size_t i = 0; i < 30; i+=2){
@@ -289,19 +329,25 @@ void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, u
   y += 2;
 
 
-  y = 19;
-  print_hex(stack_p0,8,36,y,C_FG_LIGHT_GREEN);
-  y += 2;
+  // y = 19;
+  // print_hex(stack_p0,8,36,y,C_FG_LIGHT_GREEN);
+  // y += 2;
   
-  print_hex(eip,8,36,y,C_FG_LIGHT_GREEN);
-  y += 2;
+  // print_hex(eip,8,36,y,C_FG_LIGHT_GREEN);
+  // y += 2;
   
-  print_hex(stack_p8,8,36,y,C_FG_LIGHT_GREEN);
+  // print_hex(stack_p8,8,36,y,C_FG_LIGHT_GREEN);
 
-  // poner_string("EAX:", x_base+1, y_base+6, 7, 0);
-  // poner_hex(eax, x_base+6, y_base+6, 7, 0x1);
-  // poner_string("EBX:", x_base+2+(ancho/2), y_base+6, 7, 0);
-  // poner_hex(ebx, x_base+2+(ancho/2)+5, y_base+6, 7, 0x1);
+    // poner_string("Stack:", x_base+ancho+3+1, y_base+1, 7, 0);
+    // poner_string("(desde tope)", x_base+ancho+3+1, y_base+2, 7, 0);
+    uint32_t * stack = (uint32_t * )(esp + 17*4);
+    y = 19;
+    for(int a = 0; a < 3; a++){// alto*5  = 28*5
+        if(esp >= ebp)break;
+        print_hex(*stack,8,36,y, C_FG_LIGHT_GREEN);
+        ++stack;
+        y += 2;
+    }
 
 }
 
@@ -322,6 +368,7 @@ void debug_mode_on_off(){
     
     if(!modoDebug){
       exception = false;
+      print("D",1,48, BLACK_BLACK);
     }
 
 }

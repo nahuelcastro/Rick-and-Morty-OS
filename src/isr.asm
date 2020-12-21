@@ -66,33 +66,22 @@ global _isr%1
 
 _isr%1:
 
-     xchg bx, bx
      mov [reg_backup], eax
      ;Guardo el EIP
      push eax
-     mov eax, [esp]
-     mov [stack0], eax
      mov eax, [esp + 4]
      mov [eipActual], eax
-     mov eax, [esp + 8]
-     mov [stack2], eax
      pop eax
-
-
      ; push eax
      ; call capturar_excepcion
      ; add esp, 4
 
      push eax
      mov eax, [modoDebug] 
-     cmp eax, 1
+     xchg bx, bx 
+     cmp byte al, 1
      pop eax
      jne .fin
-
-     mov eax,[stack2]
-     push eax
-     mov eax,[stack0]
-     push eax
 
      mov eax, %1
      push eax
@@ -118,7 +107,8 @@ _isr%1:
      push ebx
      push eax
      call imprimirRegistros
-     add esp,64
+     add esp,68
+
 
     
      
