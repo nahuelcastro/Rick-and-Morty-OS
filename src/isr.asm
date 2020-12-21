@@ -171,7 +171,7 @@ _isr32:
      call clock_task
      call next_clock
      mov word [sched_task_selector], ax
-     ; xchg bx, bx 
+     ;xchg bx, bx 
      jmp far [sched_task_offset]
      .fin:
      ;xchg bx, bx 

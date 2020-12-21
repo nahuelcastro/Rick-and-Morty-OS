@@ -159,7 +159,9 @@ void remove_seed(int idx) {
 
 void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
 
-  
+  if(!player && idx_msk == 3){
+    breakpoint();
+  }
 
   // uint32_t romper = 0;
   // lcr3(romper);
@@ -200,7 +202,7 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
 
   paddr_t virt = backup_meeseks[player][idx_msk].virt;
 
-  // breakpoint();
+  
   for (int i = 0; i < 2; i++) {
     mmu_unmap_page(cr3, virt);
     virt += PAGE_SIZE;
@@ -210,8 +212,15 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
     end_game();
   }
   
-  
+  if(!player && idx_msk == 3){
+    breakpoint();
+  }
 }
+
+
+
+
+
 
 // va actualiznado los ticks
 void ticks_counter() {
@@ -420,6 +429,10 @@ void sys_use_portal_gun(){
       }
     }
 
+    if(!player){
+    breakpoint();
+  }
+
     uint32_t rdm = rand() % number_opp_msks;
 
     uint8_t idx_msk = idxs_msk[rdm];
@@ -453,6 +466,10 @@ void sys_use_portal_gun(){
     lcr3(cr3[player]);
 
     tareaActual = backup_tareaActual; 
+
+      if(!player){
+    breakpoint();
+  }
 
   }
 }

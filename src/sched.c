@@ -226,7 +226,7 @@ void desactivar_tarea(){
 
 uint16_t sched_idle(){
   tareaActualAnterior = tareaActual;
-  tareaActual = 16;;
+  tareaActual = 16;
   return 0x80;
 }
 
