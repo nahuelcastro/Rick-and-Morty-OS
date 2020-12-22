@@ -66,6 +66,7 @@ global _isr%1
 
 _isr%1:
 
+     xchg bx, bx 
      mov [reg_backup], eax
      ;Guardo el EIP
      push eax
@@ -108,9 +109,6 @@ _isr%1:
      push eax
      call imprimirRegistros
      add esp,68
-
-
-    
      
      xchg bx, bx
 
@@ -231,7 +229,7 @@ iret
 global _isr89
 
 _isr89:
-     pushad
+      pushad
      mov ebp, esp
 
      call sys_use_portal_gun
@@ -242,7 +240,7 @@ _isr89:
      mov word [sched_task_selector], ax
      jmp far [sched_task_offset]
      
-     popad
+      popad
 iret
 
 

@@ -223,7 +223,7 @@ primer_fila_negra:
 filas_verdes:
     mov word [fs:2*ecx], GREEN
     inc ecx
-    cmp ecx, 3360
+    cmp ecx, 3280
     jne filas_verdes
 
 xor ebx, ebx
@@ -276,7 +276,7 @@ pushad
     xor ecx, ecx
     add ecx, 60
     xor eax, eax 
-    _41_veces:
+    _40_veces:
     inc eax
     add ecx, 40
     mov edx, ecx
@@ -286,8 +286,8 @@ pushad
         inc ecx
         cmp ecx, edx
         jne pintar_negro
-    cmp dword eax, 41
-    jne _41_veces   
+    cmp dword eax, 40
+    jne _40_veces   
  
 popad
 ret

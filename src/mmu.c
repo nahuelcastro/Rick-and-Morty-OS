@@ -69,11 +69,20 @@ paddr_t mmu_next_free_virt_meeseek_page(player_t player) {
 //   return free_page;
 // }
 
-paddr_t mmu_phy_map_decoder(coordenadas coord) {
-    paddr_t phy = phy_init_msk_map;
-    phy = phy + (coord.x + (coord.y * 80)) * 2 * PAGE;
+// paddr_t mmu_phy_map_decoder(coordenadas coord) {    
+//     paddr_t phy = PHY_INIT_MAP;
+//     phy = phy + (coord.x + (coord.y) * 80) * 2 * PAGE_SIZE;
+//     return phy;
+// }
+
+
+paddr_t mmu_phy_map_decoder(coordenadas coord) {    
+    paddr_t phy = PHY_INIT_MAP;
+    phy = phy + (coord.x  * 2 * 4096) + (coord.y * 80 * 2 *4096);
     return phy;
 }
+
+
 
 paddr_t mmu_init_kernel_dir(void) {
     page_directory_entry *pd = (page_directory_entry *)KERNEL_PAGE_DIR;
@@ -157,6 +166,10 @@ void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs) {
 }
 
 paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt) { 
+
+    if(virt >= 0x01d00000 && virt < 0x1d04000){
+        breakpoint();
+    }
 
     int off_pd = (virt >> 22);
     int off_pt = ((virt << 10) >> 22);

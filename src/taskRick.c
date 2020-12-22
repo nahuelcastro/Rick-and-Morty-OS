@@ -4,34 +4,18 @@
 #include "game.h"
 
 void meeseks1_func(void);
-void meeseks2_func(void);
-void meeseks3_func(void);
 
 
 void task(void) {
-  for (int row = 0; row < 40; row++) {
-    for (int col = 0; col < 80; col++) {
+  for (int row = 39; row > 0; row--) {
+    for (int col = 79; col > 0; col--) {
       uint32_t res = 0;
       while (res == 0) {
         res = syscall_meeseeks((uint32_t)&meeseks1_func, col, row);
         // breakpoint();
       }
     }
-  }
-
-    //   while(1){
-    //   for (size_t i = 0; i < 80; i = i + 2){
-    //     for (size_t j = 0; i < 40; j = j + 4){
-    //       syscall_meeseeks((uint32_t)&meeseks1_func, i , j);// 37
-    //       if(i > 70){
-    //         i = 1;
-    //       }
-    //       if(j > 34){
-    //         j = 2;
-    //       }
-    //     }
-    //   }
-    // }
+}
 
 
   while (1) {
@@ -42,7 +26,7 @@ void task(void) {
 
 void meeseks1_func(void){
   while (0) {
-      for (int i = 0; i < 20; i++) {
+      for (int i = 0; i < 80; i++) {
         syscall_move(1,0);
 
       }

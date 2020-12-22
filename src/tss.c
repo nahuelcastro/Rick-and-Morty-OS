@@ -253,13 +253,17 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
   task_phy_address = mmu_phy_map_decoder(coord);
   bool reciclar = backup_meeseks[player][idx_msk].p;
 
+
+
   if (reciclar){
 
     task_virt_address = backup_meeseks[player][idx_msk].virt;
     mmu_init_task_meeseeks_dir(task_phy_address, code_start, task_virt_address);
     gdt_index = backup_meeseks[player][idx_msk].gdt_index;
     stack_level_0 = backup_meeseks[player][idx_msk].stack_level_0;
+  
   } else{
+  
     task_virt_address = mmu_next_free_virt_meeseek_page(player);
     mmu_init_task_meeseeks_dir(task_phy_address, code_start, task_virt_address);
     next_free_tss();
@@ -274,6 +278,9 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
     backup_meeseks[player][idx_msk].gdt_index = gdt_index;
     backup_meeseks[player][idx_msk].stack_level_0 = stack_level_0;   //! VER QUE CUANDO LO QUIERO LIMPIAR ROMPE
   }
+
+
+  //stack_level_0 = mmu_next_free_kernel_page();    //! VER QUE CUANDO LO QUIERO LIMPIAR ROMPE
 
   info_gdt_meeseeks[gdt_index].idx_msk = idx_msk;
   info_gdt_meeseeks[gdt_index].player = player;

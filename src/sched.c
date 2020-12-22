@@ -122,7 +122,7 @@ void update_msk_clocks(info_task_t* task){
   uint8_t i = task->clock;
   coordenadas coord; 
   coord.x = 26 + 3 * task->idx_msk;
-  coord.y = 49 - 4 * task->player;
+  coord.y = 48 - 4 * task->player;
   print("C", coord.x, coord.y, BLACK_BLACK);
   print(CLOCK[i], coord.x, coord.y, WHITE_BLACK);
 }
@@ -217,7 +217,7 @@ void desactivar_tarea(){
   info_task[tareaActual].clock = 0;
   coordenadas coord; 
   coord.x = 26 + 3 * info_task[tareaActual].idx_msk;
-  coord.y = 49 - 4 * info_task[tareaActual].player;
+  coord.y = 48 - 4 * info_task[tareaActual].player;
   print("C ", coord.x, coord.y, BLACK_BLACK);
   print("X ", coord.x, coord.y, WHITE_BLACK);
 
