@@ -43,6 +43,8 @@ uint32_t gdt_index = 0;
 info_task_t info_task[GDT_COUNT];
 
 
+
+
 void init_tss(void) {
 
 
@@ -285,7 +287,6 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
   info_gdt_meeseeks[gdt_index].idx_msk = idx_msk;
   info_gdt_meeseeks[gdt_index].player = player;
   info_gdt_meeseeks[gdt_index].ticks_counter = 0;
-
 
   info_task[gdt_index].player = player;
   info_task[gdt_index].active = true;

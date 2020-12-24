@@ -17,6 +17,7 @@
 // #include <math.h>
 extern void pantalla_negra_debug();
 
+
 seed semillas[MAX_CANT_SEMILLAS];
 uint8_t indexSemilla;
 uint16_t cant_semillas;
@@ -171,6 +172,14 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
 
   // update
   update_meeseek_map(player, meeseeks[player][idx_msk].coord, DELETE);
+
+  // print("M",meeseeks[player][idx_msk].coord.x, meeseeks[player][idx_msk].coord.y, BLACK_WHITE);
+  // print("S",semillas[idx_seed].coord.x,semillas[idx_seed].coord.y,BLACK_WHITE);
+  // breakpoint(); 
+  // print("M",meeseeks[player][idx_msk].coord.x, meeseeks[player][idx_msk].coord.y, GREEN_GREEN);
+  // print("S",semillas[idx_seed].coord.x,semillas[idx_seed].coord.y,GREEN_GREEN);
+  
+
   add_update_score(player);
   cant_meeseeks[player]--;
   cant_semillas --;
@@ -239,8 +248,6 @@ void clock_task(){
 
 uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
 
-
-
   player_t player = info_task[tareaActual].player;
     
 
@@ -302,8 +309,9 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
 
 
 
-uint32_t sys_move(uint32_t x, uint32_t y) {
+uint32_t sys_move(int32_t x, int32_t y) {
 
+  
 
   if(tareaActual == 17 || tareaActual == 18 ){ // verificar que funcione
     desactivar_tarea();
@@ -325,17 +333,25 @@ uint32_t sys_move(uint32_t x, uint32_t y) {
   uint8_t moveConTicks = (abs(x) + abs(y) + (ticks/2));
   
   if (7 < moveConTicks) {
-    breakpoint();
     return 0;
   }
 
   clean_cell(coord_actual);
 
   coordenadas new_coord;
+
+  new_coord = new_position(coord_actual,x,y);
+  
+  /*
+  NO FUNCIONA BIEN CUANDO VA PARA EL LADO NEGATIVO
   new_coord.x = x + coord_actual.x;
   new_coord.y = y + coord_actual.y;
   new_coord.x = (new_coord.x % 80 + 80) % 80;
   new_coord.y = ((new_coord.y % 40 + 40) % 40);
+  */
+  
+
+
   int16_t index_aux = index_in_seed(new_coord);
   bool in_seed = index_aux != -1;
   
@@ -374,7 +390,8 @@ uint32_t sys_move(uint32_t x, uint32_t y) {
 }
 
 
-void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y){
+void move_portal(player_t opponent,uint8_t idx_msk, int8_t x, int8_t y){
+
 
 
   player_t player = opponent;
@@ -385,17 +402,18 @@ void move_portal(player_t opponent,uint8_t idx_msk, uint8_t x, uint8_t y){
   clean_cell(coord_actual);
 
   coordenadas new_coord;
+
+  new_coord = new_position(coord_actual,x,y);
+
+  /*
   new_coord.x = x + coord_actual.x;
   new_coord.y = y + coord_actual.y;
   new_coord.x = (new_coord.x % 80 + 80) % 80;
   new_coord.y = ((new_coord.y % 40 + 40) % 40);
-  
+  */
 
   int16_t index_aux = index_in_seed(new_coord);
   bool in_seed = index_aux != -1;
-
-
-
 
   if (in_seed) {
     msk_found_seed(player, idx_msk, index_aux);
@@ -577,3 +595,51 @@ int8_t sys_look (uint8_t flag){
 //     if(deltay < 0){print("-", 5,43,WHITE_RED);} 
 //     print_dec(abs(deltay),2, 3, 43,WHITE_RED);
 // }
+
+
+coordenadas new_position(coordenadas actual,int8_t x,int8_t y){
+
+  uint8_t dist_x = abs(x);
+  uint8_t dist_y = abs(y);
+
+  for (size_t i = 0; i < dist_x; i++){
+    if(x > 0){
+      if(actual.x == 79){
+        actual.x = 0;
+      }else{
+        actual.x++;
+        x--;
+      }
+
+    }else{
+      if(actual.x == 0){
+        actual.x = 79;
+      }else{
+        actual.x--;
+        x--;
+      }
+    }
+
+  }
+
+  for (size_t i = 0; i < dist_y; i++){
+      if(y > 0){
+        if(actual.y == 39){
+          actual.y = 0;
+        }else{
+          actual.y++;
+          y--;
+        }
+
+      }else{
+        if(actual.y == 0){
+          actual.y = 39;
+        }else{
+          actual.y--;
+          y--;
+        }
+      }
+    }
+    return actual;
+}
+  

@@ -34,10 +34,10 @@ void task(void) {
 void meeseks1_func(void){
   while (0) {
       for (int i = 0; i < 80; i++) {
-        syscall_move(1,0);
+        syscall_move(0,-1);
 
       }
-      syscall_move(0,1);
+      syscall_move(0,-1);
   }
 
 

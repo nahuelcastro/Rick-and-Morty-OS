@@ -22,6 +22,7 @@ extern void pantalla_negra_debug();
 extern void init_pantalla();
 extern void registrosActuales();
 
+
 sched_t sched[PLAYERS][11];
 
 bool modoDebug;
@@ -187,6 +188,7 @@ uint16_t sched_next_task(void){
   info_task_t* task = next(new_player);
   index = task->idx_gdt;
 
+
   bool msk_task = index > 18 ;
   if (msk_task){
     update_msk_clocks(task);                   
@@ -247,7 +249,7 @@ int codigoError(void){
 //register uint8_t valor_scancode asm("al");
 
 //16 parametros
-void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi, uint32_t ebp, uint32_t esp, uint32_t eip, uint32_t cs, uint32_t ds, uint32_t es, uint32_t fs, uint32_t gs, uint32_t ss, uint32_t eflags ,uint32_t except_code){
+void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi, uint32_t ebp, uint32_t esp, uint32_t eip, uint16_t cs, uint16_t ds, uint16_t es, uint16_t fs, uint16_t gs, uint16_t ss, uint16_t eflags ,uint16_t except_code, uint32_t error_code){
   // char registrosNombre[16][10] = {"eax", "ebx","ecx","edx","esi","edi","ebp","esp","eip","cs","ds","es","fs","gs","ss","eflags"};
   // uint32_t registros[16] = {eax,ebx,ecx,edx,esi,edi,ebp,esp,eip,cs,ds,es,fs,gs,ss,eflags};
   // for (size_t i = 0; i < 30; i+=2){
@@ -329,25 +331,20 @@ void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, u
   y += 2;
 
 
-  // y = 19;
-  // print_hex(stack_p0,8,36,y,C_FG_LIGHT_GREEN);
-  // y += 2;
-  
-  // print_hex(eip,8,36,y,C_FG_LIGHT_GREEN);
-  // y += 2;
-  
-  // print_hex(stack_p8,8,36,y,C_FG_LIGHT_GREEN);
+  // NO ESTA CHEQUEADO QUE ESTE BIEN
+  print("err", 45, 14, C_FG_WHITE);
+  print_hex(error_code,8 , 49, 14, C_FG_LIGHT_GREEN);
 
-    // poner_string("Stack:", x_base+ancho+3+1, y_base+1, 7, 0);
-    // poner_string("(desde tope)", x_base+ancho+3+1, y_base+2, 7, 0);
-    uint32_t * stack = (uint32_t * )(esp + 17*4);
-    y = 19;
-    for(int a = 0; a < 3; a++){// alto*5  = 28*5
-        if(esp >= ebp)break;
-        print_hex(*stack,8,36,y, C_FG_LIGHT_GREEN);
-        ++stack;
-        y += 2;
-    }
+
+
+  uint32_t * stack = (uint32_t * )(esp + 11*4);  // estaba 18 * 4
+  y = 19;
+  for(int a = 0; a < 3; a++){
+      if(esp >= ebp)break;
+      print_hex(*stack,8,36,y, C_FG_LIGHT_GREEN);
+      ++stack;
+      y += 2;
+  }
 
 }
 
@@ -419,10 +416,6 @@ void modo_debug(){
 
     print("cr4", 45, 12, C_FG_WHITE);
     print_hex(rcr4(),8 , 49, 12, C_FG_LIGHT_GREEN);
-
-
-    print("err", 45, 14, C_FG_WHITE);
-    print_hex(codigoError(),8 , 49, 14, C_FG_LIGHT_GREEN);
 
   }
 

@@ -52,6 +52,7 @@ tempb2: db 0         ; variable temporal
 
 reg_backup: dd 0
 eipActual:  dd 0
+error_code: dd 0
 
 stack0: dd 0
 stack2: dd 0
@@ -73,9 +74,11 @@ _isr%1:
      mov eax, [esp + 4]
      mov [eipActual], eax
      pop eax
-     ; push eax
-     ; call capturar_excepcion
-     ; add esp, 4
+     
+     push eax
+     mov eax, [esp]
+     mov [error_code], eax
+     pop eax
 
      push eax
      mov eax, [modoDebug] 
@@ -84,8 +87,14 @@ _isr%1:
      pop eax
      jne .fin
 
+     ; pusheo error code
+     mov eax, [error_code]
+     push eax
+
+     ;pusheo numero de excepcion
      mov eax, %1
      push eax
+
 
      pushf   ; eflags
 
@@ -99,18 +108,18 @@ _isr%1:
      mov eax, [eipActual]
      push eax
      mov eax, [reg_backup]
-     push esp ;TODO: Ver si es confiable o es el de nivel 0
-     push ebp ;TODO: Ver si es confiable o es el de nivel 0
+     push esp ; ver si no tendria que ser lo primero que se pushea, porque sino las cosas mueven el puntero a la pila
+     push ebp 
      push edi
      push esi
      push edx
      push ecx
      push ebx
      push eax
+     xchg bx, bx
      call imprimirRegistros
      add esp,68
      
-     xchg bx, bx
 
 
      .fin:
@@ -121,8 +130,8 @@ _isr%1:
      mov [sched_task_selector], ax   ; carga el selector del segmento de la tarea a saltar
      jmp far [sched_task_offset]     ; intercambio de tareas
 
-    
-     ;jmp $
+add esp, 4
+iret     
 
 %endmacro
 
@@ -229,18 +238,19 @@ iret
 global _isr89
 
 _isr89:
-      pushad
+     pushad
      mov ebp, esp
 
      call sys_use_portal_gun
 
-     ; call _isr15
+     xchg bx, bx 
+     call _isr14
 
      call sched_idle
      mov word [sched_task_selector], ax
      jmp far [sched_task_offset]
      
-      popad
+     popad
 iret
 
 
