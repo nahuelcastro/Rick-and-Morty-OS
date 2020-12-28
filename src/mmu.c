@@ -96,8 +96,7 @@ paddr_t mmu_init_kernel_dir(void) {
     pd[0].present = MMU_FLAG_PRESENT;
     pd[0].user_supervisor = MMU_FLAG_SUPERVISOR;
     pd[0].read_write = MMU_FLAG_READ_WRITE;
-    pd[0].page_table_base =
-        ((uint32_t)pt_0 >> 12);  // 12 bits mas significativos de la tabla
+    pd[0].page_table_base = ((uint32_t)pt_0 >> 12);  // 12 bits mas significativos de la tabla
 
     for (int i = 0; i < 1024; i++) {
         pt_0[i].present = MMU_FLAG_PRESENT;
@@ -108,6 +107,7 @@ paddr_t mmu_init_kernel_dir(void) {
 
     return (uint32_t)0;
 }
+
 
 void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs) {
     // virt | 0000 0000 01 (off_pd) | 01 0000 1110 (off_pt) | 0000 0010 0111

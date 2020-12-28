@@ -5,6 +5,7 @@
 
 %include "print.mac"
 
+
 global start
 
 
@@ -39,6 +40,17 @@ extern game_init
 %define IDX_VIDEO_LVL_0 0x70
 %define IDX_TSS_IDLE 0x80 ;Chequear 40
 %define IDX_TSS_INICAL 0x78
+
+%define BLACK              (0x0 << 12)
+%define BLUE               (0x1 << 12)
+%define GREEN              (0x2 << 12)
+%define CYAN               (0x3 << 12)
+%define RED                (0x4 << 12)
+%define MAGENTA            (0x5 << 12)
+%define BROWN              (0x6 << 12)
+%define LIGHT_GREY         (0x7 << 12)
+
+
 
 BITS 16
 ;; Saltear seccion de datos
@@ -108,14 +120,6 @@ BITS 32
 modo_protegido:
 
 
-%define BLACK              (0x0 << 12)
-%define BLUE               (0x1 << 12)
-%define GREEN              (0x2 << 12)
-%define CYAN               (0x3 << 12)
-%define RED                (0x4 << 12)
-%define MAGENTA            (0x5 << 12)
-%define BROWN              (0x6 << 12)
-%define LIGHT_GREY         (0x7 << 12)
 
     ; Establecer selectores de segmentos
     xor eax, eax
@@ -135,7 +139,6 @@ modo_protegido:
     ; Imprimir mensaje de bienvenida
     print_text_pm start_pm_msg, start_pm_len, 0x07, 0, 0    ;chequear si es asi
 
-
     ; Inicializar pantalla
     call init_pantalla
 
@@ -148,15 +151,14 @@ modo_protegido:
     
 
     ; Cargar directorio de paginas
-	  mov eax, 0x25000
-	  mov cr3, eax
+	mov eax, 0x25000
+	mov cr3, eax
 
     
     ; Habilitar paginacion
     mov eax, cr0
     or eax, 0x80000000
     mov cr0, eax
-
     
     call print_libretas
 
@@ -293,65 +295,65 @@ popad
 ret
 
 
-extern imprimirRegistros
+; extern imprimirRegistros
 
 
-global registrosActuales
+; global registrosActuales
 
-reg_backup: dd 0
-eipActual:  dd 0
+; reg_backup: dd 0
+; eipActual:  dd 0
 
-registrosActuales:
+; registrosActuales:
 
-    ;Guardo el EIP
-    push eax
-    mov eax, [esp + 4]
-    mov [eipActual], eax
-    pop eax
+;     ;Guardo el EIP
+;     push eax
+;     mov eax, [esp + 4]
+;     mov [eipActual], eax
+;     pop eax
 
-    pushf   ; eflags
+;     pushf   ; eflags
     
-    push ss
-    push gs
-    push fs
-    push es
-    push ds
-    push cs
-    mov [reg_backup], eax
-    mov eax, [eipActual]
-    push eax
-    mov eax, [reg_backup]
-    push esp ;TODO: Ver si es confiable o es el de nivel 0
-    push ebp ;TODO: Ver si es confiable o es el de nivel 0
-    push edi
-    push esi
-    push edx
-    push ecx
-    push ebx
-    push eax
-    call imprimirRegistros
-    add esp,64
+;     push ss
+;     push gs
+;     push fs
+;     push es
+;     push ds
+;     push cs
+;     mov [reg_backup], eax
+;     mov eax, [eipActual]
+;     push eax
+;     mov eax, [reg_backup]
+;     push esp ;TODO: Ver si es confiable o es el de nivel 0
+;     push ebp ;TODO: Ver si es confiable o es el de nivel 0
+;     push edi
+;     push esi
+;     push edx
+;     push ecx
+;     push ebx
+;     push eax
+;     call imprimirRegistros
+;     add esp,64
 
-    ; pop eax    
-    ; pop eax
-    ; pop eax
-    ; pop eax
-    ; pop eax
+;     ; pop eax    
+;     ; pop eax
+;     ; pop eax
+;     ; pop eax
+;     ; pop eax
     
-    ; pop eax
-    ; pop eax
-    ; pop eax
-    ; pop eax    
-    ; pop eax
+;     ; pop eax
+;     ; pop eax
+;     ; pop eax
+;     ; pop eax    
+;     ; pop eax
 
-    ; pop eax
-    ; pop eax
-    ; pop eax
-    ; pop eax
-    ; pop eax
+;     ; pop eax
+;     ; pop eax
+;     ; pop eax
+;     ; pop eax
+;     ; pop eax
 
-    ; pop eax
-    ret
+;     ; pop eax
+;     ret
      
 
 ;; -------------------------------------------------------------------------- ;;

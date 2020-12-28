@@ -12,24 +12,11 @@
 #include "sched.h"
 
 int ultExcepcion=260;
-// uint16_t tareaQueRompio;
+
 idt_entry_t idt[255] = {0};
 
 idt_descriptor_t IDT_DESC = {sizeof(idt) - 1, (uint32_t)&idt};
 
-/*
-    La siguiente es una macro de EJEMPLO para ayudar a armar entradas de
-    interrupciones. Para usar, descomentar y completar CORRECTAMENTE los
-    atributos y el registro de segmento. Invocarla desde idt_inicializar() de
-    la siguiene manera:
-
-    void idt_inicializar() {
-        IDT_ENTRY(0);
-
-        IDT_ENTRY(19);
-
-    }
-*/
 
 #define CODE_SEL_0 0x50 // 0x50
 #define INTERRUPT_0_ATTRS 0x8E00
@@ -80,15 +67,8 @@ void idt_init() {
 }
 
 
-// void capturar_excepcion(int codigo){
-//   ultExcepcion = codigo;
-//   tareaQueRompio = tareaActual;
-//   exception = 1;
-// }
-
 void imprimir_excepcion(int codigo){
   
-  //print("Excepcion, ", 0, 0, C_FG_LIGHT_GREEN);
   if (codigo == 0) { print("Divide Error(0)", 22, 2, C_FG_LIGHT_GREEN);}
 
   if (codigo == 1) { print("RESERVED (1)",22,2, C_FG_LIGHT_GREEN);}
@@ -129,9 +109,6 @@ void imprimir_excepcion(int codigo){
 
   if (codigo == 19){ print("SIMD Floating-Point Exception (19)", 22,2, C_FG_LIGHT_GREEN);}
 
-  //if (codigo == 33){ print("ESTAN ESCRIBIENDOOOOO!! (33)", 11,0, C_FG_LIGHT_GREEN);}
-
-  //if (codigo == 88){ print("Entramos en una tarea!! (88)", 11,0,C_FG_LIGHT_GREEN);}
 }
 
 

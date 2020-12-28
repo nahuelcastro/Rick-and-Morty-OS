@@ -37,6 +37,7 @@
 #define C_BG_BROWN      (0x6 << 4)
 #define C_BG_LIGHT_GREY (0x7 << 4)
 
+
 #define C_BLINK (0x8 << 4)
 
 // primero color fuente y luego color fondo
