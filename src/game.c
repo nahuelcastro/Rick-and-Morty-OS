@@ -19,15 +19,12 @@ extern void pantalla_negra_debug();
 
 
 seed semillas[MAX_CANT_SEMILLAS];
-uint8_t indexSemilla;
+// uint8_t indexSemilla;
 uint16_t cant_semillas;
 uint32_t score[PLAYERS];
 const bool ADD = true;
 const bool DELETE = false;
 info_gdt_meeseek info_gdt_meeseeks[GDT_COUNT];
-
-
-uint8_t color_map_msk[PLAYERS];
 
 
 bool create_msk_morty = false;
@@ -58,33 +55,30 @@ void update_meeseek_map(player_t player, coordenadas coord, bool reason) {
 }
 
 void game_init(void) {
-  color_map_msk[MORTY] = MORTY_MEESEEK_COLOR;
-  color_map_msk[RICK] = RICK_MEESEEK_COLOR;
-  ultimoJugador = MORTY;
-  tss_creator(RICK, 0);
-  tss_creator(MORTY, 0);
-  indexSemilla = 0;
-  cant_semillas = MAX_CANT_SEMILLAS - 1;
+  tss_creator(RICK);
+  tss_creator(MORTY);
+  cant_semillas = MAX_CANT_SEMILLAS;
   score[MORTY] = 0;
   score[RICK] = 0;
+
   print_dec(score[RICK], 8, 10, 44, WHITE_RED);
   print_dec(score[MORTY], 8, 62, 44, WHITE_BLUE);
-  print("R  00 01 02 03 04 05 06 07 08 09 ", 23, 42,
-        BLACK_RED);                                             // letras rojas
-  print("M", 57, 43, BLACK_BLUE);                               // M azul
-  print("00 01 02 03 04 05 06 07 08 09 ", 26, 46, BLACK_BLUE);  // letras azules
+
+  print("R  00 01 02 03 04 05 06 07 08 09 ", 23, 42, BLACK_RED); // letras rojas
+  print("M", 57, 42, BLACK_BLUE);                                // M azul
+  print("00 01 02 03 04 05 06 07 08 09 ", 26, 46, BLACK_BLUE);   // letras azules
 
   // print semillas al azar
-  for (int i = 1; i < MAX_CANT_SEMILLAS; i++) {
+  for (int i = 0; i < MAX_CANT_SEMILLAS; i++) {
     uint8_t x = rand();
     uint8_t y = rand();
     print("s", x % 80, (y % 40) + 1, GREEN_YELLOW);
     coordenadas coord;
     coord.x = x % 80;
     coord.y = y % 40;
-    indexSemilla++;
-    semillas[indexSemilla].p = true;
-    semillas[indexSemilla].coord = coord;
+    semillas[i].p = true;
+    semillas[i].coord = coord;
+    // indexSemilla++;
   }
 
   // setear todos los meeseeks como inactivos
@@ -93,7 +87,6 @@ void game_init(void) {
       meeseeks[player][i].p = 0;
     }
   }
-
 }
 
 void end_game(void) {
@@ -189,7 +182,7 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
   
   info_task[tareaActual].active = false;
   info_task[tareaActual].flag_loop = true;
-  sched[player][idx_msk + 1].p_loop_sched = true;
+  // sched[player][idx_msk + 1].p_loop_sched = true;
 
   info_task[tareaActual].clock = 0;
   coordenadas coord; 
@@ -220,11 +213,6 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
   
 }
 
-
-
-
-
-
 // va actualiznado los ticks
 void ticks_counter() {
     if (info_gdt_meeseeks[tareaActualAnterior].ticks_counter < 12) { 
@@ -238,12 +226,6 @@ int abs(int n) {
   }
   return n;
 }
-
-void clock_task(){
-
-
-}
-
 
 
 uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
@@ -311,9 +293,7 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
 
 uint32_t sys_move(int32_t x, int32_t y) {
 
-  
-
-  if(tareaActual == 17 || tareaActual == 18 ){ // verificar que funcione
+  if(tareaActual == 17 || tareaActual == 18 ){ 
     desactivar_tarea();
   }
 
@@ -341,16 +321,6 @@ uint32_t sys_move(int32_t x, int32_t y) {
   coordenadas new_coord;
 
   new_coord = new_position(coord_actual,x,y);
-  
-  /*
-  NO FUNCIONA BIEN CUANDO VA PARA EL LADO NEGATIVO
-  new_coord.x = x + coord_actual.x;
-  new_coord.y = y + coord_actual.y;
-  new_coord.x = (new_coord.x % 80 + 80) % 80;
-  new_coord.y = ((new_coord.y % 40 + 40) % 40);
-  */
-  
-
 
   int16_t index_aux = index_in_seed(new_coord);
   bool in_seed = index_aux != -1;
@@ -392,25 +362,14 @@ uint32_t sys_move(int32_t x, int32_t y) {
 
 void move_portal(player_t opponent,uint8_t idx_msk, int8_t x, int8_t y){
 
-
-
   player_t player = opponent;
   coordenadas coord_actual = meeseeks[player][idx_msk].coord;
-
-  
 
   clean_cell(coord_actual);
 
   coordenadas new_coord;
 
   new_coord = new_position(coord_actual,x,y);
-
-  /*
-  new_coord.x = x + coord_actual.x;
-  new_coord.y = y + coord_actual.y;
-  new_coord.x = (new_coord.x % 80 + 80) % 80;
-  new_coord.y = ((new_coord.y % 40 + 40) % 40);
-  */
 
   int16_t index_aux = index_in_seed(new_coord);
   bool in_seed = index_aux != -1;
@@ -488,11 +447,11 @@ void sys_use_portal_gun(){
     int8_t movement_y = (new_coord.y  - coord_actual.y);
 
 
-    lcr3(cr3[opponent]);
+    lcr3(cr3s[opponent]);
 
     move_portal(opponent, idx_msk, movement_x,movement_y);
 
-    lcr3(cr3[player]);
+    lcr3(cr3s[player]);
 
     tareaActual = backup_tareaActual; 
 
@@ -534,9 +493,6 @@ int8_t sys_look (uint8_t flag){
       }
     }
   }
-
- 
-
 
   
   int8_t movement_x = (int8_t)(semillas[min_idx_seed].coord.x  - coord_actual.x);  
@@ -582,19 +538,6 @@ int8_t sys_look (uint8_t flag){
   return flag == 0 ?  movement_x : movement_y;
 
 }
-
-
-// void print_aux(int8_t deltax, int8_t deltay){
-    
-//     print("-", 2,43,GREEN_GREEN);
-//     print("-", 5,43,GREEN_GREEN);
-
-//     if(deltax < 0){print("-", 2,43,WHITE_RED);}
-//     print_dec(abs(deltax),2, 3,43,WHITE_RED);
-
-//     if(deltay < 0){print("-", 5,43,WHITE_RED);} 
-//     print_dec(abs(deltay),2, 3, 43,WHITE_RED);
-// }
 
 
 coordenadas new_position(coordenadas actual,int8_t x,int8_t y){

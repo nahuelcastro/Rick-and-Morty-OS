@@ -53,6 +53,7 @@ tempb2: db 0         ; variable temporal
 reg_backup: dd 0
 eipActual:  dd 0
 error_code: dd 0
+e_flags:  dd 0
 
 stack0: dd 0
 stack2: dd 0
@@ -67,22 +68,27 @@ global _isr%1
 
 _isr%1:
 
-     xchg bx, bx 
+     xchg bx, bx
+     push esp
      mov [reg_backup], eax
      ;Guardo el EIP
      push eax
-     mov eax, [esp + 4]
+     mov eax, [esp + 12] ;
      mov [eipActual], eax
      pop eax
      
      push eax
-     mov eax, [esp]
+     mov eax, [esp + 8]
      mov [error_code], eax
      pop eax
 
      push eax
+     mov eax, [esp + 20]
+     mov [e_flags], eax
+     pop eax
+
+     push eax
      mov eax, [modoDebug] 
-     xchg bx, bx 
      cmp byte al, 1
      pop eax
      jne .fin
@@ -96,7 +102,9 @@ _isr%1:
      push eax
 
 
-     pushf   ; eflags
+     ; pushf   ; eflags
+     mov eax, [e_flags]
+     push eax
 
      push ss
      push gs
@@ -108,7 +116,7 @@ _isr%1:
      mov eax, [eipActual]
      push eax
      mov eax, [reg_backup]
-     push esp ; ver si no tendria que ser lo primero que se pushea, porque sino las cosas mueven el puntero a la pila
+     ;push esp ; ver si no tendria que ser lo primero que se pushea, porque sino las cosas mueven el puntero a la pila
      push ebp 
      push edi
      push esi
@@ -168,20 +176,18 @@ _isr32:
      pushad
      ;avisar al pic que se recibio la interrupcion
      call pic_finish1
+     call next_clock
      ;contador de ticks de para move
      call ticks_counter 
-     ;imprimir el reloj de sistema
-     call sched_next_task ; Crear esta funcion en C que basicamente cicle entre las tareas que hay y cuando llega a la ultima vuelva a la primera
+     
+
+     call sched_next_task 
      str cx
      cmp ax, cx           ; Me fijo si la proxima tarea no es la actual
      je .fin
-     call clock_task
-     call next_clock
      mov word [sched_task_selector], ax
-     ;xchg bx, bx 
      jmp far [sched_task_offset]
      .fin:
-     ;xchg bx, bx 
      popad
 iret
 
@@ -241,10 +247,7 @@ _isr89:
      pushad
      mov ebp, esp
 
-     call sys_use_portal_gun
-
-     xchg bx, bx 
-     call _isr14
+     call sys_use_portal_gun     
 
      call sched_idle
      mov word [sched_task_selector], ax

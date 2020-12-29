@@ -19,7 +19,7 @@
 uint32_t next_free_kernel_page;
 uint32_t next_free_virt_meeseek_page_rick;
 uint32_t next_free_virt_meeseek_page_morty;
-uint32_t next_free_phy_meeseek_page;
+
 
 backup_meesek backup_meeseks[PLAYERS][MAX_CANT_MEESEEKS];
 
@@ -28,7 +28,7 @@ void mmu_init(void) {
     next_free_kernel_page = 0x100000;
     next_free_virt_meeseek_page_rick = 0x08000000;
     next_free_virt_meeseek_page_morty = 0x08000000;
-    next_free_phy_meeseek_page = 0x400000;
+
 
     // seteo todos los reciclados como no presentes
     for (int player = 0; player < PLAYERS; player++) {
@@ -36,9 +36,6 @@ void mmu_init(void) {
             backup_meeseks[player][i].p = false;
         }
     }
-
-    // En memoria fisica, 0x400000 es el inicio del área libre de tareas.
-    // next_free_task_page = 0x400000;
 }
 
 paddr_t mmu_next_free_kernel_page(void) {
@@ -61,20 +58,7 @@ paddr_t mmu_next_free_virt_meeseek_page(player_t player) {
   paddr_t free_page = next_free_virt_meeseek_page_morty;
   next_free_virt_meeseek_page_morty += 0x2000;
    return free_page;
-  
 }
-// paddr_t mmu_next_free_phy_meeseek_page(void) {
-//   paddr_t free_page = next_free_phy_meeseek_page;
-//   next_free_phy_meeseek_page += 0x2000;
-//   return free_page;
-// }
-
-// paddr_t mmu_phy_map_decoder(coordenadas coord) {    
-//     paddr_t phy = PHY_INIT_MAP;
-//     phy = phy + (coord.x + (coord.y) * 80) * 2 * PAGE_SIZE;
-//     return phy;
-// }
-
 
 paddr_t mmu_phy_map_decoder(coordenadas coord) {    
     paddr_t phy = PHY_INIT_MAP;
@@ -110,14 +94,11 @@ paddr_t mmu_init_kernel_dir(void) {
 
 
 void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs) {
-    // virt | 0000 0000 01 (off_pd) | 01 0000 1110 (off_pt) | 0000 0010 0111
-    // (off_dir)
-
+// primeros 10 bits off pd, segundos 10 off pt, ultimos 12 off page
     int off_pd = (virt >> 22);
     int off_pt = ((virt << 10) >> 22);
 
-    uint8_t FLAG_USER_SUPERVISOR =
-        (uint8_t)((attrs << 30) >> 31);  // ver si va siempre en 0
+    uint8_t FLAG_USER_SUPERVISOR = (uint8_t)((attrs << 30) >> 31); 
     uint8_t FLAG_READ_WRITE = (uint8_t)((attrs << 29) >> 31);
 
     page_directory_entry *pde_map = (page_directory_entry *)cr3;
@@ -147,8 +128,7 @@ void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs) {
         pte_map = (page_table_entry *)(pde_map[off_pd].page_table_base << 12);
     }
 
-    if (pte_map[off_pt].present ==
-        0) {  // si presente esta en 1 ya esta mapeada
+    if (pte_map[off_pt].present == 0) {  // si presente esta en 1 ya esta mapeada
 
         pte_map[off_pt].present = 1;
         pte_map[off_pt].read_write = FLAG_READ_WRITE;
@@ -167,18 +147,12 @@ void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs) {
 
 paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt) { 
 
-    if(virt >= 0x01d00000 && virt < 0x1d04000){
-        breakpoint();
-    }
-
     int off_pd = (virt >> 22);
     int off_pt = ((virt << 10) >> 22);
-    // int off_dir = ((virt << 22) >> 22);
 
     page_directory_entry *pde_map = (page_directory_entry *)cr3;
 
-    page_table_entry *pte_map =
-        (page_table_entry *)(pde_map[off_pd].page_table_base << 12);
+    page_table_entry *pte_map = (page_table_entry *)(pde_map[off_pd].page_table_base << 12);
 
     pte_map[off_pt].present = 0;  // Al tener presente en 0 lo va a desmapear
     paddr_t phyAddr = (pte_map[off_pt].physical_adress_base >> 12);  // off_dir;
@@ -187,7 +161,7 @@ paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt) {
     return phyAddr;
 }
 
-paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages) {
+paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
     uint32_t new_cr3 = mmu_next_free_kernel_page();  // cr3: 0x000000105000
     uint32_t cr3 = 0x25000;
 
@@ -202,8 +176,9 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages) {
         phy_start += PAGE_SIZE;
     }
 
+    
     lcr3(new_cr3);
-
+    
     // creamos punteros para copiar el codigo
     char *ptr_code_page = (char *)code_start;
     char *ptr_virt_page = (char *)TASK_CODE_VIRTUAL;
@@ -214,6 +189,7 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages) {
     }
 
     lcr3(cr3);
+    tlbflush();
 
     return new_cr3;
 }
@@ -283,6 +259,7 @@ void mmu_remap_meeseek(paddr_t new_phy, paddr_t virt) {
   for (int i = 0; i < PAGE_SIZE * 2; i++) {
     ptr_temp[i] = ptr_virt[i];
   }
+  
   
   // Desmapeamos temporaria 
   new_phy = backup_phy;

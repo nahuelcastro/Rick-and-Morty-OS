@@ -35,11 +35,8 @@ extern bool exception;
 
 typedef struct sched{
   info_task_t* info_task;
-  uint8_t p_loop_sched;
-  // bool p;
-
 } sched_t;
 
-extern sched_t sched[PLAYERS][11];  // 11 hayq ue definir como max cant task for player
+extern sched_t sched[PLAYERS][11];
 
 #endif //  __SCHED_H__

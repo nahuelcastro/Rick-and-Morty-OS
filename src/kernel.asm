@@ -38,7 +38,7 @@ extern game_init
 %define IDX_DATO_LVL_0 0x58
 %define EBP_BASE 0x25000
 %define IDX_VIDEO_LVL_0 0x70
-%define IDX_TSS_IDLE 0x80 ;Chequear 40
+%define IDX_TSS_IDLE 0x80 
 %define IDX_TSS_INICAL 0x78
 
 %define BLACK              (0x0 << 12)
@@ -196,13 +196,6 @@ modo_protegido:
     jmp IDX_TSS_IDLE:0
 
 
-
-
-    ; Ciclar infinitamente (por si algo sale mal...)
-    ; mov eax, 0xFFFF
-    ; mov ebx, 0xFFFF
-    ; mov ecx, 0xFFFF
-    ; mov edx, 0xFFFF
     jmp $
 
 
@@ -295,66 +288,6 @@ popad
 ret
 
 
-; extern imprimirRegistros
-
-
-; global registrosActuales
-
-; reg_backup: dd 0
-; eipActual:  dd 0
-
-; registrosActuales:
-
-;     ;Guardo el EIP
-;     push eax
-;     mov eax, [esp + 4]
-;     mov [eipActual], eax
-;     pop eax
-
-;     pushf   ; eflags
-    
-;     push ss
-;     push gs
-;     push fs
-;     push es
-;     push ds
-;     push cs
-;     mov [reg_backup], eax
-;     mov eax, [eipActual]
-;     push eax
-;     mov eax, [reg_backup]
-;     push esp ;TODO: Ver si es confiable o es el de nivel 0
-;     push ebp ;TODO: Ver si es confiable o es el de nivel 0
-;     push edi
-;     push esi
-;     push edx
-;     push ecx
-;     push ebx
-;     push eax
-;     call imprimirRegistros
-;     add esp,64
-
-;     ; pop eax    
-;     ; pop eax
-;     ; pop eax
-;     ; pop eax
-;     ; pop eax
-    
-;     ; pop eax
-;     ; pop eax
-;     ; pop eax
-;     ; pop eax    
-;     ; pop eax
-
-;     ; pop eax
-;     ; pop eax
-;     ; pop eax
-;     ; pop eax
-;     ; pop eax
-
-;     ; pop eax
-;     ret
-     
 
 ;; -------------------------------------------------------------------------- ;;
 

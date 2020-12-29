@@ -7,47 +7,35 @@
 */
 
 #include "sched.h"
-
-player_t ultimoJugador;  // 0001 0011
-uint16_t jugadorActual = 1;
-uint16_t index;
-uint16_t tareaActual;
-// bool exception =0;
-tss_t* tssActual;
-uint16_t tareaActualAnterior;
-uint8_t clocks[PLAYERS][MAX_CANT_MEESEEKS];
-const char* CLOCK[4] = {"| ", "/ ", "- ", "\\ "};
-
 extern void pantalla_negra_debug();
 extern void init_pantalla();
 extern void registrosActuales();
 
+player_t ultimoJugador;  // 0001 0011
+uint16_t jugadorActual = 1;
+uint16_t tareaActual;
+uint16_t tareaActualAnterior;
 
-sched_t sched[PLAYERS][11];
+const char* CLOCK[4] = {"| ", "/ ", "- ", "\\ "};
 
 bool modoDebug;
 bool exception;
 bool returning_debug_mode;
 bool debug_executing;
 
+sched_t sched[PLAYERS][11];
 uint32_t backup_map[80*41];
 
 
 void sched_init(void){
-  index = 16;
-  tssActual = TSSs[16];
-  tareaActual = index;
+  tareaActual = 16;
   tareaActualAnterior = tareaActual;
   modoDebug = true;
 
   for (player_t player = MORTY; player < PLAYERS ; player++){
     for (int i = 0; i < 11; i++){
-      sched[player][i].p_loop_sched = 0;
       sched[player][i].info_task->flag_loop = 0;
       sched[player][i].info_task->active = false;
-    }
-    for (int i = 0; i < MAX_CANT_MEESEEKS; i++){
-      clocks[player][i] = 0;
     }
   }
   returning_debug_mode = false;
@@ -73,8 +61,6 @@ info_task_t* next(player_t player){
 
     if( active && !p_loop_task ){
         sched[player][i].info_task->flag_loop = true;
-        sched[player][i].p_loop_sched = true;
-
         return sched[player][i].info_task;
     }
   }
@@ -86,37 +72,18 @@ info_task_t* next(player_t player){
     bool p_loop_task = sched[player][i].info_task->flag_loop;
     if( active && !p_loop_task ){
         sched[player][i].info_task->flag_loop = true;
-        sched[player][i].p_loop_sched = true;
         return sched[player][i].info_task;
     }
   }
 
-  print( "LLEGO HASTA ACA BRO, ANDA TODO MAL :(", 1,2,WHITE_RED); // dejarlo porque sirve de advertencia
+  print( "SI LLEGO HASTA ACA, ES ANDA TODO MAL :(", 1,2,WHITE_RED); // dejarlo porque sirve de advertencia
   breakpoint();
   //! ACA NO TIENE QUE LLEGAR, POR ENDE, SI LLEGA ACA HAY QUE LLAMAR A ENDGAME
   info_task_t* task_que_nunca_va_llegar = sched[player][0].info_task; // pero al compilar me jode que ponga un return aca
   return task_que_nunca_va_llegar;
 }
 
-bool end_loop_sched(){
-  bool ret = true;
-  for (player_t player = 0; player < PLAYERS; player++){
-    for (uint8_t i = 0; i < 11; i++){
-      if(sched[player][i].info_task->active){        
-        ret = ret && sched[player][i].p_loop_sched; 
-      }
-    }
-  }
-  return ret;
-}
 
-void reset_sched_p(){
-  for (player_t player = 0; player < PLAYERS; player++){
-    for (size_t i = 0; i < 11; i++){
-      sched[player][i].p_loop_sched = false;
-    }
-  }
-}
 
 void update_msk_clocks(info_task_t* task){
   task->clock = (task->clock + 1) %4;
@@ -136,76 +103,30 @@ uint16_t sched_next_task(void){
   }
 
   if (modoDebug && exception){
-    tssActual = TSSs[IDLE];
     return (IDLE << 3);
   }
 
   player_t new_player;
   tareaActual = tareaActualAnterior;
 
-
-
-  if(tareaActualAnterior == IDLE){ 
-    tareaActual++;
-    new_player = RICK; // ver si 
+  if(tareaActualAnterior == IDLE){
+    new_player = RICK;
   }else{
     new_player = info_task[tareaActual].player ? MORTY : RICK;
   }
 
-
-
-    //   //! MAXI NO BORRES COMENTARIOS QUE SON LA PUTA HOSTIA (PRINTEADOR DE TAREAS)
-    // for (int i = 0; i < 41; i++){
-    //   print_dec(9 ,16 , 5,i,GREEN_GREEN);
-    // }
-    // print("i" , 5 ,4,WHITE_RED);          // i
-    // print("a" , 8 ,4,WHITE_RED);          // task_active
-    // print("Pl", 10,4,WHITE_RED);          // p_loop_sched
-    // print("Fl", 13,4,WHITE_RED);          // flag_loop
-    // print("ig", 16,4,WHITE_RED);          // idx_gdt
-    // print("ma", 19,4,WHITE_RED);          // meeseek activo
-    // print("player :", 17,0,WHITE_RED);
-    // print_dec(new_player,1 , 25,0,WHITE_RED);
-    // for (uint8_t i = 0; i < 11 ; i++){
-    //   int j = 6 + 2*i;
-    //   print_dec(i + 1 ,2 , 5,j,WHITE_RED);
-    //   print_dec(sched[new_player][i].info_task->active,1, 8, j,WHITE_RED);
-    //   print_dec(sched[new_player][i].p_loop_sched,1, 10, j,WHITE_RED);
-    //   print_dec(sched[new_player][i].info_task->flag_loop,1, 13,j,WHITE_RED);
-    //   print_dec(sched[new_player][i].info_task->idx_gdt,2, 16,j,WHITE_RED);
-    //   if( i > 0 ){
-    //     print_dec(meeseeks[new_player][i-1].p,1, 19,j,WHITE_RED);
-    //   }
-    // }
-
-    // // breakpoint();
-
-
-
-
-
-
   info_task_t* task = next(new_player);
-  index = task->idx_gdt;
+  tareaActual = task->idx_gdt;
+  tareaActualAnterior = task->idx_gdt;
 
-
-  bool msk_task = index > 18 ;
+  bool msk_task = tareaActual > 18 ;
   if (msk_task){
     update_msk_clocks(task);                   
   }
 
-  bool end_loop= end_loop_sched(); 
-  if(end_loop){
-    reset_sched_p();
-  }
-
-  tareaActual = index;
-  tareaActualAnterior = index;
-
-  tssActual = TSSs[task->idx_gdt];
   return (task->idx_gdt << 3);
 
-  }
+}
   
 
 
@@ -213,17 +134,13 @@ void desactivar_tarea(){
   if(tareaActual == 17 || tareaActual == 18){
     end_game();
   }
-  //tareasActivas[tareaActual] = false;
   info_task[tareaActual].active = false;
-
   info_task[tareaActual].clock = 0;
   coordenadas coord; 
   coord.x = 26 + 3 * info_task[tareaActual].idx_msk;
   coord.y = 48 - 4 * info_task[tareaActual].player;
   print("C ", coord.x, coord.y, BLACK_BLACK);
   print("X ", coord.x, coord.y, WHITE_BLACK);
-
-
 }
 
 uint16_t sched_idle(){
@@ -233,34 +150,28 @@ uint16_t sched_idle(){
 }
 
 
-uint32_t proximoStack(int i){
-  // Agarrar el esp del tssActual y devolver la proxima instrucción
-  char* stack = (char*) tssActual->esp + (i-1);
-  return (uint32_t) stack;
-}
+// uint32_t proximoStack(int i){
+//   // Agarrar el esp del tssActual y devolver la proxima instrucción
+//   char* stack = (char*) tssActual->esp + (i-1);
+//   return (uint32_t) stack;
+// }
 
-int codigoError(void){
-  // Buscar la x posicion en la pila para devolver el err tssActual-> esp + 
-  return 0;
-}
+// int codigoError(void){
+//   // Buscar la x posicion en la pila para devolver el err tssActual-> esp + 
+//   return 0;
+// }
 
 //uint32_t registros[15];
 
 //register uint8_t valor_scancode asm("al");
 
 //16 parametros
-void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi, uint32_t ebp, uint32_t esp, uint32_t eip, uint16_t cs, uint16_t ds, uint16_t es, uint16_t fs, uint16_t gs, uint16_t ss, uint16_t eflags ,uint16_t except_code, uint32_t error_code){
-  // char registrosNombre[16][10] = {"eax", "ebx","ecx","edx","esi","edi","ebp","esp","eip","cs","ds","es","fs","gs","ss","eflags"};
-  // uint32_t registros[16] = {eax,ebx,ecx,edx,esi,edi,ebp,esp,eip,cs,ds,es,fs,gs,ss,eflags};
-  // for (size_t i = 0; i < 30; i+=2){
-  //   print((char*)(registrosNombre + (i/2)), 21, i+4, C_FG_WHITE);
-  //   print_hex(registros[i/2],8, 25, i+4, C_FG_LIGHT_GREEN);
-  // }
-
+void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi, uint32_t ebp,/*uint32_t esp,*/ uint32_t eip, uint16_t cs, uint16_t ds, uint16_t es, uint16_t fs, uint16_t gs, uint16_t ss, uint16_t eflags ,uint16_t except_code, uint32_t error_code,uint32_t esp){
   
   modo_debug();
   imprimir_excepcion(except_code);
   
+  esp = esp + 6*4; // para evitar todas las cosas que se pushean al entrar a la interrupción
 
   print_hex(tareaActual, 2, 56,2, C_FG_LIGHT_GREEN);
 
@@ -337,10 +248,10 @@ void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, u
 
 
 
-  uint32_t * stack = (uint32_t * )(esp + 11*4);  // estaba 18 * 4
+  uint32_t * stack = (uint32_t * )(esp);  // estaba 18 * 4
   y = 19;
   for(int a = 0; a < 3; a++){
-      if(esp >= ebp)break;
+      //if(esp >= ebp)break;
       print_hex(*stack,8,36,y, C_FG_LIGHT_GREEN);
       ++stack;
       y += 2;
@@ -420,3 +331,44 @@ void modo_debug(){
   }
 
 }
+
+
+
+/*
+
+
+
+
+    //   //! MAXI NO BORRES COMENTARIOS QUE SON LA PUTA HOSTIA (PRINTEADOR DE TAREAS)
+    // for (int i = 0; i < 41; i++){
+    //   print_dec(9 ,16 , 5,i,GREEN_GREEN);
+    // }
+    // print("i" , 5 ,4,WHITE_RED);          // i
+    // print("a" , 8 ,4,WHITE_RED);          // task_active
+    // print("Pl", 10,4,WHITE_RED);          // p_loop_sched
+    // print("Fl", 13,4,WHITE_RED);          // flag_loop
+    // print("ig", 16,4,WHITE_RED);          // idx_gdt
+    // print("ma", 19,4,WHITE_RED);          // meeseek activo
+    // print("player :", 17,0,WHITE_RED);
+    // print_dec(new_player,1 , 25,0,WHITE_RED);
+    // for (uint8_t i = 0; i < 11 ; i++){
+    //   int j = 6 + 2*i;
+    //   print_dec(i + 1 ,2 , 5,j,WHITE_RED);
+    //   print_dec(sched[new_player][i].info_task->active,1, 8, j,WHITE_RED);
+    //   print_dec(sched[new_player][i].p_loop_sched,1, 10, j,WHITE_RED);
+    //   print_dec(sched[new_player][i].info_task->flag_loop,1, 13,j,WHITE_RED);
+    //   print_dec(sched[new_player][i].info_task->idx_gdt,2, 16,j,WHITE_RED);
+    //   if( i > 0 ){
+    //     print_dec(meeseeks[new_player][i-1].p,1, 19,j,WHITE_RED);
+    //   }
+    // }
+
+    // // breakpoint();
+
+
+
+
+
+
+
+*/

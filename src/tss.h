@@ -62,7 +62,7 @@ void init_idle();
 
 void tss_gdt_entry_init(uint32_t index, uint32_t base, int dpl);
 
-extern tss_t* TSSs[35];
+// extern tss_t* TSSs[35];
 extern uint32_t gdt_index;
 
 typedef struct meeseek{
@@ -87,10 +87,9 @@ typedef struct info_task{
 extern info_task_t info_task[GDT_COUNT];
 extern uint8_t cant_meeseeks[PLAYERS];                
 extern meeseek_t meeseeks[PLAYERS][MAX_CANT_MEESEEKS]; 
-extern uint8_t init_tasks[PLAYERS];
-extern uint32_t cr3[PLAYERS];
+extern uint32_t cr3s[PLAYERS];
 
-void tss_creator(int8_t player, int task);
+void tss_creator(int8_t player);
 paddr_t tss_meeseeks_creator(player_t player, uint8_t task, uint32_t code_start, coordenadas coord);
 
 #endif //  __TSS_H__

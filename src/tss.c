@@ -27,18 +27,16 @@
 tss_t tss_initial;
 tss_t tss_idle;
 
-tss_t tss_rick[11];   // 10
-tss_t tss_morty[11];  // 10
+tss_t tss_rick[11];   
+tss_t tss_morty[11]; 
 
-tss_t* TSSs[35];
-uint8_t init_tasks[PLAYERS];
+// tss_t* TSSs[35];
+uint32_t gdt_index;
 
 meeseek_t meeseeks[PLAYERS][MAX_CANT_MEESEEKS];
 uint8_t cant_meeseeks[PLAYERS];
 
-uint32_t cr3[PLAYERS];
-
-uint32_t gdt_index = 0;
+uint32_t cr3s[PLAYERS];
 
 info_task_t info_task[GDT_COUNT];
 
@@ -47,30 +45,20 @@ info_task_t info_task[GDT_COUNT];
 
 void init_tss(void) {
 
+  uint32_t base = (uint32_t) &tss_initial;
+  tss_gdt_entry_init(IDX_TSS_INIT, base, 0);
+
+  // TSSs[15] = &tss_initial;
 
   for (size_t i = 0; i < 35; i++){
-    //player_idx_gdt[i] = -1;
     info_task[i].player = NULL_PLAYER;
-
-
   }
   
   for (size_t i = 0; i < GDT_COUNT; i++){
     info_task[i].active = false;
   }
-  
-  uint32_t base = (uint32_t) &tss_initial;
-  tss_gdt_entry_init(IDX_TSS_INIT, base, 0);
-
-  TSSs[15] = &tss_initial;
-
   cant_meeseeks[MORTY] = 0;
   cant_meeseeks[RICK] = 0;
-
-  init_tasks[MORTY] = 0;
-  init_tasks[RICK] = 0;
-
-  gdt_index = 0;
   
 }
 
@@ -118,7 +106,7 @@ void init_idle(){
   tss_idle.dtrap = 0;
   tss_idle.iomap = 0xFFFF;
 
-  TSSs[16] = &tss_idle;
+  // TSSs[16] = &tss_idle;
 }
 
 
@@ -148,42 +136,28 @@ void next_free_tss() {
 }
 
 
-void tss_creator(int8_t player, int task){
+void tss_creator(int8_t player){
 
   paddr_t code_start;
   paddr_t task_phy_address;
   tss_t* tss_new_task;
-  if(player == RICK){                                   // 1 = Rick
+  if(player == RICK){               // 1 = Rick
     task_phy_address = 0x1D00000;
     code_start = 0x10000;
-    tss_new_task = &tss_rick[task];
-  }else{                                             // 0 = Morty
+    tss_new_task = &tss_rick[0];
+  }else{                            // 0 = Morty
     task_phy_address = 0x1D04000;
     code_start = 0x14000;
-    tss_new_task = &tss_morty[task];
+    tss_new_task = &tss_morty[0];
   }
   paddr_t new_cr3 = mmu_init_task_dir(task_phy_address, code_start,4);
   paddr_t stack_level_0 = mmu_next_free_kernel_page();
 
-  cr3[player] = new_cr3;
-
   next_free_tss();
-  
-  info_task[next_free_gdt_idx].player = player;
-  info_task[next_free_gdt_idx].active = true;
-  info_task[next_free_gdt_idx].flag_loop = 0;
-  info_task[next_free_gdt_idx].idx_gdt = next_free_gdt_idx;
-  
-
-  sched[player][0].p_loop_sched = 0; 
-  sched[player][0].info_task = &info_task[next_free_gdt_idx]; 
-
-  init_tasks[player] ++;
-  
 
   tss_gdt_entry_init(next_free_gdt_idx, (uint32_t) tss_new_task, 3);
 
-  tss_new_task->ptl = 0; //(uint32_t) tss_new_task;
+  tss_new_task->ptl = 0; 
   tss_new_task->unused0 = 0;
   tss_new_task->esp0 = stack_level_0 + PAGE_SIZE;
   tss_new_task->ss0 = IDX_DATO_LVL_0;
@@ -222,12 +196,14 @@ void tss_creator(int8_t player, int task){
   tss_new_task->dtrap = 0;
   tss_new_task->iomap = 0xFFFF;
 
-  if (player == 1){                                 // 1 = Rick
-    TSSs[next_free_gdt_idx] = tss_new_task;
-  }
-  else{                                             // 0 = Morty
-    TSSs[next_free_gdt_idx] = tss_new_task;
-  }
+  cr3s[player] = new_cr3; 
+  info_task[next_free_gdt_idx].player = player;
+  info_task[next_free_gdt_idx].active = true;
+  info_task[next_free_gdt_idx].flag_loop = 0;
+  info_task[next_free_gdt_idx].idx_gdt = next_free_gdt_idx;
+  sched[player][0].info_task = &info_task[next_free_gdt_idx]; 
+
+
 }
 
 
@@ -297,10 +273,10 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
 
   meeseeks[player][idx_msk].gdt_index = gdt_index;
 
-  sched[player][idx_msk + 1].p_loop_sched = 0; 
+  // sched[player][idx_msk + 1].p_loop_sched = 0; 
   sched[player][idx_msk + 1].info_task = &info_task[gdt_index]; 
 
-  init_tasks[player] ++;
+  //init_tasks[player] ++;
 
   if(reciclar){
     // poner los valores en la TSS vieja
@@ -326,7 +302,7 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
     tss->edx = 0;
     tss->ebx = 0;
     tss->esp = task_virt_address + 2 * PAGE_SIZE;     
-    tss->ebp = 0; //TASK_VIRTUAL_DIR + 4 * PAGE_SIZE;
+    tss->ebp = 0; 
     tss->esi = 0;
     tss->edi = 0;
     tss->es = IDX_DATO_LVL_3;
@@ -368,7 +344,7 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
     tss_new_task->edx = 0;
     tss_new_task->ebx = 0;
     tss_new_task->esp = task_virt_address + 2 * PAGE_SIZE;     
-    tss_new_task->ebp = 0; //TASK_VIRTUAL_DIR + 4 * PAGE_SIZE;
+    tss_new_task->ebp = 0; 
     tss_new_task->esi = 0;
     tss_new_task->edi = 0;
     tss_new_task->es = IDX_DATO_LVL_3;
@@ -392,58 +368,8 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
 
   }
 
-  TSSs[gdt_index] = tss_new_task;
+  // TSSs[gdt_index] = tss_new_task;
 
   return task_virt_address;
 }
 
-
-
-
-
-/*
-
-<bochs:313> info tss
-tr:s=0x90, base=0x00008e20, valid=1
-ss:esp(0): 0x0058:0x00008e88
-ss:esp(1): 0x0000:0x00000000
-ss:esp(2): 0x0000:0x00000011
-cr3: 0x00000000
-eip: 0x00008e54
-eflags: 0x0000208c
-cs: 0x0000 ds: 0x0013 ss: 0x003b
-es: 0x0000 fs: 0x0063 gs: 0x0246
-eax: 0x01d0003b  ebx: 0x00000000  ecx: 0x00000011  edx: 0x00002099
-esi: 0x00008e74  edi: 0x00000011  ebp: 0x00000000  esp: 0x00000000
-ldt: 0x3ffc
-i/o map: 0x0000
-<bochs:314> 
-
-
-<bochs:217> info tss
-tr:s=0x90, base=0x00008e20, valid=1
-ss:esp(0): 0x0058:0x00108000
-ss:esp(1): 0x0000:0x00000000
-ss:esp(2): 0x0000:0x00000000
-cr3: 0x00104000
-eip: 0x000020a5
-eflags: 0x00000006
-cs: 0x0050 ds: 0x006b ss: 0x0058
-es: 0x006b fs: 0x006b gs: 0x006b
-eax: 0x00000080  ebx: 0x0000000c  ecx: 0x00000000  edx: 0x00000000
-esi: 0x00000000  edi: 0x00000000  ebp: 0x00107fcc  esp: 0x00107fcc
-ldt: 0x0000
-i/o map: 0xffff
-<bochs:218> 
-
-
-
-
-
-
-
-
-
-
-
-*/
