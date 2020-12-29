@@ -209,7 +209,6 @@ void tss_creator(int8_t player){
 
 
 paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, coordenadas coord){
-
   
   uint32_t cr3 = rcr3();    
 
@@ -229,14 +228,18 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
   // consigo proxima phy, virt y stack_lvl_0 libres para meeseeks
   paddr_t stack_level_0;
   task_phy_address = mmu_phy_map_decoder(coord);
-  bool reciclar = backup_meeseks[player][idx_msk].p;
+  bool reciclar = backup_meeseeks[player][idx_msk].p;
 
+  // print_hex(cr3, 8, 40, 0, WHITE_BLACK); //01D0006D
+  // print_hex(code_start, 8, 30, 0, WHITE_BLACK); //01D0006D
+
+  // breakpoint();
 
   if (reciclar){
-    task_virt_address = backup_meeseks[player][idx_msk].virt;
+    task_virt_address = backup_meeseeks[player][idx_msk].virt;
     mmu_init_task_meeseeks_dir(task_phy_address, code_start, task_virt_address);
-    gdt_index = backup_meeseks[player][idx_msk].gdt_index;
-    stack_level_0 = backup_meeseks[player][idx_msk].stack_level_0;
+    gdt_index = backup_meeseeks[player][idx_msk].gdt_index;
+    stack_level_0 = backup_meeseeks[player][idx_msk].stack_level_0;
   
   } else{
   
@@ -247,10 +250,10 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
     stack_level_0 = mmu_next_free_kernel_page();    
 
     // guardo la info importante para luego poder reciclar la memoria de meeseeks muertos
-    backup_meeseks[player][idx_msk].p    = true;
-    backup_meeseks[player][idx_msk].virt = task_virt_address;
-    backup_meeseks[player][idx_msk].gdt_index = gdt_index;
-    backup_meeseks[player][idx_msk].stack_level_0 = stack_level_0;  
+    backup_meeseeks[player][idx_msk].p    = true;
+    backup_meeseeks[player][idx_msk].virt = task_virt_address;
+    backup_meeseeks[player][idx_msk].gdt_index = gdt_index;
+    backup_meeseeks[player][idx_msk].stack_level_0 = stack_level_0;  
   }
 
   cant_meeseeks[player]++;
@@ -277,7 +280,7 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
   if(reciclar){
     // poner los valores en la TSS vieja
 
-    tss_t *tss = backup_meeseks[player][idx_msk].tss;
+    tss_t *tss = backup_meeseeks[player][idx_msk].tss;
 
     tss->ptl = 0; //(uint32_t) tss_new_task;
     tss->unused0 = 0;
@@ -360,7 +363,7 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
     tss_new_task->dtrap = 0;
     tss_new_task->iomap = 0xFFFF;
 
-    backup_meeseks[player][idx_msk].tss = tss_new_task;
+    backup_meeseeks[player][idx_msk].tss = tss_new_task;
 
   }
 
@@ -369,3 +372,59 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
   return task_virt_address;
 }
 
+
+
+/*
+
+x/80 0x01d00099
+
+
+0x01d0006d <bogus+       0>:	0xfb1e0ff3	0x53e58955	0x9040ec83	0x89c3458d
+0x01d0007d <bogus+      16>:	0x458df845	0xf44589c2	0xda8964cd	0x458bc189
+0x01d0008d <bogus+      32>:	0x8b0888f8	0x1088f445	0xc726eb90	0xfffff045
+0x01d0009d <bogus+      48>:	0x45c7ffff	0x000000ec	0xf0458b00	0x89ec558b
+0x01d000ad <bogus+      64>:	0x897bcdd3	0x0f90e845	0x83c345b6	0x458801c0
+0x01d000bd <bogus+      80>:	0x45b60fc3	0x78c084c3	0xc726ebd2	0x0000e445
+0x01d000cd <bogus+      96>:	0x45c70000	0xffffffe0	0xe4458bff	0x89e0558b
+0x01d000dd <bogus+     112>:	0x897bcdd3	0x0f90dc45	0x83c245b6	0x458801c0
+0x01d000ed <bogus+     128>:	0x45b60fc2	0x78c084c2	0xc726ebd2	0x0001d845
+0x01d000fd <bogus+     144>:	0x45c70000	0x000000d4	0xd8458b00	0x89d4558b
+0x01d0010d <bogus+     160>:	0x897bcdd3	0x0f90d045	0x83c345b6	0x458801e8
+0x01d0011d <bogus+     176>:	0x45b60fc3	0x7fc084c3	0xc726ebd2	0x0000cc45
+0x01d0012d <bogus+     192>:	0x45c70000	0x000001c8	0xcc458b00	0x89c8558b
+0x01d0013d <bogus+     208>:	0x897bcdd3	0x0f90c445	0x83c245b6	0x458801e8
+0x01d0014d <bogus+     224>:	0x45b60fc2	0x7fc084c2	0x9059cdd2	0xffff1be9
+0x01d0015d <bogus+     240>:	0x000000ff	0x00000000	0x00000000	0x00000000
+0x01d0016d <bogus+     256>:	0x00000000	0x00000000	0x00000000	0x00000000
+0x01d0017d <bogus+     272>:	0x00000000	0x00000000	0x00000000	0x00000000
+0x01d0018d <bogus+     288>:	0x00000000	0x00000000	0x00000000	0x00000000
+0x01d0019d <bogus+     304>:	0x00000000	0x00000000	0x00000000	0x00000000
+
+
+
+
+0x01d0006d <bogus+       0>:	0xfb1e0ff3	0x53e58955	0x9040ec83	0x89c3458d
+0x01d0007d <bogus+      16>:	0x458df845	0xf44589c2	0xda8964cd	0x458bc189
+0x01d0008d <bogus+      32>:	0x8b0888f8	0x1088f445	0xc726eb90	0xfffff045
+0x01d0009d <bogus+      48>:	0x45c7ffff	0x000000ec	0xf0458b00	0x89ec558b
+0x01d000ad <bogus+      64>:	0x897bcdd3	0x0f90e845	0x83c345b6	0x458801c0
+0x01d000bd <bogus+      80>:	0x45b60fc3	0x78c084c3	0xc726ebd2	0x0000e445
+0x01d000cd <bogus+      96>:	0x45c70000	0xffffffe0	0xe4458bff	0x89e0558b
+0x01d000dd <bogus+     112>:	0x897bcdd3	0x0f90dc45	0x83c245b6	0x458801c0
+0x01d000ed <bogus+     128>:	0x45b60fc2	0x78c084c2	0xc726ebd2	0x0001d845
+0x01d000fd <bogus+     144>:	0x45c70000	0x000000d4	0xd8458b00	0x89d4558b
+0x01d0010d <bogus+     160>:	0x897bcdd3	0x0f90d045	0x83c345b6	0x458801e8
+0x01d0011d <bogus+     176>:	0x45b60fc3	0x7fc084c3	0xc726ebd2	0x0000cc45
+0x01d0012d <bogus+     192>:	0x45c70000	0x000001c8	0xcc458b00	0x89c8558b
+0x01d0013d <bogus+     208>:	0x897bcdd3	0x0f90c445	0x83c245b6	0x458801e8
+0x01d0014d <bogus+     224>:	0x45b60fc2	0x7fc084c2	0x9059cdd2	0xffff1be9
+0x01d0015d <bogus+     240>:	0x000000ff	0x00000000	0x00000000	0x00000000
+0x01d0016d <bogus+     256>:	0x00000000	0x00000000	0x00000000	0x00000000
+0x01d0017d <bogus+     272>:	0x00000000	0x00000000	0x00000000	0x00000000
+0x01d0018d <bogus+     288>:	0x00000000	0x00000000	0x00000000	0x00000000
+0x01d0019d <bogus+     304>:	0x00000000	0x00000000	0x00000000	0x00000000
+
+
+
+
+*/

@@ -67,7 +67,7 @@ void mmu_remap_meeseek(paddr_t new_phy, paddr_t virt);
 
 paddr_t mmu_next_free_virt_meeseek_page(player_t player);
 
-typedef struct info_meeseek
+typedef struct backup_m
 {
   bool p;
   paddr_t virt;
@@ -76,6 +76,6 @@ typedef struct info_meeseek
   tss_t *tss;
 } backup_meesek;
 
-extern backup_meesek backup_meeseks[PLAYERS][MAX_CANT_MEESEEKS];
+extern backup_meesek backup_meeseeks[PLAYERS][MAX_CANT_MEESEEKS];
 
 #endif //  __MMU_H__

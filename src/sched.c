@@ -102,7 +102,7 @@ uint16_t sched_next_task(void){
     print("D",1,48, WHITE_BLACK);
   }
 
-  if (modoDebug && exception){
+  if (modoDebug && debug_executing){
     return (IDLE << 3);
   }
 
@@ -175,7 +175,7 @@ void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, u
   modo_debug();
   imprimir_excepcion(except_code);
   
-  esp = esp + 6*4; // para evitar todas las cosas que se pushean al entrar a la interrupción
+  esp = esp + 6*4; // para evitar todas las cosas que se pushean al entrar a la interrupción (cuadno hay cambio de nivel de privilegio)
 
   print_hex(tareaActual, 2, 56,2, C_FG_LIGHT_GREEN);
 
@@ -251,7 +251,7 @@ void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, u
   print_hex(error_code,8 , 49, 14, C_FG_LIGHT_GREEN);
 
 
-
+  print("stack", 36, 17, C_FG_WHITE);
   uint32_t * stack = (uint32_t * )(esp);  // estaba 18 * 4
   y = 19;
   for(int a = 0; a < 3; a++){
@@ -270,6 +270,7 @@ void debug_mode_on_off(){
 
   if (debug_executing && !modoDebug ){
       debug_executing = false;
+      print("D",1,48, BLACK_BLACK);
     
       //restaurar pantalla
       uint32_t* video = (uint32_t*) VIDEO;
@@ -278,10 +279,8 @@ void debug_mode_on_off(){
     }
   }
     
-    if(!modoDebug){
-      exception = false;
-      print("D",1,48, BLACK_BLACK);
-    }
+    // if(!modoDebug){
+    // }
 
 }
 
@@ -290,15 +289,13 @@ void modo_debug(){
   if(modoDebug){
 
     debug_executing = true;
-    exception = true;
+    // exception = true;
     
     // hacer backup_pantalla
     uint32_t* video = (uint32_t*) VIDEO;
     for(uint32_t i = 0; i< 80*41; i++) {
       backup_map[i] = video[i];
     }
-
-
 
     pantalla_negra_debug();
 
@@ -307,12 +304,6 @@ void modo_debug(){
       imprimir_excepcion(ultExcepcion);
     }
 
-    // registrosActuales();
-
-    print("stack", 36, 17, C_FG_WHITE);
-    // for(int i=0; i<6; i = i + 2){
-    //   print_hex(/*proximoStack(i/2)*/ tssActual->esp, 8, 36, i+19, C_FG_LIGHT_GREEN);
-    // }
 
     print("backtrace", 36, 25, C_FG_WHITE);
     print("00000000" , 36, 27, C_FG_LIGHT_GREEN);

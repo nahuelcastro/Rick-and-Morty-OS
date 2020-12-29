@@ -73,20 +73,20 @@ _isr%1:
      mov [reg_backup], eax
      
      ;Guardo el EIP
-     push eax
-     mov eax, [esp + 12] ;
+     ; push eax
+     mov eax, [esp + 8] ;
      mov [eipActual], eax
-     pop eax
+     ; pop eax
      
-     push eax
-     mov eax, [esp + 8]
+     ; push eax
+     mov eax, [esp + 4]
      mov [error_code], eax
-     pop eax
+     ; pop eax
 
-     push eax
-     mov eax, [esp + 20]
+     ; push eax
+     mov eax, [esp + 16]
      mov [e_flags], eax
-     pop eax
+     ; pop eax
 
      push eax
      mov eax, [modoDebug] 
@@ -127,7 +127,7 @@ _isr%1:
      call imprimirRegistros
      add esp,68
      
-
+     xchg bx, bx 
 
      .fin:
 
@@ -203,10 +203,9 @@ _isr33:
      cmp al, k_debug
      jne .fin
      call debug_mode_on_off
-     ; call modo_debug
-     .fin:
-     ;avisar al pic que se recibio la interrupcion
-     call pic_finish1
+   
+   .fin:
+     call pic_finish1;avisar al pic que se recibio la interrupcion
      popad
      iret
 
@@ -300,6 +299,9 @@ _isr123:
      call sys_move
      mov [temp], eax ; mov eax a variable temporal
      add esp, 8
+
+     ; xchg bx, bx
+     ; call _isr14
 
      call sched_idle
      mov word [sched_task_selector], ax  ; (cambiamos con nahu)

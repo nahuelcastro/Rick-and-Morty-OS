@@ -21,7 +21,7 @@ uint32_t next_free_virt_meeseek_page_rick;
 uint32_t next_free_virt_meeseek_page_morty;
 
 
-backup_meesek backup_meeseks[PLAYERS][MAX_CANT_MEESEEKS];
+backup_meesek backup_meeseeks[PLAYERS][MAX_CANT_MEESEEKS];
 
 void mmu_init(void) {
     // En memoria fisica, 0x100000 es el inicio del área libre de kernel.
@@ -33,7 +33,7 @@ void mmu_init(void) {
     // seteo todos los reciclados como no presentes
     for (int player = 0; player < PLAYERS; player++) {
         for (int i = 0; i < MAX_CANT_MEESEEKS; i++) {
-            backup_meeseks[player][i].p = false;
+            backup_meeseeks[player][i].p = false;
         }
     }
 }
@@ -177,6 +177,7 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
 
     
     lcr3(new_cr3);
+    // breakpoint();
     
     // creamos punteros para copiar el codigo
     char *ptr_code_page = (char *)code_start;
@@ -211,11 +212,7 @@ void mmu_unmap_kernel(paddr_t cr3) {
     tlbflush();
 }
 
-void mmu_init_task_meeseeks_dir(paddr_t phy_start,   // dir fisica meessek : 0x400.000
-    paddr_t code_start,  // entra de parametro en la syscall, como codigo de la
-                         // tarea
-    paddr_t tasks_virt_memory  // dir virtual meessek :0x8.000.000
-) {
+void mmu_init_task_meeseeks_dir(paddr_t phy_start, paddr_t code_start, paddr_t tasks_virt_memory){
     uint32_t cr3 = rcr3();
 
     // creamos punteros para luego copiar el codigo

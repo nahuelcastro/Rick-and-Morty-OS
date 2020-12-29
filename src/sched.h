@@ -32,6 +32,7 @@ extern uint16_t tareaActualAnterior;
 extern uint16_t index;
 extern player_t  ultimoJugador;
 extern bool exception;
+extern bool modoDebug;
 
 typedef struct sched{
   info_task_t* info_task;

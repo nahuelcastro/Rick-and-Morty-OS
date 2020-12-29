@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "*.asm": "c"
+        "*.asm": "c",
+        "exception": "c",
+        "new": "c",
+        "typeinfo": "c"
     }
 }
