@@ -71,6 +71,7 @@ _isr%1:
      xchg bx, bx
      push esp
      mov [reg_backup], eax
+     
      ;Guardo el EIP
      push eax
      mov eax, [esp + 12] ;
@@ -101,8 +102,6 @@ _isr%1:
      mov eax, %1
      push eax
 
-
-     ; pushf   ; eflags
      mov eax, [e_flags]
      push eax
 

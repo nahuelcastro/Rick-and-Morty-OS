@@ -70,7 +70,6 @@ typedef struct meeseek{
   uint8_t gdt_index;
   coordenadas coord;
   bool used_portal_gun;
-
 } meeseek_t;
 
 

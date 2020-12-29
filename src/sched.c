@@ -131,9 +131,13 @@ uint16_t sched_next_task(void){
 
 
 void desactivar_tarea(){
-  if(tareaActual == 17 || tareaActual == 18){
+  // if(tareaActual == 17 || tareaActual == 18){
+  //   end_game();
+  // }
+  if(tareaActual < 0x13 || tareaActual > 0x26 ){
     end_game();
   }
+
   info_task[tareaActual].active = false;
   info_task[tareaActual].clock = 0;
   coordenadas coord; 

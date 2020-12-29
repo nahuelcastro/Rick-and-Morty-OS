@@ -60,7 +60,7 @@ void update_seed(void);
 void add_update_score(player_t player);
 _Bool same(coordenadas a, coordenadas b);
 int8_t next_index_meeseek_free(player_t player);
-int16_t index_in_seed(coordenadas coord);
+int16_t coord_in_seed(coordenadas coord);
 void remove_seed(int idx);
 void ticks_counter(void);
 int abs(int n);

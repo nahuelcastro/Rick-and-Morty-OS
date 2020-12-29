@@ -67,7 +67,6 @@ paddr_t mmu_phy_map_decoder(coordenadas coord) {
 }
 
 
-
 paddr_t mmu_init_kernel_dir(void) {
     page_directory_entry *pd = (page_directory_entry *)KERNEL_PAGE_DIR;
     page_table_entry *pt_0 = (page_table_entry *)KERNEL_PAGE_TABLE_0;
@@ -212,8 +211,7 @@ void mmu_unmap_kernel(paddr_t cr3) {
     tlbflush();
 }
 
-void mmu_init_task_meeseeks_dir(
-    paddr_t phy_start,   // dir fisica meessek : 0x400.000
+void mmu_init_task_meeseeks_dir(paddr_t phy_start,   // dir fisica meessek : 0x400.000
     paddr_t code_start,  // entra de parametro en la syscall, como codigo de la
                          // tarea
     paddr_t tasks_virt_memory  // dir virtual meessek :0x8.000.000
@@ -250,6 +248,7 @@ void mmu_remap_meeseek(paddr_t new_phy, paddr_t virt) {
   char *ptr_virt = (char *)virt;
   char *ptr_temp = (char *)new_phy/*new_phy*/;
 
+  // mapea con identity mapping la posicion fisica para poder copiar el codigo
   for (int i = 0; i < 2; i++) {
     mmu_map_page(cr3, new_phy, new_phy, 2);
     new_phy += PAGE_SIZE;

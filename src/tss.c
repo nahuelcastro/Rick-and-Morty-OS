@@ -219,12 +219,12 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
   tss_t *tss_new_task;
 
   if (player == RICK){
-    tss_new_task = &tss_rick[task];
+    tss_new_task = &tss_rick[task + 1];
   }else{
-    tss_new_task = &tss_morty[task];
+    tss_new_task = &tss_morty[task + 1];
   }
 
-  int8_t idx_msk = task - 1;
+  int8_t idx_msk = task;
 
   // consigo proxima phy, virt y stack_lvl_0 libres para meeseeks
   paddr_t stack_level_0;
@@ -232,9 +232,7 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
   bool reciclar = backup_meeseks[player][idx_msk].p;
 
 
-
   if (reciclar){
-
     task_virt_address = backup_meeseks[player][idx_msk].virt;
     mmu_init_task_meeseeks_dir(task_phy_address, code_start, task_virt_address);
     gdt_index = backup_meeseks[player][idx_msk].gdt_index;
@@ -246,19 +244,16 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
     mmu_init_task_meeseeks_dir(task_phy_address, code_start, task_virt_address);
     next_free_tss();
     gdt_index = next_free_gdt_idx;
-    stack_level_0 = mmu_next_free_kernel_page();    //! VER QUE CUANDO LO QUIERO LIMPIAR ROMPE
-
-    // stack_level_0+=1000;  // ESTO ES PARA ROMPER APROPOSITO
+    stack_level_0 = mmu_next_free_kernel_page();    
 
     // guardo la info importante para luego poder reciclar la memoria de meeseeks muertos
     backup_meeseks[player][idx_msk].p    = true;
     backup_meeseks[player][idx_msk].virt = task_virt_address;
     backup_meeseks[player][idx_msk].gdt_index = gdt_index;
-    backup_meeseks[player][idx_msk].stack_level_0 = stack_level_0;   //! VER QUE CUANDO LO QUIERO LIMPIAR ROMPE
+    backup_meeseks[player][idx_msk].stack_level_0 = stack_level_0;  
   }
 
-
-  //stack_level_0 = mmu_next_free_kernel_page();    //! VER QUE CUANDO LO QUIERO LIMPIAR ROMPE
+  cant_meeseeks[player]++;
 
   info_gdt_meeseeks[gdt_index].idx_msk = idx_msk;
   info_gdt_meeseeks[gdt_index].player = player;
@@ -271,12 +266,13 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
   info_task[gdt_index].idx_msk = idx_msk;
   info_task[gdt_index].clock = 0;
 
+  meeseeks[player][idx_msk].p = 1;
   meeseeks[player][idx_msk].gdt_index = gdt_index;
+  meeseeks[player][idx_msk].coord = coord;
+  meeseeks[player][idx_msk].used_portal_gun = false;
 
-  // sched[player][idx_msk + 1].p_loop_sched = 0; 
   sched[player][idx_msk + 1].info_task = &info_task[gdt_index]; 
 
-  //init_tasks[player] ++;
 
   if(reciclar){
     // poner los valores en la TSS vieja
