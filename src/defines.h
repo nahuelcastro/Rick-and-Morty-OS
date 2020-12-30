@@ -78,7 +78,7 @@
 // #define DELETE 0;
 // #define ADD 1;
 
-#define MAX_CANT_MEESEEKS 10
+#define MAX_CANT_MEESEEKS 1
 #define MAX_CANT_SEMILLAS 41         //40  //41
 
 #define PLAYERS 2

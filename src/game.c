@@ -279,7 +279,7 @@ uint32_t sys_move(int32_t x, int32_t y) {
   //   print("CHOCARON", 0, 12, RED_GREEN);
   // }
 
-  // breakpoint();
+  breakpoint();
 
   // if(tareaActual == 17 || tareaActual == 18 ){ 
   //   desactivar_tarea();
@@ -307,11 +307,11 @@ uint32_t sys_move(int32_t x, int32_t y) {
   coordenadas coord_actual = meeseeks[player][idx_msk].coord;
 
   clean_cell(coord_actual);
-  // if (player){
-  //   print("x", coord_actual.x, coord_actual.y + 1, RICK_MEESEEK_COLOR);
-  // } else {
-  //   print("x", coord_actual.x, coord_actual.y + 1, MORTY_MEESEEK_COLOR);
-  // }
+  if (player){
+    print("x", coord_actual.x, coord_actual.y + 1, RICK_MEESEEK_COLOR);
+  } else {
+    print("x", coord_actual.x, coord_actual.y + 1, MORTY_MEESEEK_COLOR);
+  }
 
   coordenadas new_coord;
 
