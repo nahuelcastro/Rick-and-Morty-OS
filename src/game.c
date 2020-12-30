@@ -122,8 +122,7 @@ int8_t next_index_meeseek_free(player_t player) {
       return i;
     }
   }
-  return -1;  // no entra nunca, pero sino tira warning      // 255 = no existe
-              // lugar libre para otro meeseek
+  return -1;  // no entra nunca, pero sino tira warning 
 }
 
 // busca si la coordenada esta sobre una semilla, ret -1 = no hay semilla en tal
@@ -283,11 +282,6 @@ uint32_t sys_move(int32_t x, int32_t y) {
   coordenadas coord_actual = meeseeks[player][idx_msk].coord;
 
   clean_cell(coord_actual);
-  // if (player){   // imprimidor de rastros
-  //   print("x", coord_actual.x, coord_actual.y + 1, RICK_MEESEEK_COLOR);
-  // } else {
-  //   print("x", coord_actual.x, coord_actual.y + 1, MORTY_MEESEEK_COLOR);
-  // }
 
   coordenadas new_coord;
 

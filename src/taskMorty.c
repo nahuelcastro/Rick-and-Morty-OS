@@ -20,8 +20,6 @@ void task(void) {
       uint32_t res = 0;
       while (res == 0 ) {
         res = syscall_meeseeks((uint32_t)&meeseks77_func, col, row);
-        // res = res;
-        // breakpoint();
       }
     }
 }
@@ -48,9 +46,6 @@ void meeseks77_func(void){
 
   while (1) {   
     syscall_look(&deltax, &deltay);
-
-    // deltax = -2;
-    // deltay = -8;
 
     while (deltax < 0) {
       syscall_move(-1, 0);
@@ -112,19 +107,3 @@ void meeseks11_func(void){
 
   } 
 }
-
-
-  // while(1){
-  //   for (size_t i = 0; i < 80; i = i + 8){
-  //     for (size_t j = 0; i < 40; j = j + 5){
-  //       syscall_meeseeks((uint32_t)&meeseks1_func, i , j);// 37
-  //       if(i > 70){
-  //         i = 2;
-  //       }
-  //       if(j > 34){
-  //         j = 1;
-  //       }
-  //     }
-  //   }
-  // }
-

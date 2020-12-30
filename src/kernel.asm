@@ -102,16 +102,6 @@ start:
 
     ; Saltar a modo protegido
     jmp IDX_CODE_LVL_0:modo_protegido     ;[0000000001010-0-00]
-    ;explicacion, ver definicion de selecctor de segmento, tamaño 16 bits
-    ;salta al primer segmento de codigo, habria que ver bien porque, pero saltan al de cogido
-    ;y abajo setean el de datos (DS)  y el resto de los registros de segmento
-    ;buscar buena explicacion en teorica
-
-    ; sacar lo de abajo
-    ; [15 - 3] = Índice de la tabla en el que se encuentra el descriptor del segmento al que quiero saltar
-    ; [2] = Bit que indica si trabajo con la GDT o con la LDT.
-    ; [1 - 0] = Nivel de privilegio (0 = Kernel, 3 = Usuario)
-
 
 BITS 32
 

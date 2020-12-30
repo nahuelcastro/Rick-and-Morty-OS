@@ -18,7 +18,7 @@ idt_entry_t idt[255] = {0};
 idt_descriptor_t IDT_DESC = {sizeof(idt) - 1, (uint32_t)&idt};
 
 
-#define CODE_SEL_0 0x50 // 0x50
+#define CODE_SEL_0 0x50 
 #define INTERRUPT_0_ATTRS 0x8E00
 #define INTERRUPT_3_ATTRS 0xEE00
 
