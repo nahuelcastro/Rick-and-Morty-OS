@@ -16,6 +16,7 @@
 
 // #include <math.h>
 extern void pantalla_negra_debug();
+extern void _isr14();
 
 
 seed semillas[MAX_CANT_SEMILLAS];
@@ -57,7 +58,7 @@ void update_meeseek_map(player_t player, coordenadas coord, bool reason) {
 void game_init(void) {
 
   modoDebug = true;
-  
+
   tss_creator(RICK);
   tss_creator(MORTY);
   cant_semillas = MAX_CANT_SEMILLAS;

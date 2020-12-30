@@ -88,10 +88,10 @@ _isr%1:
      mov [e_flags], eax
      ; pop eax
 
-     push eax
+     ; push eax
      mov eax, [modoDebug] 
      cmp byte al, 1
-     pop eax
+     ; pop eax
      jne .fin
 
      ; pusheo error code
@@ -129,15 +129,22 @@ _isr%1:
      
      xchg bx, bx 
 
-     .fin:
+
+     ; si estoy en modo debug, entonces
+     mov eax, [modoDebug] 
+     cmp byte al, 1
+     je .fin
 
      call desactivar_tarea  
-     call sched_next_task            ; obtener indice de la proxima tarea a ejecutar
 
+
+     .fin:
+
+     call sched_next_task            ; obtener indice de la proxima tarea a ejecutar
      mov [sched_task_selector], ax   ; carga el selector del segmento de la tarea a saltar
      jmp far [sched_task_offset]     ; intercambio de tareas
 
-add esp, 4
+
 iret     
 
 %endmacro
@@ -333,6 +340,15 @@ next_clock:
                 popad
         ret
 
+
+global eipActualF
+eipActualF:
+     pushad
+     mov eax, [ebp + 4]
+     mov [eipActual], eax
+     popad
+     mov eax, [eipActual]
+     ret
 
 
 

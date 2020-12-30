@@ -10,6 +10,7 @@
 extern void pantalla_negra_debug();
 extern void init_pantalla();
 extern void registrosActuales();
+extern uint32_t eipActualF();
 
 player_t ultimoJugador;  // 0001 0011
 uint16_t jugadorActual = 1;
@@ -100,7 +101,10 @@ uint16_t sched_next_task(void){
 
   if (modoDebug){
     print("D",1,48, WHITE_BLACK);
+  } else{
+    print("D",1,48, BLACK_BLACK);
   }
+  
 
   if (modoDebug && debug_executing){
     return (IDLE << 3);
@@ -131,10 +135,12 @@ uint16_t sched_next_task(void){
 
 
 void desactivar_tarea(){
-  // if(tareaActual == 17 || tareaActual == 18){
-  //   end_game();
-  // }
+  
   if(tareaActual < 0x13 || tareaActual > 0x26 ){
+      
+    // while(modoDebug && debug_executing){
+    //   __asm volatile("nop");
+    // }
     end_game();
   }
 
@@ -152,6 +158,27 @@ uint16_t sched_idle(){
   tareaActual = 16;
   return 0x80;
 }
+
+void desactivar_tarea_anterior(){
+  
+  if(tareaActual < 0x13 || tareaActualAnterior > 0x26 ){
+      
+    // while(modoDebug && debug_executing){
+    //   __asm volatile("nop");
+    // }
+    end_game();
+  }
+
+  info_task[tareaActualAnterior].active = false;
+  info_task[tareaActualAnterior].clock = 0;
+  coordenadas coord; 
+  coord.x = 26 + 3 * info_task[tareaActualAnterior].idx_msk;
+  coord.y = 48 - 4 * info_task[tareaActualAnterior].player;
+  print("C ", coord.x, coord.y, BLACK_BLACK);
+  print("X ", coord.x, coord.y, WHITE_BLACK);
+}
+
+
 
 
 // uint32_t proximoStack(int i){
@@ -261,6 +288,8 @@ void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, u
       y += 2;
   }
 
+
+
 }
 
 
@@ -269,7 +298,11 @@ void debug_mode_on_off(){
   modoDebug = !modoDebug;
 
   if (debug_executing && !modoDebug ){
+
+      desactivar_tarea_anterior();
+
       debug_executing = false;
+      modoDebug = true;
       print("D",1,48, BLACK_BLACK);
     
       //restaurar pantalla
@@ -303,13 +336,12 @@ void modo_debug(){
     if(ultExcepcion!=260){
       imprimir_excepcion(ultExcepcion);
     }
+   print("backtrace", 36, 25, C_FG_WHITE);
+    for (size_t i = 0; i < 4; i++)
+    {
+      print_hex(eipActualF(), 8, 36, (27 + 2*i), C_FG_LIGHT_GREEN);
+    }
 
-
-    print("backtrace", 36, 25, C_FG_WHITE);
-    print("00000000" , 36, 27, C_FG_LIGHT_GREEN);
-    print("00000000" , 36, 29, C_FG_LIGHT_GREEN);
-    print("00000000" , 36, 31, C_FG_LIGHT_GREEN);
-    print("00000000" , 36, 33, C_FG_LIGHT_GREEN);
 
     print("cr0", 45, 6, C_FG_WHITE);
     print_hex(rcr0(), 8, 49, 6, C_FG_LIGHT_GREEN);

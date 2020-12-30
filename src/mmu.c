@@ -176,8 +176,8 @@ paddr_t mmu_init_task_dir(paddr_t phy_start, paddr_t code_start, size_t pages){
     }
 
     
-    lcr3(new_cr3);
-    // breakpoint();
+    breakpoint();
+    // lcr3(new_cr3);
     
     // creamos punteros para copiar el codigo
     char *ptr_code_page = (char *)code_start;
