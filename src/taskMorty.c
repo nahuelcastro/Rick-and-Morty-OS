@@ -49,6 +49,9 @@ void meeseks77_func(void){
   while (1) {   
     syscall_look(&deltax, &deltay);
 
+    // deltax = -2;
+    // deltay = -8;
+
     while (deltax < 0) {
       syscall_move(-1, 0);
       deltax++;

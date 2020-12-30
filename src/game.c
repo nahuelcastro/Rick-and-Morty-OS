@@ -14,10 +14,7 @@
 #include "stdint.h"
 #include "types.h"
 
-// #include <math.h>
 extern void pantalla_negra_debug();
-extern void _isr14();
-
 
 seed semillas[MAX_CANT_SEMILLAS];
 
@@ -113,10 +110,6 @@ void add_update_score(player_t player) {
   print_dec(score[RICK], 8, 10, 44, WHITE_RED);
   print_dec(score[MORTY], 8, 62, 44, WHITE_BLUE);
 
-  // if(score[RICK] > 5000){
-  //   uint32_t romper = 0;
-  //   lcr3(romper);
-  // }
 }
 
 bool same(coordenadas a, coordenadas b) {
@@ -165,13 +158,6 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed) {
   // update
   update_meeseek_map(player, meeseeks[player][idx_msk].coord, DELETE);
   add_update_score(player);
-
-  // print("M",meeseeks[player][idx_msk].coord.x, meeseeks[player][idx_msk].coord.y, BLACK_WHITE);
-  // print("S",semillas[idx_seed].coord.x,semillas[idx_seed].coord.y,BLACK_WHITE);
-  // breakpoint(); 
-  // print("M",meeseeks[player][idx_msk].coord.x, meeseeks[player][idx_msk].coord.y, GREEN_GREEN);
-  // print("S",semillas[idx_seed].coord.x,semillas[idx_seed].coord.y,GREEN_GREEN);
-  
 
 
   cant_meeseeks[player]--;
@@ -275,16 +261,6 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
 
 uint32_t sys_move(int32_t x, int32_t y) {
 
-  // if(same(meeseeks[MORTY][0].coord, meeseeks[RICK][0].coord)){
-  //   print("CHOCARON", 0, 12, RED_GREEN);
-  // }
-
-  breakpoint();
-
-  // if(tareaActual == 17 || tareaActual == 18 ){ 
-  //   desactivar_tarea();
-  // }
-  
   if(tareaActual < 0x13 || tareaActual > 0x26 ){
     desactivar_tarea();
     return 0;
@@ -307,11 +283,11 @@ uint32_t sys_move(int32_t x, int32_t y) {
   coordenadas coord_actual = meeseeks[player][idx_msk].coord;
 
   clean_cell(coord_actual);
-  if (player){
-    print("x", coord_actual.x, coord_actual.y + 1, RICK_MEESEEK_COLOR);
-  } else {
-    print("x", coord_actual.x, coord_actual.y + 1, MORTY_MEESEEK_COLOR);
-  }
+  // if (player){   // imprimidor de rastros
+  //   print("x", coord_actual.x, coord_actual.y + 1, RICK_MEESEEK_COLOR);
+  // } else {
+  //   print("x", coord_actual.x, coord_actual.y + 1, MORTY_MEESEEK_COLOR);
+  // }
 
   coordenadas new_coord;
 
@@ -333,21 +309,8 @@ uint32_t sys_move(int32_t x, int32_t y) {
     paddr_t new_phy = mmu_phy_map_decoder(new_coord);
     paddr_t virt = backup_meeseeks[player][idx_msk].virt;
 
-    // print_dec(new_coord.x,2,70,37,RED_GREEN);
-    // print_dec(new_coord.y,2,74,37,RED_GREEN);
-    // print_hex(new_phy, 8,70,38,RED_GREEN);
-    // print_hex(virt, 8,70,40,RED_GREEN);
-    // breakpoint();
-    // print_dec(new_coord.x,2,70,37,RED_GREEN);
-    // print_dec(new_coord.y,2,74,37,RED_GREEN);
-    // print_hex(new_phy, 8,70,38,GREEN_GREEN);
-    // print_hex(virt, 8,70,40,GREEN_GREEN);
-
-
     mmu_remap_meeseek(new_phy, virt);
   }
-  
-  // breakpoint();
   
   return 1;
 }
@@ -451,13 +414,6 @@ void sys_use_portal_gun(){
 
 int8_t sys_look (uint8_t flag){
 
-  // // FALO
-  //   print("id_m:", 64,30,WHITE_RED);
-  //   print("M:x,y:", 64,32,WHITE_RED);
-  //   print("S:x,y:", 64,34,WHITE_RED);
-  //   print("Mov:", 64,36,WHITE_RED);
-  // // FIN FALO
-
   if(tareaActual < 0x13 || tareaActual > 0x26 ){
     desactivar_tarea();
   }
@@ -468,7 +424,7 @@ int8_t sys_look (uint8_t flag){
 
   uint8_t actual_dist;
   uint8_t min_candidate = 255;
-  uint32_t min_idx_seed  = MAX_CANT_SEMILLAS + 1; // 
+  uint32_t min_idx_seed  = MAX_CANT_SEMILLAS;
   for (uint32_t i = 0; i < MAX_CANT_SEMILLAS; i++){
     if(semillas[i].p){
       actual_dist = abs(coord_actual.x - semillas[i].coord.x) + abs(coord_actual.y - semillas[i].coord.y); 
@@ -478,50 +434,11 @@ int8_t sys_look (uint8_t flag){
       }
     }
   }
-
   
   int8_t movement_x = (int8_t)(semillas[min_idx_seed].coord.x  - coord_actual.x);  
   int8_t movement_y = (int8_t)(semillas[min_idx_seed].coord.y  - coord_actual.y);
 
 
-
-  // // FALO
-  // // //! NO BORRAR 
-      
-  //   print_dec(idx_msk,2, 71,30,WHITE_RED);                          // para ver si levantamos la tarea que queremos 
-
-  //   print("A", coord_actual.x, coord_actual.y + 1, WHITE_BLACK);
-
-
-  //   print_dec(semillas[min_idx_seed].coord.x,2, 71,34,WHITE_RED);   //la semilla mas cercana
-  //   print_dec(semillas[min_idx_seed].coord.y ,2, 75,34,WHITE_RED);
-  //   print("S", semillas[min_idx_seed].coord.x, semillas[min_idx_seed].coord.y + 1, WHITE_BLACK);
-
-  //   if(movement_x < 0){print("-", 70,36,WHITE_RED);}   //la semilla mas cercana
-  //   print_dec(abs(movement_x),2, 71,36,WHITE_RED);
-
-  //   if(movement_y < 0){print("-", 74,36,WHITE_RED);}   //la semilla mas cercana
-  //   print_dec(abs(movement_y),2, 75,36,WHITE_RED);
-
-  //   breakpoint();
-
-  //   print("-", 70, 36, GREEN_GREEN);
-  //   print("-", 74, 36,  GREEN_GREEN);
-  //   print("M", coord_actual.x, coord_actual.y + 1, WHITE_BLACK);
-  //   print("S", semillas[min_idx_seed].coord.x, semillas[min_idx_seed].coord.y + 1, GREEN_YELLOW);
-
-  // // breakpoint();
-
-  // //clean falopa
-  // for (size_t i = 1; i < 41; i++){
-  //   print_dec(00, 2 ,54, i + 1, GREEN_GREEN);
-  // }
-  
-  //   breakpoint();
-
-  // // FIN FALO
-
-  // breakpoint();
   return flag == 0 ?  movement_x : movement_y;
 
 }

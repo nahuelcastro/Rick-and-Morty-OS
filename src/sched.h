@@ -10,9 +10,9 @@
 #define __SCHED_H__
 
 #include "types.h"
-#include "gdt.h" // Lo agregó Maxi
-#include "tss.h" // Lo agregamoo
-#include "i386.h" // Lo agregamoo
+#include "gdt.h" 
+#include "tss.h" 
+#include "i386.h" 
 #include "screen.h"
 #include "idt.h"
 #include "colors.h"

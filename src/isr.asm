@@ -283,7 +283,7 @@ _isr100:
 
 
      call sched_idle
-     mov word [sched_task_selector], ax  ; (cambiamos con nahu)
+     mov word [sched_task_selector], ax 
      jmp far [sched_task_offset]
 
      popad
@@ -307,13 +307,9 @@ _isr123:
      mov [temp], eax ; mov eax a variable temporal
      add esp, 8
 
-     ; xchg bx, bx
-     ; call _isr14
-
      call sched_idle
      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
      jmp far [sched_task_offset]
-
 
      popad          ; recupero registros
      mov eax, [temp] ; returneo en ceax   
@@ -339,16 +335,4 @@ next_clock:
                 print_text_pm ebx, 1, 0x0f, 49, 79
                 popad
         ret
-
-
-global eipActualF
-eipActualF:
-     pushad
-     mov eax, [ebp + 4]
-     mov [eipActual], eax
-     popad
-     mov eax, [eipActual]
-     ret
-
-
 

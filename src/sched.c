@@ -10,7 +10,6 @@
 extern void pantalla_negra_debug();
 extern void init_pantalla();
 extern void registrosActuales();
-extern uint32_t eipActualF();
 
 player_t ultimoJugador;  // 0001 0011
 uint16_t jugadorActual = 1;
@@ -137,10 +136,6 @@ uint16_t sched_next_task(void){
 void desactivar_tarea(){
   
   if(tareaActual < 0x13 || tareaActual > 0x26 ){
-      
-    // while(modoDebug && debug_executing){
-    //   __asm volatile("nop");
-    // }
     end_game();
   }
 
@@ -162,10 +157,6 @@ uint16_t sched_idle(){
 void desactivar_tarea_anterior(){
   
   if(tareaActual < 0x13 || tareaActualAnterior > 0x26 ){
-      
-    // while(modoDebug && debug_executing){
-    //   __asm volatile("nop");
-    // }
     end_game();
   }
 
@@ -179,24 +170,6 @@ void desactivar_tarea_anterior(){
 }
 
 
-
-
-// uint32_t proximoStack(int i){
-//   // Agarrar el esp del tssActual y devolver la proxima instrucción
-//   char* stack = (char*) tssActual->esp + (i-1);
-//   return (uint32_t) stack;
-// }
-
-// int codigoError(void){
-//   // Buscar la x posicion en la pila para devolver el err tssActual-> esp + 
-//   return 0;
-// }
-
-//uint32_t registros[15];
-
-//register uint8_t valor_scancode asm("al");
-
-//16 parametros
 void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t esi, uint32_t edi, uint32_t ebp,/*uint32_t esp,*/ uint32_t eip, uint16_t cs, uint16_t ds, uint16_t es, uint16_t fs, uint16_t gs, uint16_t ss, uint16_t eflags ,uint16_t except_code, uint32_t error_code,uint32_t esp){
   
   modo_debug();
@@ -312,8 +285,6 @@ void debug_mode_on_off(){
     }
   }
     
-    // if(!modoDebug){
-    // }
 
 }
 
@@ -322,9 +293,8 @@ void modo_debug(){
   if(modoDebug){
 
     debug_executing = true;
-    // exception = true;
     
-    // hacer backup_pantalla
+    
     uint32_t* video = (uint32_t*) VIDEO;
     for(uint32_t i = 0; i< 80*41; i++) {
       backup_map[i] = video[i];
@@ -339,7 +309,7 @@ void modo_debug(){
    print("backtrace", 36, 25, C_FG_WHITE);
     for (size_t i = 0; i < 4; i++)
     {
-      print_hex(eipActualF(), 8, 36, (27 + 2*i), C_FG_LIGHT_GREEN);
+      print_hex(0, 8, 36, (27 + 2*i), C_FG_LIGHT_GREEN);
     }
 
 
@@ -358,44 +328,3 @@ void modo_debug(){
   }
 
 }
-
-
-
-/*
-
-
-
-
-    //   //! MAXI NO BORRES COMENTARIOS QUE SON LA PUTA HOSTIA (PRINTEADOR DE TAREAS)
-    // for (int i = 0; i < 41; i++){
-    //   print_dec(9 ,16 , 5,i,GREEN_GREEN);
-    // }
-    // print("i" , 5 ,4,WHITE_RED);          // i
-    // print("a" , 8 ,4,WHITE_RED);          // task_active
-    // print("Pl", 10,4,WHITE_RED);          // p_loop_sched
-    // print("Fl", 13,4,WHITE_RED);          // flag_loop
-    // print("ig", 16,4,WHITE_RED);          // idx_gdt
-    // print("ma", 19,4,WHITE_RED);          // meeseek activo
-    // print("player :", 17,0,WHITE_RED);
-    // print_dec(new_player,1 , 25,0,WHITE_RED);
-    // for (uint8_t i = 0; i < 11 ; i++){
-    //   int j = 6 + 2*i;
-    //   print_dec(i + 1 ,2 , 5,j,WHITE_RED);
-    //   print_dec(sched[new_player][i].info_task->active,1, 8, j,WHITE_RED);
-    //   print_dec(sched[new_player][i].p_loop_sched,1, 10, j,WHITE_RED);
-    //   print_dec(sched[new_player][i].info_task->flag_loop,1, 13,j,WHITE_RED);
-    //   print_dec(sched[new_player][i].info_task->idx_gdt,2, 16,j,WHITE_RED);
-    //   if( i > 0 ){
-    //     print_dec(meeseeks[new_player][i-1].p,1, 19,j,WHITE_RED);
-    //   }
-    // }
-
-    // // breakpoint();
-
-
-
-
-
-
-
-*/

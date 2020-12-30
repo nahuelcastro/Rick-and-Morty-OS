@@ -96,6 +96,7 @@ void task(void) {
       uint32_t res = 0;
       while (res == 0) {
         res = syscall_meeseeks((uint32_t)&meeseks1_func_rick, col, row);
+        // res = res;
         
       }
     }
@@ -124,26 +125,29 @@ void meeseks1_func_rick(void){
   }
 
 
-  int8_t deltax, deltay;
+  int8_t deltaxx, deltayy;
 
   while (1) {   
-    syscall_look(&deltax, &deltay);
+    syscall_look(&deltaxx, &deltayy);
 
-    while (deltax < 0) {
+    // deltaxx = 8;
+    // deltayy = 8;
+
+    while (deltaxx < 0) {
       syscall_move(-1, 0);
-      deltax++;
+      deltaxx++;
     }
-    while (deltay < 0) {
+    while (deltayy < 0) {
       syscall_move(0, -1);
-      deltay++;
+      deltayy++;
     }
-    while (deltax > 0) {
+    while (deltaxx > 0) {
       syscall_move(1, 0);
-      deltax--;
+      deltaxx--;
     }
-    while (deltay > 0) {
+    while (deltayy > 0) {
       syscall_move(0, 1);
-      deltay--;
+      deltayy--;
     }
 
     syscall_use_portal_gun();

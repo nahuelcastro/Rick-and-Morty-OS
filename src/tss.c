@@ -16,11 +16,11 @@
 
 #define IDX_TSS_INIT 15
 #define IDX_TSS_IDLE 16
-#define IDLE_TASK_CODE 0x18000 //
+#define IDLE_TASK_CODE 0x18000
 #define IDX_CODE_LVL_0 0x50
-#define IDX_DATO_LVL_0 0x58    //0101 1000 58 
-#define IDX_CODE_LVL_3 0x63    //0110 0000  12   ahora ->    0110 0011
-#define IDX_DATO_LVL_3 0x6b    //0110 1000  13   ahora ->    0110 1011
+#define IDX_DATO_LVL_0 0x58   
+#define IDX_CODE_LVL_3 0x63   
+#define IDX_DATO_LVL_3 0x6b   
 #define PAGE_SIZE 4096
 #define TASK_VIRTUAL_DIR 0x1D00000
 
@@ -30,7 +30,6 @@ tss_t tss_idle;
 tss_t tss_rick[11];   
 tss_t tss_morty[11]; 
 
-// tss_t* TSSs[35];
 uint32_t gdt_index;
 
 meeseek_t meeseeks[PLAYERS][MAX_CANT_MEESEEKS];
@@ -47,8 +46,6 @@ void init_tss(void) {
 
   uint32_t base = (uint32_t) &tss_initial;
   tss_gdt_entry_init(IDX_TSS_INIT, base, 0);
-
-  // TSSs[15] = &tss_initial;
 
   for (size_t i = 0; i < 35; i++){
     info_task[i].player = NULL_PLAYER;
@@ -69,8 +66,8 @@ void init_idle(){
 
   tss_idle.ptl = 0;
   tss_idle.unused0 = 0;
-  tss_idle.esp0 = 0; //KERNEL_STACK;    marco lo dijo asi 
-  tss_idle.ss0 = 0; //IDX_DATO_LVL_0;
+  tss_idle.esp0 = 0; 
+  tss_idle.ss0 = 0; 
   tss_idle.unused1 = 0;
   tss_idle.esp1 = 0;
   tss_idle.ss1 = 0;
@@ -207,7 +204,6 @@ void tss_creator(int8_t player){
 }
 
 
-
 paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, coordenadas coord){
   
   uint32_t cr3 = rcr3();    
@@ -229,11 +225,6 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
   paddr_t stack_level_0;
   task_phy_address = mmu_phy_map_decoder(coord);
   bool reciclar = backup_meeseeks[player][idx_msk].p;
-
-  // print_hex(cr3, 8, 40, 0, WHITE_BLACK); //01D0006D
-  // print_hex(code_start, 8, 30, 0, WHITE_BLACK); //01D0006D
-
-  // breakpoint();
 
   if (reciclar){
     task_virt_address = backup_meeseeks[player][idx_msk].virt;
@@ -282,7 +273,7 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
 
     tss_t *tss = backup_meeseeks[player][idx_msk].tss;
 
-    tss->ptl = 0; //(uint32_t) tss_new_task;
+    tss->ptl = 0;
     tss->unused0 = 0;
     tss->esp0 = stack_level_0 + PAGE_SIZE;
     tss->ss0 = IDX_DATO_LVL_0;
@@ -324,7 +315,7 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
   } else{
     tss_gdt_entry_init(gdt_index, (uint32_t)tss_new_task, 3);
 
-    tss_new_task->ptl = 0; //(uint32_t) tss_new_task;
+    tss_new_task->ptl = 0; 
     tss_new_task->unused0 = 0;
     tss_new_task->esp0 = stack_level_0 + PAGE_SIZE;
     tss_new_task->ss0 = IDX_DATO_LVL_0;
@@ -367,64 +358,6 @@ paddr_t tss_meeseeks_creator(player_t player,uint8_t task, uint32_t code_start, 
 
   }
 
-  // TSSs[gdt_index] = tss_new_task;
 
   return task_virt_address;
 }
-
-
-
-/*
-
-x/80 0x01d00099
-
-
-0x01d0006d <bogus+       0>:	0xfb1e0ff3	0x53e58955	0x9040ec83	0x89c3458d
-0x01d0007d <bogus+      16>:	0x458df845	0xf44589c2	0xda8964cd	0x458bc189
-0x01d0008d <bogus+      32>:	0x8b0888f8	0x1088f445	0xc726eb90	0xfffff045
-0x01d0009d <bogus+      48>:	0x45c7ffff	0x000000ec	0xf0458b00	0x89ec558b
-0x01d000ad <bogus+      64>:	0x897bcdd3	0x0f90e845	0x83c345b6	0x458801c0
-0x01d000bd <bogus+      80>:	0x45b60fc3	0x78c084c3	0xc726ebd2	0x0000e445
-0x01d000cd <bogus+      96>:	0x45c70000	0xffffffe0	0xe4458bff	0x89e0558b
-0x01d000dd <bogus+     112>:	0x897bcdd3	0x0f90dc45	0x83c245b6	0x458801c0
-0x01d000ed <bogus+     128>:	0x45b60fc2	0x78c084c2	0xc726ebd2	0x0001d845
-0x01d000fd <bogus+     144>:	0x45c70000	0x000000d4	0xd8458b00	0x89d4558b
-0x01d0010d <bogus+     160>:	0x897bcdd3	0x0f90d045	0x83c345b6	0x458801e8
-0x01d0011d <bogus+     176>:	0x45b60fc3	0x7fc084c3	0xc726ebd2	0x0000cc45
-0x01d0012d <bogus+     192>:	0x45c70000	0x000001c8	0xcc458b00	0x89c8558b
-0x01d0013d <bogus+     208>:	0x897bcdd3	0x0f90c445	0x83c245b6	0x458801e8
-0x01d0014d <bogus+     224>:	0x45b60fc2	0x7fc084c2	0x9059cdd2	0xffff1be9
-0x01d0015d <bogus+     240>:	0x000000ff	0x00000000	0x00000000	0x00000000
-0x01d0016d <bogus+     256>:	0x00000000	0x00000000	0x00000000	0x00000000
-0x01d0017d <bogus+     272>:	0x00000000	0x00000000	0x00000000	0x00000000
-0x01d0018d <bogus+     288>:	0x00000000	0x00000000	0x00000000	0x00000000
-0x01d0019d <bogus+     304>:	0x00000000	0x00000000	0x00000000	0x00000000
-
-
-
-
-0x01d0006d <bogus+       0>:	0xfb1e0ff3	0x53e58955	0x9040ec83	0x89c3458d
-0x01d0007d <bogus+      16>:	0x458df845	0xf44589c2	0xda8964cd	0x458bc189
-0x01d0008d <bogus+      32>:	0x8b0888f8	0x1088f445	0xc726eb90	0xfffff045
-0x01d0009d <bogus+      48>:	0x45c7ffff	0x000000ec	0xf0458b00	0x89ec558b
-0x01d000ad <bogus+      64>:	0x897bcdd3	0x0f90e845	0x83c345b6	0x458801c0
-0x01d000bd <bogus+      80>:	0x45b60fc3	0x78c084c3	0xc726ebd2	0x0000e445
-0x01d000cd <bogus+      96>:	0x45c70000	0xffffffe0	0xe4458bff	0x89e0558b
-0x01d000dd <bogus+     112>:	0x897bcdd3	0x0f90dc45	0x83c245b6	0x458801c0
-0x01d000ed <bogus+     128>:	0x45b60fc2	0x78c084c2	0xc726ebd2	0x0001d845
-0x01d000fd <bogus+     144>:	0x45c70000	0x000000d4	0xd8458b00	0x89d4558b
-0x01d0010d <bogus+     160>:	0x897bcdd3	0x0f90d045	0x83c345b6	0x458801e8
-0x01d0011d <bogus+     176>:	0x45b60fc3	0x7fc084c3	0xc726ebd2	0x0000cc45
-0x01d0012d <bogus+     192>:	0x45c70000	0x000001c8	0xcc458b00	0x89c8558b
-0x01d0013d <bogus+     208>:	0x897bcdd3	0x0f90c445	0x83c245b6	0x458801e8
-0x01d0014d <bogus+     224>:	0x45b60fc2	0x7fc084c2	0x9059cdd2	0xffff1be9
-0x01d0015d <bogus+     240>:	0x000000ff	0x00000000	0x00000000	0x00000000
-0x01d0016d <bogus+     256>:	0x00000000	0x00000000	0x00000000	0x00000000
-0x01d0017d <bogus+     272>:	0x00000000	0x00000000	0x00000000	0x00000000
-0x01d0018d <bogus+     288>:	0x00000000	0x00000000	0x00000000	0x00000000
-0x01d0019d <bogus+     304>:	0x00000000	0x00000000	0x00000000	0x00000000
-
-
-
-
-*/
