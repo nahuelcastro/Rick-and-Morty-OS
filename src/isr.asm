@@ -221,6 +221,30 @@ global _isr88
 
 
 
+; _isr88:    
+;      pushad
+;      mov ebp, esp
+     
+
+;      push ecx       ; Código de la tarea Mr Meeseeks a ser ejecutada.
+;      push ebx       ; Columna en el mapa donde crear el Mr Meeseeks.
+;      push eax       ; Fila en el mapa donde crear el Mr Meeseeks
+
+;      call sys_meeseek
+
+;      mov [temp], eax ; mov eax a variable temporal
+;      add esp,12     ; tenemos 3 parametros de entrada
+
+     
+;      call sched_idle
+;      mov word [sched_task_selector], ax  
+;      jmp far [sched_task_offset]
+
+;      popad          ; recupero registros
+;      mov eax, [temp] ; returneo en ceax   
+;      ; pop ebp
+; iret
+
 _isr88:    
      pushad
      mov ebp, esp
@@ -232,17 +256,17 @@ _isr88:
 
      call sys_meeseek
 
-     mov [temp], eax ; mov eax a variable temporal
+     ; mov [temp], eax ; mov eax a variable temporal
      add esp,12     ; tenemos 3 parametros de entrada
 
      
      call sched_idle
-     mov word [sched_task_selector], ax  ; (cambiamos con nahu)
+     mov word [sched_task_selector], ax  
      jmp far [sched_task_offset]
 
      popad          ; recupero registros
-     mov eax, [temp] ; returneo en ceax   
-     ; pop ebp
+     call take_meeseek
+
 iret
 
 
@@ -268,43 +292,6 @@ iret
 global _isr100
 
 
-; _isr100:
-;      pushad
-;      mov ebp, esp
-     
-;      push 0
-;      call sys_look
-;      mov byte  [tempb1], al
-;      add esp, 4
-
-;      push 1
-;      call sys_look
-;      mov byte  [tempb2], al
-;      add esp, 4
-
-;      call sched_idle
-;      mov word [sched_task_selector], ax 
-;      jmp far [sched_task_offset]
-
-;      popad
-
-;      mov byte al, [tempb1]
-;      mov byte bl, [tempb2]
-
-; iret
-
-
-     ; mov byte al, [tempb1]
-     ; mov byte bl, [tempb2]
-     ; push ebx
-     ; push eax
-     ; call print_temps
-     ; add esp,8
-
-
-
-
-
 extern print_temps
 extern take_look
 extern take_move
@@ -315,13 +302,6 @@ _isr100:
      mov ebp, esp
      
      call sys_look
-
-     ; mov byte al, [tempb1]
-     ; mov byte bl, [tempb2]
-     ; push ebx
-     ; push eax
-     ; call print_temps
-     ; add esp,8
 
      call sched_idle
      mov word [sched_task_selector], ax 
@@ -339,48 +319,14 @@ _isr100:
      mov byte  [tempb2], al
      add esp, 4
 
-     ; mov byte al, [tempb1]
-     ; mov byte bl, [tempb2]
-     ; push ebx
-     ; push eax
-     ; call print_temps
-     ; add esp,8
-
-     ; pop eax
-     ; pop ebx
-
      mov byte al, [tempb1]
      mov byte bl, [tempb2]
 
 iret
 
-; RICK : -29 -04 va primero 
-; MORTY:  00  17
-
-; RICK : -39  09
-; MORTY: -09  03 va primero 
 
 
 global _isr123
-
-
-; _isr123:
-;      pushad
-;      mov ebp,esp 
-     
-;      push ebx
-;      push eax
-;      call sys_move
-;      mov [temp], eax ; mov eax a variable temporal
-;      add esp, 8
-
-;      call sched_idle
-;      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
-;      jmp far [sched_task_offset]
-
-;      popad          ; recupero registros
-;      mov eax, [temp] ; returneo en ceax   
-; iret
 
 
 _isr123:
@@ -390,36 +336,18 @@ _isr123:
      push ebx
      push eax
      call sys_move
-     mov [temp], eax ; mov eax a variable temporal
+     ; mov [temp], eax ; mov eax a variable temporal
      add esp, 8
 
      call sched_idle
      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
      jmp far [sched_task_offset]
 
-     popad          ; recupero registros
-     ; mov eax, [temp] ; returneo en ceax   
+     popad          ; recupero registros  
      call take_move
 iret
 
 
-; _isr123:
-;      pushad
-;      mov ebp,esp 
-     
-;      push ebx
-;      push eax
-;      call sys_move
-;      add esp, 8
-
-;      call sched_idle
-;      mov word [sched_task_selector], ax 
-;      jmp far [sched_task_offset]
-
-;      popad          ; recupero registros
-;      call take_move
-
-; iret
 
 
 ;; Rutinas de atención de las SYSCALLS
