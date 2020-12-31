@@ -76,9 +76,9 @@ info_task_t* next(player_t player){
     }
   }
 
-  print( "SI LLEGO HASTA ACA, ES ANDA TODO MAL :(", 1,2,WHITE_RED); // dejarlo porque sirve de advertencia
   breakpoint();
   //! ACA NO TIENE QUE LLEGAR, POR ENDE, SI LLEGA ACA HAY QUE LLAMAR A ENDGAME
+  end_game();
   info_task_t* task_que_nunca_va_llegar = sched[player][0].info_task; // pero al compilar me jode que ponga un return aca
   return task_que_nunca_va_llegar;
 }
@@ -99,9 +99,9 @@ void update_msk_clocks(info_task_t* task){
 uint16_t sched_next_task(void){
 
   if (modoDebug){
-    print("D",1,48, WHITE_BLACK);
+    print("Debug on",1,48, WHITE_BLACK);
   } else{
-    print("D",1,48, BLACK_BLACK);
+    print("Debug on",1,48, BLACK_BLACK);
   }
   
 
@@ -246,7 +246,6 @@ void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, u
   y += 2;
 
 
-  // NO ESTA CHEQUEADO QUE ESTE BIEN
   print("err", 45, 14, C_FG_WHITE);
   print_hex(error_code,8 , 49, 14, C_FG_LIGHT_GREEN);
 
@@ -255,7 +254,6 @@ void imprimirRegistros(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, u
   uint32_t * stack = (uint32_t * )(esp);  // estaba 18 * 4
   y = 19;
   for(int a = 0; a < 3; a++){
-      //if(esp >= ebp)break;
       print_hex(*stack,8,36,y, C_FG_LIGHT_GREEN);
       ++stack;
       y += 2;
@@ -276,7 +274,7 @@ void debug_mode_on_off(){
 
       debug_executing = false;
       modoDebug = true;
-      print("D",1,48, BLACK_BLACK);
+      print("Debug on",1,48, BLACK_BLACK);
     
       //restaurar pantalla
       uint32_t* video = (uint32_t*) VIDEO;

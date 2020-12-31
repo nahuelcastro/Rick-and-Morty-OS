@@ -57,6 +57,8 @@ void update_meeseek_map(player_t player, coordenadas coord, bool reason) {
 
 void game_init(void) {
 
+  // breakpoint();
+
   modoDebug = true;
 
   tss_creator(RICK);
@@ -104,14 +106,29 @@ void game_init(void) {
 
 void end_game(void) {
   pantalla_negra_debug();
-  print("FIN DEL JUEGO", 35, 5, C_FG_WHITE);  
+  print("END GAME", 36, 5, C_FG_WHITE);  
 
   if(score[RICK] > score[MORTY]){
-    print("GANADOR: RICK", 35, 20, BLACK_RED);
+    print("WINNER: RICK ", 34, 20, WHITE_BLACK);
+    print("XXXXXXXXXXXXXXXXX", 32, 18, RED_RED);
+    print("XXXXXXXXXXXXXXXXX", 32, 22, RED_RED);
+    for (int i = 19; i < 22; i++){
+      print("X", 32, i, RED_RED);
+      print("X", 48, i, RED_RED);
+    }
   } else if(score[RICK] < score[MORTY]){
-    print("GANADOR: MORTY", 35, 20, BLACK_BLUE);
+    
+    print("WINNER: MORTY", 34, 20, WHITE_BLACK);
+    print("XXXXXXXXXXXXXXXXX", 32, 18, BLUE_BLUE);
+    print("XXXXXXXXXXXXXXXXX", 32, 22, BLUE_BLUE);
+    for (int i = 19; i < 22; i++){
+      print("X", 32, i, BLUE_BLUE);
+      print("X", 48, i, BLUE_BLUE);
+    }
+  
+
   } else{
-    print("EMPATE", 35, 20, BLACK_WHITE);
+    print("TIE", 38, 20, BLACK_WHITE);
   }
   while(1){
     breakpoint(); 

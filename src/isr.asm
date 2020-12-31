@@ -69,7 +69,7 @@ global _isr%1
 
 _isr%1:
 
-     xchg bx, bx
+     ; xchg bx, bx
      push esp
      mov [reg_backup], eax
      
@@ -124,11 +124,11 @@ _isr%1:
      push ecx
      push ebx
      push eax
-     xchg bx, bx
+     ; xchg bx, bx
      call imprimirRegistros
      add esp,68
      
-     xchg bx, bx 
+     ; xchg bx, bx 
 
 
      ; si estoy en modo debug, entonces
@@ -221,30 +221,6 @@ global _isr88
 
 
 
-; _isr88:    
-;      pushad
-;      mov ebp, esp
-     
-
-;      push ecx       ; Código de la tarea Mr Meeseeks a ser ejecutada.
-;      push ebx       ; Columna en el mapa donde crear el Mr Meeseeks.
-;      push eax       ; Fila en el mapa donde crear el Mr Meeseeks
-
-;      call sys_meeseek
-
-;      mov [temp], eax ; mov eax a variable temporal
-;      add esp,12     ; tenemos 3 parametros de entrada
-
-     
-;      call sched_idle
-;      mov word [sched_task_selector], ax  
-;      jmp far [sched_task_offset]
-
-;      popad          ; recupero registros
-;      mov eax, [temp] ; returneo en ceax   
-;      ; pop ebp
-; iret
-
 _isr88:    
      pushad
      mov ebp, esp
@@ -277,7 +253,7 @@ _isr89:
      pushad
      mov ebp, esp
 
-     call sys_use_portal_gun     
+     call sys_use_portal_gun   
 
      call sched_idle
      mov word [sched_task_selector], ax
