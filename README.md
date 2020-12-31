@@ -1,4 +1,4 @@
-Rick & Morty OS is a group project, focused on System Programming, carried out for the subject "Organization Of The Computer II" at the University of Buenos Aires. 
+Rick & Morty OS is a group project, focused on System Programming with Intel&reg; IA-32 Architecture, carried out for the subject "Organization Of The Computer II" at the University of Buenos Aires. 
 
 This project consists of a set of exercises in which the concepts of System Programming seen in the theoretical and practical classes are applied. The exercises are inspired by the Rick and Morty series. You can read the complete statements in the enunciado.pdf file. The Bochs program was used as a test environment, simulating an IBM-PC computer, booting our OS from a floppy disk.
 
