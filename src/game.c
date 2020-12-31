@@ -23,6 +23,8 @@ uint32_t score[PLAYERS];
 const bool ADD = true;
 const bool DELETE = false;
 info_gdt_meeseek info_gdt_meeseeks[GDT_COUNT];
+look_t  looks[PLAYERS][MAX_CANT_MEESEEKS];
+bool moves[PLAYERS][MAX_CANT_MEESEEKS];
 
 
 bool create_msk_morty = false;
@@ -87,6 +89,16 @@ void game_init(void) {
       meeseeks[player][i].p = 0;
     }
   }
+
+  for (size_t i = 0; i < 2; i++){
+    for (size_t j = 0; j < MAX_CANT_MEESEEKS; j++){
+      looks[i][j].x = 0;
+      looks[i][j].y = 0;
+    }
+    
+  }
+  
+
 }
 
 void end_game(void) {
@@ -257,15 +269,56 @@ uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y) {
 
 
 
+void print_temps(int8_t x, int8_t y){
+  player_t player = info_gdt_meeseeks[tareaActual].player;
+  if (player){
+    print_dec(abs(x), 2, 73, 42, RICK_MEESEEK_COLOR);
+    print_dec(abs(y), 2, 77, 42, RICK_MEESEEK_COLOR);
+    if (x<0){
+      print("-", 72, 42, RICK_MEESEEK_COLOR);
+    } else{
+      print("-", 72, 42, BLACK_BLACK);
+    }
+    if (y<0){
+      print("-", 76, 42, RICK_MEESEEK_COLOR);
+    } else{
+      print("-", 76, 42, BLACK_BLACK);
+    }
+    
+    
+  }else{
+    print_dec(abs(x), 2, 73, 44, MORTY_MEESEEK_COLOR);
+    print_dec(abs(y), 2, 77, 44, MORTY_MEESEEK_COLOR);
+    if (x<0){
+      print("-", 72, 44, MORTY_MEESEEK_COLOR);
+    } else{
+      print("-", 72, 44, BLACK_BLACK);
+    }
+    if (y<0){
+      print("-", 76, 44, MORTY_MEESEEK_COLOR);
+    } else{
+      print("-", 76, 44, BLACK_BLACK);
+    }
+  }
+  // breakpoint();
+
+}
+
+
 
 uint32_t sys_move(int32_t x, int32_t y) {
 
   if(tareaActual < 0x13 || tareaActual > 0x26 ){
     desactivar_tarea();
-    return 0;
   }
 
+  uint8_t idx_msk = info_gdt_meeseeks[tareaActual].idx_msk;
+  player_t player = info_gdt_meeseeks[tareaActual].player;
+  coordenadas coord_actual = meeseeks[player][idx_msk].coord;
+  
+
   if (x % 80 == 0 && y % 40 == 0) {
+    moves[player][idx_msk] = false;
     return 0;
   }
 
@@ -274,14 +327,20 @@ uint32_t sys_move(int32_t x, int32_t y) {
   uint8_t moveConTicks = (abs(x) + abs(y) + (ticks/2));
   
   if (7 < moveConTicks) {
+    moves[player][idx_msk] = false;
     return 0;
   }
 
-  uint8_t idx_msk = info_gdt_meeseeks[tareaActual].idx_msk;
-  player_t player = info_gdt_meeseeks[tareaActual].player;
-  coordenadas coord_actual = meeseeks[player][idx_msk].coord;
 
   clean_cell(coord_actual);
+  if (player){
+    print("X", coord_actual.x, coord_actual.y + 1, RICK_MEESEEK_COLOR);
+  }else{
+    print("X", coord_actual.x, coord_actual.y + 1, MORTY_MEESEEK_COLOR);
+  }
+  
+  
+  
 
   coordenadas new_coord;
 
@@ -292,6 +351,7 @@ uint32_t sys_move(int32_t x, int32_t y) {
   
   if (in_seed) {
     msk_found_seed(player, idx_msk, index_aux);
+    moves[player][idx_msk] = true;
     return 1;
   }
 
@@ -305,9 +365,130 @@ uint32_t sys_move(int32_t x, int32_t y) {
 
     mmu_remap_meeseek(new_phy, virt);
   }
-  
+
+  moves[player][idx_msk] = true;
   return 1;
 }
+
+
+
+// ORIGINAL
+// uint32_t sys_move(int32_t x, int32_t y) {
+
+//   if(tareaActual < 0x13 || tareaActual > 0x26 ){
+//     desactivar_tarea();
+//   }
+
+//   // breakpoint();
+
+//   if (x % 80 == 0 && y % 40 == 0) {
+//     return 0;
+//   }
+
+//   uint8_t ticks = info_gdt_meeseeks[tareaActual].ticks_counter;
+   
+//   uint8_t moveConTicks = (abs(x) + abs(y) + (ticks/2));
+  
+//   if (7 < moveConTicks) {
+//     return 0;
+//   }
+
+//   uint8_t idx_msk = info_gdt_meeseeks[tareaActual].idx_msk;
+//   player_t player = info_gdt_meeseeks[tareaActual].player;
+//   coordenadas coord_actual = meeseeks[player][idx_msk].coord;
+
+//   clean_cell(coord_actual);
+//   if (player){
+//     print("X", coord_actual.x, coord_actual.y + 1, RICK_MEESEEK_COLOR);
+//   }else{
+//     print("X", coord_actual.x, coord_actual.y + 1, MORTY_MEESEEK_COLOR);
+//   }
+  
+  
+  
+
+//   coordenadas new_coord;
+
+//   new_coord = new_position(coord_actual,x,y);
+
+//   int16_t index_aux = coord_in_seed(new_coord);
+//   bool in_seed = index_aux != -1;
+  
+//   if (in_seed) {
+//     msk_found_seed(player, idx_msk, index_aux);
+//     return 1;
+//   }
+
+//   update_meeseek_map(player, new_coord, ADD);
+//   meeseeks[player][idx_msk].coord = new_coord;
+
+//   if (!in_seed) {
+
+//     paddr_t new_phy = mmu_phy_map_decoder(new_coord);
+//     paddr_t virt = backup_meeseeks[player][idx_msk].virt;
+
+//     mmu_remap_meeseek(new_phy, virt);
+//   }
+  
+//   return 1;
+// }
+
+
+// uint32_t sys_move(int32_t x, int32_t y) {
+
+//   if(tareaActual < 0x13 || tareaActual > 0x26 ){
+//     desactivar_tarea();
+//   }
+
+//   uint8_t idx_msk = info_gdt_meeseeks[tareaActual].idx_msk;
+//   player_t player = info_gdt_meeseeks[tareaActual].player;
+//   coordenadas coord_actual = meeseeks[player][idx_msk].coord;
+
+//   if (x % 80 == 0 && y % 40 == 0) {
+//     moves[player][idx_msk] = false;
+//     return 0;
+//   }
+
+//   uint8_t ticks = info_gdt_meeseeks[tareaActual].ticks_counter;
+   
+//   uint8_t moveConTicks = (abs(x) + abs(y) + (ticks/2));
+  
+//   if (7 < moveConTicks) {
+//     moves[player][idx_msk] = false;
+//     return 0;
+//   }
+
+
+//   clean_cell(coord_actual);  
+
+//   coordenadas new_coord;
+
+//   new_coord = new_position(coord_actual,x,y);
+
+//   int16_t index_aux = coord_in_seed(new_coord);
+//   bool in_seed = index_aux != -1;
+  
+//   if (in_seed) {
+//     msk_found_seed(player, idx_msk, index_aux);
+//     moves[player][idx_msk] = true;
+//     // breakpoint();
+//     return 1;
+//   }
+
+//   update_meeseek_map(player, new_coord, ADD);
+//   meeseeks[player][idx_msk].coord = new_coord;
+
+//   if (!in_seed) {
+
+//     paddr_t new_phy = mmu_phy_map_decoder(new_coord);
+//     paddr_t virt = backup_meeseeks[player][idx_msk].virt;
+
+//     mmu_remap_meeseek(new_phy, virt);
+//   }
+  
+//   moves[player][idx_msk] = true;
+//   return 1; ;
+// }
 
 
 void move_portal(player_t opponent,uint8_t idx_msk, int8_t x, int8_t y){
@@ -405,35 +586,34 @@ void sys_use_portal_gun(){
 }
 
 
+void sys_look (){
 
-int8_t sys_look (uint8_t flag){
+  if (!(tareaActual == 17) && !(tareaActual == 18)){
+    
+    uint8_t idx_msk = info_gdt_meeseeks[tareaActual].idx_msk;
+    player_t player = info_gdt_meeseeks[tareaActual].player;
+    coordenadas coord_actual = meeseeks[player][idx_msk].coord;
 
-  if(tareaActual < 0x13 || tareaActual > 0x26 ){
-    desactivar_tarea();
-  }
-
-  uint8_t idx_msk = info_gdt_meeseeks[tareaActual].idx_msk;
-  player_t player = info_gdt_meeseeks[tareaActual].player;
-  coordenadas coord_actual = meeseeks[player][idx_msk].coord;
-
-  uint8_t actual_dist;
-  uint8_t min_candidate = 255;
-  uint32_t min_idx_seed  = MAX_CANT_SEMILLAS;
-  for (uint32_t i = 0; i < MAX_CANT_SEMILLAS; i++){
-    if(semillas[i].p){
-      actual_dist = abs(coord_actual.x - semillas[i].coord.x) + abs(coord_actual.y - semillas[i].coord.y); 
-      if(actual_dist < min_candidate){
-        min_candidate = actual_dist;
-        min_idx_seed = i;
+    uint8_t actual_dist;
+    uint8_t min_candidate = 255;
+    uint32_t min_idx_seed  = MAX_CANT_SEMILLAS;
+    for (uint32_t i = 0; i < MAX_CANT_SEMILLAS; i++){
+      if(semillas[i].p){
+        actual_dist = abs(coord_actual.x - semillas[i].coord.x) + abs(coord_actual.y - semillas[i].coord.y); 
+        if(actual_dist < min_candidate){
+          min_candidate = actual_dist;
+          min_idx_seed = i;
+        }
       }
     }
+    
+    int8_t movement_x = (int8_t)(semillas[min_idx_seed].coord.x  - coord_actual.x);  
+    int8_t movement_y = (int8_t)(semillas[min_idx_seed].coord.y  - coord_actual.y);
+
+    // cargar a estructura
+    looks[player][idx_msk].x = movement_x;
+    looks[player][idx_msk].y = movement_y;  
   }
-  
-  int8_t movement_x = (int8_t)(semillas[min_idx_seed].coord.x  - coord_actual.x);  
-  int8_t movement_y = (int8_t)(semillas[min_idx_seed].coord.y  - coord_actual.y);
-
-
-  return flag == 0 ?  movement_x : movement_y;
 
 }
 
@@ -484,3 +664,30 @@ coordenadas new_position(coordenadas actual,int8_t x,int8_t y){
     return actual;
 }
   
+
+int8_t take_look(bool flag){
+
+  if(tareaActual == 17 || tareaActual == 18){
+    int8_t movement_x = -1;
+    int8_t movement_y = -1;
+    return flag == 0 ?  movement_x : movement_y;
+  }
+  
+  uint8_t idx_msk = info_gdt_meeseeks[tareaActual].idx_msk;
+  player_t player = info_gdt_meeseeks[tareaActual].player;
+
+  int8_t movement_x = looks[player][idx_msk].x;
+  int8_t movement_y = looks[player][idx_msk].y;
+  
+  return flag == 0 ?  movement_x : movement_y;
+}
+
+bool take_move(){
+  
+  uint8_t idx_msk = info_gdt_meeseeks[tareaActual].idx_msk;
+  player_t player = info_gdt_meeseeks[tareaActual].player;
+
+  return moves[player][idx_msk];
+  
+  
+}

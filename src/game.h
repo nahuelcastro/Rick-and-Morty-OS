@@ -71,6 +71,7 @@ void msk_found_seed(player_t player, uint8_t idx_msk, int16_t idx_seed);
 void move_portal(player_t opponent,uint8_t idx_msk, int8_t x, int8_t y);
 
 uint32_t sys_meeseek(uint32_t code, uint8_t x, uint8_t y);
+// uint32_t sys_move(int32_t x, int32_t y);
 uint32_t sys_move(int32_t x, int32_t y);
 void sys_use_portal_gun();
 
@@ -79,6 +80,17 @@ void print_aux(int8_t deltax, int8_t deltay);
 extern info_gdt_meeseek info_gdt_meeseeks[GDT_COUNT];
 
 extern  coordenadas new_position(coordenadas actual,int8_t x,int8_t y);
+
+
+void print_temps(int8_t x, int8_t y);
+
+typedef struct look{
+  int8_t x;
+  int8_t y;
+}look_t;
+
+extern look_t looks[PLAYERS][MAX_CANT_MEESEEKS];
+extern bool moves[PLAYERS][MAX_CANT_MEESEEKS];
 
 #endif //  __GAME_H__
 

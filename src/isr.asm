@@ -42,6 +42,7 @@ extern debug_mode_on_off
 
 
 
+
 temp: dd 0         ; variable temporal
 
 tempw1: db 0         ; variable temporal
@@ -267,34 +268,119 @@ iret
 global _isr100
 
 
+; _isr100:
+;      pushad
+;      mov ebp, esp
+     
+;      push 0
+;      call sys_look
+;      mov byte  [tempb1], al
+;      add esp, 4
+
+;      push 1
+;      call sys_look
+;      mov byte  [tempb2], al
+;      add esp, 4
+
+;      call sched_idle
+;      mov word [sched_task_selector], ax 
+;      jmp far [sched_task_offset]
+
+;      popad
+
+;      mov byte al, [tempb1]
+;      mov byte bl, [tempb2]
+
+; iret
+
+
+     ; mov byte al, [tempb1]
+     ; mov byte bl, [tempb2]
+     ; push ebx
+     ; push eax
+     ; call print_temps
+     ; add esp,8
+
+
+
+
+
+extern print_temps
+extern take_look
+extern take_move
+extern take_meeseek
+
 _isr100:
      pushad
      mov ebp, esp
      
-     push 0
      call sys_look
-     mov byte  [tempb1], al
-     add esp, 4
 
-     push 1
-     call sys_look
-     mov byte  [tempb2], al
-     add esp, 4
-
+     ; mov byte al, [tempb1]
+     ; mov byte bl, [tempb2]
+     ; push ebx
+     ; push eax
+     ; call print_temps
+     ; add esp,8
 
      call sched_idle
      mov word [sched_task_selector], ax 
      jmp far [sched_task_offset]
 
      popad
+
+     push 0
+     call take_look
+     mov byte  [tempb1], al
+     add esp, 4
+
+     push 1
+     call take_look
+     mov byte  [tempb2], al
+     add esp, 4
+
+     ; mov byte al, [tempb1]
+     ; mov byte bl, [tempb2]
+     ; push ebx
+     ; push eax
+     ; call print_temps
+     ; add esp,8
+
+     ; pop eax
+     ; pop ebx
+
      mov byte al, [tempb1]
      mov byte bl, [tempb2]
 
 iret
 
+; RICK : -29 -04 va primero 
+; MORTY:  00  17
+
+; RICK : -39  09
+; MORTY: -09  03 va primero 
 
 
 global _isr123
+
+
+; _isr123:
+;      pushad
+;      mov ebp,esp 
+     
+;      push ebx
+;      push eax
+;      call sys_move
+;      mov [temp], eax ; mov eax a variable temporal
+;      add esp, 8
+
+;      call sched_idle
+;      mov word [sched_task_selector], ax  ; (cambiamos con nahu)
+;      jmp far [sched_task_offset]
+
+;      popad          ; recupero registros
+;      mov eax, [temp] ; returneo en ceax   
+; iret
 
 
 _isr123:
@@ -312,8 +398,28 @@ _isr123:
      jmp far [sched_task_offset]
 
      popad          ; recupero registros
-     mov eax, [temp] ; returneo en ceax   
+     ; mov eax, [temp] ; returneo en ceax   
+     call take_move
 iret
+
+
+; _isr123:
+;      pushad
+;      mov ebp,esp 
+     
+;      push ebx
+;      push eax
+;      call sys_move
+;      add esp, 8
+
+;      call sched_idle
+;      mov word [sched_task_selector], ax 
+;      jmp far [sched_task_offset]
+
+;      popad          ; recupero registros
+;      call take_move
+
+; iret
 
 
 ;; Rutinas de atención de las SYSCALLS

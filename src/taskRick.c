@@ -10,7 +10,7 @@ void meeseks5_func_rick(void);
 void meeseks4_func_rick(void);
 void meeseks2_func_rick(void);
 void meeseks3_func_rick(void);
-void meeseks1_func_rick(void);
+void meeseks1_func(void);
 
 
 void task(void) {
@@ -18,7 +18,7 @@ void task(void) {
     for (int row = 39; row > 0; row--) {
       uint32_t res = 0;
       while (res == 0) {
-        res = syscall_meeseeks((uint32_t)&meeseks1_func_rick, col, row);
+        res = syscall_meeseeks((uint32_t)&meeseks1_func, col, row);
         // res = res;
         
       }
@@ -38,7 +38,7 @@ void meeseks7_func_rick(void){
 }
 
 
-void meeseks1_func_rick(void){
+void meeseks1_func(void){
   while (0) {
       for (int i = 0; i < 80; i++) {
         syscall_move(-1,0);
