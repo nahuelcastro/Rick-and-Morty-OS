@@ -4,7 +4,7 @@ This project consists of a set of exercises in which the concepts of System Prog
 
 ------------
 
-### Installation
+## Download and Install
 #### Install Bochs
 - Download from: https://sourceforge.net/projects/bochs/files/bochs/2.6.9/  the file: ***bochs-2.6.9.tar.gz***
 - Unzip: `tar -xvvzf bochs-2.6.9.tar.gz`
@@ -22,10 +22,16 @@ $ sudo apt-get install libxrandr-dev
 $ sudo apt-get install libgtk2.0-dev
 ```
 
--  Use bochs from any path (optional)
--- Add to file **/home/< user >/.bashrc**: `export PATH+=":/home/< user >/bochs/bin/"`
---  Load changes in the current console: `$ source ~/.bashrc`
+-  Use bochs from any path
+- - Add to file **/home/< user >/.bashrc**: `export PATH+=":/home/< user >/bochs/bin/"`
+- -  Load changes in the current console: `$ source ~/.bashrc`
 
+#### Clone repository or download
+- Clone with HHTPS:`$ git clone https://github.com/nahuelcastro/Rick-and-Morty-OS.git`
 
-
-
+### Run 
+In **Rick-and-Morty-OS/src**
+```bash
+$ make
+$ bochs -q
+```
